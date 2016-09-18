@@ -1,0 +1,529 @@
+#! /usr/bin/env lua
+
+-- Require modules {{{
+
+local lfs = require('lfs')
+
+if not lfs then
+	print('Running the regressions requires LuaFileSystem!')
+	os.exit(1)
+end
+
+-- }}}
+
+-- Configuration {{{
+local TRCFILE = "regression.trc"
+local TESTSDIR = "tests"
+local SUITESFILE = "suites.cfg"
+local VIMRCNAME = "regression.vimrc"
+local VIMRC = {
+	'let &rtp = "' .. os.getenv('PWD') .. '"',
+	'runtime plugin/commentable.vim',
+}
+-- }}}
+
+-- Trace functions {{{
+local trcfile, trcerr = io.open(TRCFILE, "w")
+if not trcfile then
+	print(trcerr)
+	os.exit(1)
+end
+
+local function trc (str)
+	trcfile:write('  ')
+	trcfile:write(str)
+	trcfile:write('\n')
+end
+
+local function trcfn (fnname)
+	trcfile:write(fnname)
+	trcfile:write(' {{')
+	trcfile:write('{')
+	trcfile:write('\n')
+end
+
+local function trcendfn ()
+	trcfile:write('}}')
+	trcfile:write('}')
+	trcfile:write('\n')
+end
+-- }}}
+
+-- isdir (dirname) {{{
+--
+-- Does the specified directory exist, and is it a directory?
+--
+-- Params: dirname - dir to check
+--
+-- Returns: true/false
+--
+local function isdir (dirname)
+	local isdir
+	local diratts
+
+	trcfn('isdir')
+	trc('dirname: ' .. dirname)
+
+	diratts = lfs.attributes(dirname)
+	isdir = diratts and diratts.mode == 'directory'
+	trc('isdir? ' .. tostring(isdir))
+
+	trcendfn()
+	return isdir
+end -- }}}
+
+-- isfile (filename) {{{
+--
+-- Does the specified file exist, and is it a normal file?
+--
+-- Params: filename - file to check
+--
+-- Returns: true/false
+--
+local function isfile (filename)
+	local isfile
+	local fileatts
+
+	trcfn('isfile')
+	trc('filename: ' .. filename)
+
+	fileatts = lfs.attributes(filename)
+	isfile = fileatts and fileatts.mode == 'file'
+	trc('isfile? ' .. tostring(isfile))
+
+	trcendfn()
+	return isfile
+end -- }}}
+
+-- removefile (filename) {{{
+--
+-- Delete the specified file
+--
+-- Params: filename - file to delete
+--
+local function removefile (filename)
+	trcfn('removefile')
+	trc('filename: ' .. filename)
+
+	os.execute("rm -rf '" .. filename .. "' &>/dev/null")
+
+	trcendfn()
+end
+-- }}}
+
+-- readsuites (suitefile) {{{
+--
+-- Read a suite file to work out which tests belong to which suite.
+--
+-- Params: suitefile - The file to read
+--
+-- Returns: suites  - A table of suitenames to a list of tests in that suite.
+--                    On error, nil.
+--          errtext - Reason for error. On success, nil.
+--
+local function readsuites (suitefile)
+	local line        -- Line read from file
+	local newsuite    -- Line parsed as suitename
+	local suitename   -- Current suite in progress
+	local suiteset    -- Tests in current suite
+	local suiteref    -- Reference to suite
+	local suites = {} -- Set of Suitesets
+	local testname    -- Name of individual test
+	local outsuite    -- Output suites
+	local outsuitelen -- Length of output suites
+
+	trcfn('readsuites')
+	trc('suitefile: ' .. suitefile)
+
+	if not isfile(suitefile) then
+		-- Could not find suitefile!
+		trc("Could not find suitefile: " .. suitefile)
+		trcendfn()
+		return nil, "Could not find suitefile " .. tostring(suitefile)
+	end
+
+	-- First read in all the plain suite definitions.
+	for line in io.lines(suitefile) do
+		-- Parse line
+		trc("Parse line: " .. line)
+		if not line:match('^[ \t]*$') and not line:match('^#') then
+			-- Non-comment line
+			trc("Non-comment line")
+			newsuite = line:match('^%[(.*)%]$')
+			suiteref = line:match('^%.%[(.*)%]$')
+			testname = line:match('^([^ \t]*)$')
+			if newsuite then
+				-- Line marks the beginning of a new suite
+				trc("Line marks the beginning of a new suite")
+				if suitename then
+					suites[suitename] = suiteset
+				end
+				suitename = newsuite
+				suiteset = {}
+			elseif suiteref then
+				-- Reference to earlier suite
+				trc("Line is suiteref")
+				if not suites[suiteref] then
+					-- Suiteref not found!
+					trc("Suiteref not found!")
+					trcendfn()
+					return nil, "Forward reference to suite " .. suiteref
+				end
+
+				for testname in pairs(suites[suiteref]) do
+					-- Add tests from suiteref
+					trc("Add test from suiteref, num: " .. testname)
+					suiteset[testname] = true
+				end
+			elseif testname then
+				-- Line is a valid testname
+				trc("Line is testname")
+				suiteset[testname] = true
+			else
+				-- Invalid line
+				trc("Invalid line!")
+				trcendfn()
+				return nil, "Invalid line in suitefile: " .. line
+			end
+		end
+	end
+
+	if suitename then
+		-- Add final suite
+		trc("Add final suite")
+		suites[suitename] = suiteset
+	end
+
+	-- Set return values
+	trc("Set return values")
+	outsuite = {}
+	for suitename, suiteset in pairs(suites) do
+		-- Format suite
+		trc("Format suite: " .. suitename)
+		outsuite[suitename] = {}
+		outsuitelen = 0
+		for testname in pairs(suiteset) do
+			-- Add test
+			trc("Add test")
+			outsuitelen = outsuitelen + 1
+			outsuite[suitename][outsuitelen] = testname
+		end
+	end
+
+	trcendfn()
+	return outsuite, nil
+end -- }}}
+
+-- parseargs (args) {{{
+--
+-- Parse args to work out which suites and individual tests to run
+--
+-- Params: args - command line args.
+--
+-- Returns:
+--   On success: tests  - a list of individual testnames to run.
+--               suites - a list of suites to run.
+--   On failure: nil
+--               errtext - reason for error.
+--
+local function parseargs (args)
+	local issuite = false  -- Is the next arg a suite?
+	local tests = {}       -- List of tests to run
+	local numtests = 0     -- Number of tests
+	local suites = {}      -- List of suites to run
+	local numsuites = 0    -- Number of suites
+
+	trcfn('parseargs')
+	trc('args: ' .. tostring(args))
+
+	if not args[1] then
+		-- Set default suite
+		trc("Set default suite")
+		args = {"--suite", "external"}
+	end
+
+	for _,arg in ipairs(args) do
+		if issuite then
+			-- Suite
+			trc("Add suite: " .. arg)
+			numsuites = numsuites + 1
+			suites[numsuites] = arg
+			issuite = false
+		elseif arg == '--suite' then
+			if issuite then
+				-- Successive --suite arguments
+				trc("Successive --suite arguments")
+				trcendfn()
+				return nil, "No argument to --suite"
+			end
+			-- Next arg is suite
+			trc("Next arg is suite")
+			issuite = true
+		else
+			-- Normal test
+			trc("Add test: " .. arg)
+			numtests = numtests + 1
+			tests[numtests] = arg
+		end
+	end
+
+	-- Set return values
+	trc("Set return values")
+	trcendfn()
+	return tests, suites
+end
+-- }}}
+
+-- checktestsexist (testdir, tests) {{{
+--
+-- Verify that all the tests specified exist in the given test dir.
+--
+-- Params: testdir - the dir to search for tests.
+--         tests   - list of test to search for.
+--
+-- Returns: The number of missing test, and a list of tests which don't exist.
+--
+local function checktestsexist (testdir, tests)
+	local missingtests = {}   -- List of missing tests
+	local nummissing = 0      -- Number of missing tests
+
+	trcfn('checktestsexist')
+	trc('testdir: ' .. testdir)
+	trc('tests: ' .. tostring(tests))
+
+	for _, testname in ipairs(tests) do
+		-- Check test
+		trc("Check test: " .. testname)
+		if not (isfile(testdir .. "/" .. testname .. ".vim") or
+		        isfile(testdir .. "/" .. testname .. ".nvim")) then
+			-- Test missing!
+			trc("Missing test: " .. testname)
+			nummissing = nummissing + 1
+			missingtests[nummissing] = testname
+		end
+	end
+
+	trcendfn()
+	return nummissing, missingtests
+end
+-- }}}
+
+-- runvimtest (testdir, test, isneovim) {{{
+--
+-- Run a given vim test.
+--
+-- Params: testdir  - the dir to search for tests.
+--         test     - the test to run.
+--         isneovim - if this test should be run with nvim instead.
+--
+-- Returns: true if the test passed, else false.
+--
+local function runvimtest (testdir, test, isneovim)
+	local passed              -- Whether the test passed
+	local fileroot            -- Filename root
+	local vimfile             -- Vimscript file to run
+	local outfile             -- Test output file
+	local mstfile             -- Test master file
+	local diffile             -- Difference file
+	local vimcmd              -- Command to run the test
+
+	trcfn('runvimtest')
+	trc('testdir: ' .. testdir)
+	trc('test: ' .. test)
+	trc('isneovim: ' .. tostring(isneovim))
+
+	local fileroot = testdir .. "/" .. test
+
+	if isneovim then
+		vimfile = fileroot .. ".nvim"
+	else
+		vimfile = fileroot .. ".vim"
+	end
+	outfile = fileroot .. ".out"
+	mstfile = fileroot .. ".mst"
+	diffile = fileroot .. ".diff"
+
+	-- Remove previous output
+	trc("Remove previous output file")
+	removefile(outfile)
+	removefile(diffile)
+
+	if isneovim then
+		vimcmd = "nvim --headless "
+	else
+		vimcmd = "vim "
+	end
+
+	vimcmd = (vimcmd ..
+	          "-E -n -N -u " ..
+	          testdir ..
+	          "/../regression.vimrc -S ")
+
+	-- Running test
+	trc("Run test: " .. vimfile)
+	os.execute("(cd " .. testdir .. " && " .. vimcmd .. vimfile .. ")")
+
+	passed = os.execute("diff " .. outfile .. " " .. mstfile ..
+	                    " >" .. diffile .. " 2>/dev/null")
+
+	if passed == true or passed == 0 then
+		passed = true
+	else
+		passed = false
+	end
+
+	if passed then
+		-- Remove empty diff file
+		trc("Remove empty diff file")
+		removefile(diffile)
+	end
+
+	trc("Passed?: " .. tostring(passed))
+
+	trcendfn()
+	return passed
+end
+-- }}}
+
+-- runalltests (testdir, tests) {{{
+--
+-- Run all the specified tests and return the number of passes and failures.
+--
+-- Params: testdir - the dir to search for tests.
+--         tests   - the tests to run.
+--
+-- Returns: Number of passes, number of failures, names of failures
+--
+local function runalltests (testdir, tests)
+	local numpassed = 0       -- Number of tests passed
+	local numfailed = 0       -- Number of tests failed
+	local failed = {}         -- List of failing tests
+
+	trcfn('runalltests')
+	trc('testdir: ' .. testdir)
+	trc('tests: ' .. tostring(tests))
+
+	for _,test in ipairs(tests) do
+		-- Run test
+		trc("Run test: " .. test)
+		if runvimtest(testdir, test, test:match('.nvim')) then
+			-- Test passed
+			trc("Test passed")
+			numpassed = numpassed + 1
+		else
+			-- Test failed
+			trc("Test failed")
+			numfailed = numfailed + 1
+			failed[numfailed] = test
+		end
+	end
+
+	trcendfn()
+	return numpassed, numfailed, failed
+end
+-- }}}
+
+local function main (args) -- {{{
+	local testdir           -- Dir containing all tests
+	local cfgsuite          -- Configured suites
+	local argtests          -- Tests specified in the args
+	local argsuites         -- Suites specified in the args
+	local alltestsset       -- Set of all tests needed to run
+	local alltestslist      -- List of all tests needed to run
+	local nummissing        -- Number of missing tests
+	local missingtests      -- List of missing tests
+	local errtext           -- Error text
+	local numpassed         -- Nmuber of passing tests
+	local numfailed         -- Number of failing tests
+	local failed            -- List of failing tests
+
+	trcfn('main')
+
+	testdir = os.getenv('PWD') .. "/" .. TESTSDIR
+
+	if not isdir(testdir) then
+		print("Could not find testdir " .. testdir .. "!")
+		trcendfn()
+		return 1
+	end
+
+	argtests, argsuites = parseargs(args)
+
+	if not argtests then
+		print("Could not parse args!")
+		print("Error: ", argsuites)
+		trcendfn()
+		return 1
+	end
+
+	if #argsuites > 0 then
+		cfgsuites, errtext = readsuites(testdir .. "/" .. SUITESFILE)
+		if not cfgsuites then
+			print("Could not read suites from file " ..
+			      testdir .. "/" .. SUITESFILE)
+			trcendfn()
+			return 1
+		end
+	end
+
+	alltestsset = {}
+	for _, test in ipairs(argtests) do
+		alltestsset[test] = true
+	end
+
+	for _, suite in ipairs(argsuites) do
+		if not cfgsuites[suite] then
+			print('No suite "' .. suite .. '" in suite config!')
+			trcendfn()
+			return 1
+		end
+
+		for _, test in ipairs(cfgsuites[suite]) do
+			alltestsset[test] = true
+		end
+	end
+
+	alltestslist = {}
+	for test in pairs(alltestsset) do
+		alltestslist[#alltestslist + 1] = test
+	end
+
+	nummissing, missingtests = checktestsexist(testdir, alltestslist)
+
+	if nummissing > 0 then
+		for _, test in ipairs(missingtests) do
+			print("Missing test script: " .. test)
+		end
+		trcendfn()
+		return 1
+	end
+
+	local vimrc = io.open(VIMRCNAME, "w")
+	for _,line in ipairs(VIMRC) do
+		vimrc:write(line)
+		vimrc:write('\n')
+	end
+	vimrc:close()
+
+	numpassed, numfailed, failed = runalltests(testdir, alltestslist)
+
+	print("TOTAL:\t" .. #alltestslist)
+	print("SUCCESSES:\t" .. numpassed)
+	print("FAILURES:\t" .. numfailed)
+	for _,failure in ipairs(failed) do
+		print(failure)
+	end
+
+	removefile(VIMRCNAME)
+	trcendfn()
+
+	if numpassed ~= 0 then
+		return 1
+	else
+		return 0
+	end
+end
+
+-- }}}
+
+os.exit(main(arg))

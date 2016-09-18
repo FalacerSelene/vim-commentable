@@ -1,0 +1,8 @@
+regression.trc
+tests/*.out
+tests/*.dif
+doc/tags
+tags
+GTAGS
+GRTAGS
+GPATH
