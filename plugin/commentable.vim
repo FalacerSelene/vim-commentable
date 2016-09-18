@@ -53,11 +53,11 @@ endfunction
 "|===========================================================================|
 "| Commands (exposed to user)                                            {{{ |
 "|===========================================================================|
-command -nargs=0 -range CommentableReformat call s:Reformat(0)
+command -nargs=0 -range CommentableReformat call <SID>Reformat(0)
 nnoremap <silent><unique> <Plug>(CommentableReformat)
 	\ :<c-u>call <SID>Reformat(1)<CR>
 
-command -nargs=0 -range CommentableCreate call s:CreateBlock(0)
+command -nargs=0 -range CommentableCreate call <SID>CreateBlock(0)
 nnoremap <silent><unique> <Plug>(CommentableCreate)
 	\ :<c-u>call <SID>CreateBlock(1)<CR>
 xnoremap <silent><unique> <Plug>(CommentableCreate)
