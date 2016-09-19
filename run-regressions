@@ -308,17 +308,16 @@ local function checktestsexist (testdir, tests)
 end
 -- }}}
 
--- runvimtest (testdir, test, isneovim) {{{
+-- runvimtest (testdir, test) {{{
 --
 -- Run a given vim test.
 --
 -- Params: testdir  - the dir to search for tests.
 --         test     - the test to run.
---         isneovim - if this test should be run with nvim instead.
 --
 -- Returns: true if the test passed, else false.
 --
-local function runvimtest (testdir, test, isneovim)
+local function runvimtest (testdir, test)
 	local passed              -- Whether the test passed
 	local fileroot            -- Filename root
 	local vimfile             -- Vimscript file to run
@@ -330,15 +329,10 @@ local function runvimtest (testdir, test, isneovim)
 	trcfn('runvimtest')
 	trc('testdir: ' .. testdir)
 	trc('test: ' .. test)
-	trc('isneovim: ' .. tostring(isneovim))
 
 	local fileroot = testdir .. "/" .. test
 
-	if isneovim then
-		vimfile = fileroot .. ".nvim"
-	else
-		vimfile = fileroot .. ".vim"
-	end
+	vimfile = fileroot .. ".vim"
 	outfile = fileroot .. ".out"
 	mstfile = fileroot .. ".mst"
 	diffile = fileroot .. ".diff"
@@ -348,14 +342,7 @@ local function runvimtest (testdir, test, isneovim)
 	removefile(outfile)
 	removefile(diffile)
 
-	if isneovim then
-		vimcmd = "nvim --headless "
-	else
-		vimcmd = "vim "
-	end
-
-	vimcmd = (vimcmd ..
-	          "-E -n -N -u " ..
+	vimcmd = ("vim -E -n -N -u " ..
 	          testdir ..
 	          "/../regression.vimrc -S ")
 
@@ -406,7 +393,7 @@ local function runalltests (testdir, tests)
 	for _,test in ipairs(tests) do
 		-- Run test
 		trc("Run test: " .. test)
-		if runvimtest(testdir, test, test:match('.nvim')) then
+		if runvimtest(testdir, test) then
 			-- Test passed
 			trc("Test passed")
 			numpassed = numpassed + 1
