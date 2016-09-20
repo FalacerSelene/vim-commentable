@@ -343,12 +343,12 @@ local function runvimtest (testdir, test)
 	removefile(diffile)
 
 	vimcmd = ("vim -E -n -N -u " ..
-	          testdir ..
-	          "/../regression.vimrc -S ")
+	          testdir .. "/../" .. VIMRCNAME ..
+	          ' -c "source ' .. vimfile .. '"')
 
 	-- Running test
 	trc("Run test: " .. vimfile)
-	os.execute("(cd " .. testdir .. " && " .. vimcmd .. vimfile .. ")")
+	os.execute("(cd " .. testdir .. " && " .. vimcmd .. ")")
 
 	passed = os.execute("diff " .. outfile .. " " .. mstfile ..
 	                    " >" .. diffile .. " 2>/dev/null")

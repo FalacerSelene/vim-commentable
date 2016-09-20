@@ -10,7 +10,7 @@ edit create_block.in
 try
 	CommentableCreate
 	Out 'No exception found!'
-catch /^Commentable:NotYetImplemented$/
+catch /^Commentable:NOT YET IMPLEMENTED:/
 endtry
 
 "|===========================================================================|
@@ -20,7 +20,7 @@ try
 	nmap ttt <Plug>(CommentableCreate)
 	normal ttt
 	Out 'No exception found!'
-catch /^Commentable:NotYetImplemented$/
+catch /^Commentable:NOT YET IMPLEMENTED:/
 endtry
 
 "|===========================================================================|
@@ -29,4 +29,4 @@ endtry
 NextCase
 Out '-- End of Test --'
 saveas create_block.out
-quit!
+quitall!
