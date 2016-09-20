@@ -22,16 +22,31 @@ let g:loaded_commentable = 1
 "| s:Reformat(setrepeat) range                                           {{{ |
 "|===========================================================================|
 function! s:Reformat(setrepeat) range
+	let l:toreformat = []
 	let l:primed = 1
 	for l:lineno in range(a:firstline, a:lastline)
 		if commentable#IsCommentBlock(l:lineno)
-			call commentable#Reformat(l:lineno)
+			if l:primed
+				call insert(l:toreformat, l:lineno)
+			endif
 			let l:primed = 0
 		else
 			let l:primed = 1
 		endif
 	endfor
 
+	"|===============================================|
+	"| Now we have a list of the start of every      |
+	"| comment block in range, in reverse order.     |
+	"| Work through and reformat them.               |
+	"|===============================================|
+	for l:lineno in l:toreformat
+		call commentable#Reformat(l:lineno)
+	endfor
+
+	"|===============================================|
+	"| Set '.' command if we have the right plugin.  |
+	"|===============================================|
 	if a:setrepeat == 1
 		silent! call repeat#set("\<Plug>(CommentableReformat)")
 	endif
@@ -53,11 +68,11 @@ endfunction
 "|===========================================================================|
 "| Commands (exposed to user)                                            {{{ |
 "|===========================================================================|
-command -nargs=0 -range CommentableReformat call <SID>Reformat(0)
+command -nargs=0 -range CommentableReformat <line1>,<line2>call <SID>Reformat(0)
 nnoremap <silent><unique> <Plug>(CommentableReformat)
 	\ :<c-u>call <SID>Reformat(1)<CR>
 
-command -nargs=0 -range CommentableCreate call <SID>CreateBlock(0)
+command -nargs=0 -range CommentableCreate <line1>,<line2>call <SID>CreateBlock(0)
 nnoremap <silent><unique> <Plug>(CommentableCreate)
 	\ :<c-u>call <SID>CreateBlock(1)<CR>
 xnoremap <silent><unique> <Plug>(CommentableCreate)

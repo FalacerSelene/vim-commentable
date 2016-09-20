@@ -51,6 +51,44 @@ function ResetVariables() abort
 	endfor
 endfunction
 
+"|===========================================================================|
+"| Get the text in between 2 CASE statements in the input                    |
+"|===========================================================================|
+function GetCase(casenum) abort
+	" Search from the top of the file
+	call cursor(1,1)
+	let l:start = search('\m^-- Start of Input --$')
+	let l:end = search('\m^-- End of Input --$')
+	if l:start == 0 || l:end == 0
+		call Out('Could not find any input!')
+		cquit!
+	endif
+	let l:start += 1
+	let l:end -= 2
+
+	call cursor(l:start, 1)
+	let l:casestart = search('\m^-- CASE ' . string(a:casenum) . ' --$')
+	if l:casestart == 0
+		call Out('Could not find CASE ' . string(a:casenum))
+		cquit!
+	else
+		let l:casestart += 1
+	endif
+
+	let l:caseend = search('\m^-- CASE ' . string(a:casenum + 1) . ' --$')
+	if l:caseend == 0
+		let l:caseend = l:end
+	else
+		let l:caseend -= 1
+	endif
+
+	let l:lines = []
+	for l:lnum in range(l:casestart, l:caseend)
+		call add(l:lines, getline(l:lnum))
+	endfor
+
+	return l:lines
+endfunction
 
 "|===========================================================================|
 "| Commands                                                                  |

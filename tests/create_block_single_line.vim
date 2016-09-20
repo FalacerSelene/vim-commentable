@@ -2,25 +2,20 @@
 "| Begin                                                                       |
 "|=============================================================================|
 source utils.vim
-edit create_block.in
+edit create_block_single_line.in
 
 "|===========================================================================|
-"| Check NotYetImplemented is thrown for command                             |
+"| Create a comment from a single line of text                               |
 "|===========================================================================|
+NextCase
+let g:CommentableBlockStyle = ['/*', '*', '*/']
+let s:lines = GetCase(1)
+call append(line('$'), s:lines)
 try
-	CommentableCreate
-	Out 'No exception found!'
-catch /^Commentable:NotYetImplemented$/
-endtry
-
-"|===========================================================================|
-"| Check NotYetImplemented is thrown for mapping                             |
-"|===========================================================================|
-try
-	nmap ttt <Plug>(CommentableCreate)
-	normal ttt
-	Out 'No exception found!'
-catch /^Commentable:NotYetImplemented$/
+	execute line('$') . 'CommentableCreate'
+catch
+	Out 'Caught exception!'
+	call Out(v:exception)
 endtry
 
 "|===========================================================================|
@@ -28,5 +23,5 @@ endtry
 "|===========================================================================|
 NextCase
 Out '-- End of Test --'
-saveas create_block.out
+saveas create_block_single_line.out
 quit!
