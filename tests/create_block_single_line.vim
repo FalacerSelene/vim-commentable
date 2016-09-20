@@ -24,4 +24,4 @@ endtry
 NextCase
 Out '-- End of Test --'
 saveas create_block_single_line.out
-quit!
+quitall!
