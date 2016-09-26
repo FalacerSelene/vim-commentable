@@ -23,26 +23,39 @@ endfunction
 "|===========================================================================|
 function! commentable#Reformat(lineno) abort
 	let l:indent = indent(a:lineno)
+	let l:indentchars = substitute(getline(a:lineno), '\m^\(\s*\).*', '\1', '')
 	let l:style = <SID>GetCommentStyle(l:indent > 0)
 	let l:blockwidth = <SID>GetCommentBlockWidth(l:indent)
 	let l:textwidth = <SID>GetInternalWidth(l:style, l:blockwidth)
 	let l:preservelist = <SID>GetPreserveList()
-	throw 'Commentable:NOT YET IMPLEMENTED:Reformat'
+
+	let [l:startline, l:endline] = <SID>GetBlockRange(a:lineno, l:style)
+
+	if l:startline == 0 && l:endline == 0
+		return
+	endif
+
+	let l:lines = <SID>GetBlockContents(a:lineno, l:style)
+	let l:lines = <SID>LinesToParagraphs(l:lines, l:preservelist)
+	let l:lines = <SID>ReflowParagraphs(l:lines, l:textwidth)
+	let l:lines = <SID>CreateBlock(l:lines, l:style, l:textwidth, l:indentchars)
+
+	execute l:startline . ',' . l:endline . 'call <SID>ReplaceLines(l:lines)'
 endfunction
 
 "|===========================================================================|
-"| commentable#CreateBlock(first, last) abort                                |
+"| commentable#CreateBlock() abort range                                     |
 "|===========================================================================|
-function! commentable#CreateBlock(first, last) abort
-	let l:indent = indent(a:first)
-	let l:indentchars = substitute(getline(a:first), '\m^\(\s*\).*', '\1', '')
+function! commentable#CreateBlock() abort range
+	let l:indent = indent(a:firstline)
+	let l:indentchars = substitute(getline(a:firstline), '\m^\(\s*\).*', '\1', '')
 	let l:style = <SID>GetCommentStyle(l:indent > 0)
 	let l:blockwidth = <SID>GetCommentBlockWidth(l:indent)
 	let l:textwidth = <SID>GetInternalWidth(l:style, l:blockwidth)
 	let l:preservelist = <SID>GetPreserveList()
 
 	let l:lines = []
-	for l:lineno in range(a:first, a:last)
+	for l:lineno in range(a:firstline, a:lastline)
 		call add(l:lines, <SID>GetLineText(l:lineno, l:style))
 	endfor
 
@@ -51,14 +64,9 @@ function! commentable#CreateBlock(first, last) abort
 	let l:lines = <SID>CreateBlock(l:lines, l:style, l:textwidth, l:indentchars)
 
 	"|===============================================|
-	"| Chages occur after this point.                |
+	"| Changes occur after this point.               |
 	"|===============================================|
-	let l:savedreg = <SID>GetTempRegs()
-	let l:cursorpos = getcurpos()
-	keepmarks execute a:first . ',' . a:last . 'delete _'
-	call append(a:first - 1, l:lines)
-	call setpos('.', l:cursorpos)
-	call <SID>RestoreTempRegs(l:savedreg)
+	execute a:firstline . ',' . a:lastline . 'call <SID>ReplaceLines(l:lines)'
 endfunction
 
 "|===========================================================================|
@@ -739,7 +747,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:CreateBlock(lines, style, commentwidth, indentchars)                {{{ |
+"| s:CreateBlock(lines, style, commentwidth, indentchars) abort          {{{ |
 "|                                                                           |
 "| Creates a list of lines which form a block comment from the given text.   |
 "|                                                                           |
@@ -779,6 +787,26 @@ function! s:CreateBlock(lines, style, commentwidth, indentchars) abort
 	endif
 
 	return l:comment
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:ReplaceLines(with) abort range                                      {{{ |
+"|                                                                           |
+"| Replaces lines in range with lines given as 'with'.                       |
+"|                                                                           |
+"| This function inherantly has side-effects! But tries to keep them at a    |
+"| minimum.                                                                  |
+"|===========================================================================|
+function! s:ReplaceLines(with) abort range
+	let l:savedreg = <SID>GetTempRegs()
+	let l:cursorpos = getcurpos()
+	keepmarks execute a:firstline . ',' . a:lastline . 'delete _'
+	call append(a:firstline - 1, a:with)
+	call setpos('.', l:cursorpos)
+	call <SID>RestoreTempRegs(l:savedreg)
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

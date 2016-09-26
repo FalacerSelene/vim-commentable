@@ -57,7 +57,7 @@ endfunction
 "| s:CreateBlock(setrepeat) range                                        {{{ |
 "|===========================================================================|
 function! s:CreateBlock(setrepeat) range
-	call commentable#CreateBlock(a:firstline, a:lastline)
+	execute a:firstline . ',' . a:lastline 'call commentable#CreateBlock()'
 
 	if a:setrepeat == 1
 		silent! call repeat#set("\<Plug>(CommentableCreate)")
