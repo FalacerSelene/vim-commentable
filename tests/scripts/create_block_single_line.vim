@@ -2,7 +2,7 @@
 "| Begin                                                                       |
 "|=============================================================================|
 source utils.vim
-edit create_block_single_line.in
+edit input/create_block_single_line.in
 
 "|===========================================================================|
 "| Create a comment from a single line of text                               |
@@ -23,5 +23,5 @@ endtry
 "|===========================================================================|
 NextCase
 Out '-- End of Test --'
-saveas create_block_single_line.out
+saveas output/create_block_single_line.out
 quitall!

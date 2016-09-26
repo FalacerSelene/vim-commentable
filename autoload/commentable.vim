@@ -48,7 +48,7 @@ function! commentable#CreateBlock(first, last) abort
 
 	let l:lines = <SID>LinesToParagraphs(l:lines, l:preservelist)
 	let l:lines = <SID>ReflowParagraphs(l:lines, l:textwidth)
-	let l:lines = <SID>CreateBlock(l:lines, l:style, l:blockwidth, l:indentchars)
+	let l:lines = <SID>CreateBlock(l:lines, l:style, l:textwidth, l:indentchars)
 
 	"|===============================================|
 	"| Chages occur after this point.                |
@@ -265,8 +265,11 @@ endfunction
 "|===========================================================================|
 function! s:GetInternalWidth(style, block_width) abort
 	let l:internal_width  = a:block_width
-	let l:internal_width -= strlen(a:style[0])
-	let l:internal_width -= strlen(a:style[2])
+	let l:internal_width -= strlen(a:style[0]) + 1
+	let l:final_len = strlen(a:style[2])
+	if l:final_len != 0
+		let l:internal_width -= (strlen(a:style[2]) + 1)
+	endif
 	return max([0, l:internal_width])
 endfunction
 "|===========================================================================|

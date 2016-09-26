@@ -294,8 +294,7 @@ local function checktestsexist (testdir, tests)
 	for _, testname in ipairs(tests) do
 		-- Check test
 		trc("Check test: " .. testname)
-		if not (isfile(testdir .. "/" .. testname .. ".vim") or
-		        isfile(testdir .. "/" .. testname .. ".nvim")) then
+		if not isfile(testdir .. "/scripts/" .. testname .. ".vim") then
 			-- Test missing!
 			trc("Missing test: " .. testname)
 			nummissing = nummissing + 1
@@ -330,12 +329,15 @@ local function runvimtest (testdir, test)
 	trc('testdir: ' .. testdir)
 	trc('test: ' .. test)
 
+	local scriptdir = testdir .. "/scripts"
+	local outputdir = testdir .. "/output"
+	local inputdir = testdir .. "/input"
 	local fileroot = testdir .. "/" .. test
 
-	vimfile = fileroot .. ".vim"
-	outfile = fileroot .. ".out"
-	mstfile = fileroot .. ".mst"
-	diffile = fileroot .. ".diff"
+	vimfile = scriptdir .. "/" .. test .. ".vim"
+	outfile = outputdir .. "/" .. test .. ".out"
+	mstfile = outputdir .. "/" .. test .. ".mst"
+	diffile = outputdir .. "/" .. test .. ".diff"
 
 	-- Remove previous output
 	trc("Remove previous output file")
