@@ -36,7 +36,6 @@ PRINTF = printf
 #----------------------------------------------------------------------------#
 $(VIMBALL): $(LISTFILE)
 	$(VIM) $(LISTFILE) \
-		-u NORC \
 		-c 'let g:vimball_home="."' \
 		-c 'execute "%MkVimball!" . "$(PLUGIN)"' \
 		-c 'quitall!'
@@ -45,4 +44,4 @@ $(LISTFILE): $(SOURCE)
 	$(PRINTF) '%s\n' $(foreach I,$(SOURCE),"$(I)") >| $(LISTFILE)
 
 clean:
-	@-$(RM) $(VIMBALL) $(LISTFILE) $(TEMPTESTS) GTAGS GRTAGS GPATH tags
+	@-$(RM) $(VIMBALL) $(LISTFILE) $(TEMPTESTS)
