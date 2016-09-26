@@ -352,8 +352,15 @@ local function runvimtest (testdir, test)
 	trc("Run test: " .. vimfile)
 	os.execute("(cd " .. testdir .. " && " .. vimcmd .. ")")
 
-	passed = os.execute("diff " .. outfile .. " " .. mstfile ..
-	                    " >" .. diffile .. " 2>/dev/null")
+	if not isfile(mstfile) then
+		passed = false
+		local fd = io.open(diffile, 'w')
+		fd:write('Master output file not found!\n')
+		fd:close()
+	else
+		passed = os.execute("diff " .. outfile .. " " .. mstfile ..
+		                    " >" .. diffile .. " 2>/dev/null")
+	end
 
 	if passed == true or passed == 0 then
 		passed = true

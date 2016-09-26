@@ -11,8 +11,11 @@ NextCase
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 let s:lines = GetCase(1)
 call append(line('$'), s:lines)
+
+nmap (testmap) <Plug>(CommentableCreate)
 try
-	execute line('$') . 'CommentableCreate'
+	call cursor(line('$'), '1')
+	normal (testmap)
 catch
 	Out 'Caught exception!'
 	call Out(v:exception)
@@ -23,5 +26,5 @@ endtry
 "|===========================================================================|
 NextCase
 Out '-- End of Test --'
-saveas output/create_block_single_line.out
+saveas output/create_block_single_mapping.out
 quitall!
