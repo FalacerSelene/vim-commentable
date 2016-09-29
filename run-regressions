@@ -5,8 +5,8 @@
 local lfs = require('lfs')
 
 if not lfs then
-	print('Running the regressions requires LuaFileSystem!')
-	os.exit(1)
+	print('Warning - running without lfs.')
+	print('Tests may be slightly slower.')
 end
 
 -- }}}
@@ -58,14 +58,19 @@ end
 -- Returns: true/false
 --
 local function isdir (dirname)
-	local isdir
+	local isdir = false
 	local diratts
 
 	trcfn('isdir')
 	trc('dirname: ' .. dirname)
 
-	diratts = lfs.attributes(dirname)
-	isdir = diratts and diratts.mode == 'directory'
+	if lfs then
+		diratts = lfs.attributes(dirname)
+		isdir = diratts and diratts.mode == 'directory'
+	elseif os.execute('[[ -d ' .. dirname .. ' ]]') then
+		isdir = true
+	end
+
 	trc('isdir? ' .. tostring(isdir))
 
 	trcendfn()
@@ -81,14 +86,19 @@ end -- }}}
 -- Returns: true/false
 --
 local function isfile (filename)
-	local isfile
+	local isfile = false
 	local fileatts
 
 	trcfn('isfile')
 	trc('filename: ' .. filename)
 
-	fileatts = lfs.attributes(filename)
-	isfile = fileatts and fileatts.mode == 'file'
+	if lfs then
+		fileatts = lfs.attributes(filename)
+		isfile = fileatts and fileatts.mode == 'file'
+	elseif os.execute('[[ -f ' .. filename .. ' ]]') then
+		isfile = true
+	end
+
 	trc('isfile? ' .. tostring(isfile))
 
 	trcendfn()
