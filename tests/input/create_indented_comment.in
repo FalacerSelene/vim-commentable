@@ -1,0 +1,10 @@
+-- Start of Input --
+==============================================================================
+-- CASE 1 --
+  2 space indented comment
+-- CASE 2 --
+    4 space indented comment
+-- CASE 3 --
+	1 tab indented comment
+==============================================================================
+-- End of Input --

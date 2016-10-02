@@ -257,9 +257,9 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 	"|===============================================|
 	"| Now find the minimun block width.             |
 	"|===============================================|
-	let l:min = l:column
+	let l:min = l:column - a:amount_indented
 	if exists('l:width')
-		let l:min = min([l:min, a:amount_indented + l:width])
+		let l:min = min([l:min, l:width])
 	endif
 
 	return l:min
