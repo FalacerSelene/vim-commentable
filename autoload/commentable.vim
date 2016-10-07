@@ -70,9 +70,11 @@ function! commentable#CreateBlock() abort range
 endfunction
 
 "|===========================================================================|
-"| Version checking                                                          |
+"| Constant checking                                                         |
 "|===========================================================================|
-let s:has_t_number = exists('v:t_number')
+let s:t_number = v:version >= 800 ? v:t_number : type(0)
+let s:t_list = v:version >= 800 ? v:t_list : type([])
+let s:t_string = v:version >= 800 ? v:t_string : type([])
 
 "|===========================================================================|
 "| s:IsCommentBlock(lineno, style) abort                                 {{{ |
@@ -171,14 +173,14 @@ function! s:GetCommentStyle(is_indented) abort
 	"|===============================================|
 	"| Now we have a style - validate it.            |
 	"|===============================================|
-	if type(l:style) !=# (s:has_t_number ? v:t_list : type([])) ||
+	if type(l:style) !=# s:t_list ||
 	 \ len(l:style) !=# 3 ||
 	 \ l:style[0] ==# ''
 		throw 'Commentable:INVALID SETTING:' . l:using_var
 	else
 		let l:elem = ''
 		for l:elem in l:style
-			if type(l:elem) !=# (s:has_t_number ? v:t_string : type('')) ||
+			if type(l:elem) !=# s:t_string ||
 			 \ l:elem =~# '\m\_s'
 				throw 'Commentable:INVALID SETTING:' . l:using_var
 			endif
@@ -247,7 +249,7 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 	 \                          ['l:column', 'l:column_var']]
 		if exists(l:elem_n) && exists(l:var_n)
 			let l:elem = eval(l:elem_n)
-			if type(l:elem) !=# (s:has_t_number ? v:t_number : type(1)) ||
+			if type(l:elem) !=# s:t_number ||
 			 \ l:elem <= 0
 				throw 'Commentable:INVALID SETTING:' . eval(l:var_n)
 			endif
@@ -300,11 +302,11 @@ function! s:GetPreserveList() abort
 			let l:val = l:default
 		endtry
 
-		if type(l:val) !=# (s:has_t_number ? v:t_list : type([]))
+		if type(l:val) !=# s:t_list
 			throw 'Commentable:INVALID SETTING:' . l:name
 		else
 			for l:elem in l:val
-				if type(l:elem) !=# (s:has_t_number ? v:t_string : type(''))
+				if type(l:elem) !=# s:t_string
 					throw 'Commentable:INVALID SETTING:' . l:name
 				endif
 			endfor
