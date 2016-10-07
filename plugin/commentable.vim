@@ -22,27 +22,31 @@ let g:loaded_commentable = 1
 "| s:Reformat(setrepeat) range                                           {{{ |
 "|===========================================================================|
 function! s:Reformat(setrepeat) range
-	let l:toreformat = []
-	let l:primed = 1
-	for l:lineno in range(a:firstline, a:lastline)
-		if commentable#IsCommentBlock(l:lineno)
-			if l:primed
-				call insert(l:toreformat, l:lineno)
+	try
+		let l:toreformat = []
+		let l:primed = 1
+		for l:lineno in range(a:firstline, a:lastline)
+			if commentable#IsCommentBlock(l:lineno)
+				if l:primed
+					call insert(l:toreformat, l:lineno)
+				endif
+				let l:primed = 0
+			else
+				let l:primed = 1
 			endif
-			let l:primed = 0
-		else
-			let l:primed = 1
-		endif
-	endfor
+		endfor
 
-	"|===============================================|
-	"| Now we have a list of the start of every      |
-	"| comment block in range, in reverse order.     |
-	"| Work through and reformat them.               |
-	"|===============================================|
-	for l:lineno in l:toreformat
-		call commentable#Reformat(l:lineno)
-	endfor
+		"|===============================================|
+		"| Now we have a list of the start of every      |
+		"| comment block in range, in reverse order.     |
+		"| Work through and reformat them.               |
+		"|===============================================|
+		for l:lineno in l:toreformat
+			call commentable#Reformat(l:lineno)
+		endfor
+	catch
+		echoerr v:exception
+	endtry
 
 	"|===============================================|
 	"| Set '.' command if we have the right plugin.  |
@@ -57,7 +61,11 @@ endfunction
 "| s:CreateBlock(setrepeat) range                                        {{{ |
 "|===========================================================================|
 function! s:CreateBlock(setrepeat) range
-	execute a:firstline . ',' . a:lastline 'call commentable#CreateBlock()'
+	try
+		execute a:firstline . ',' . a:lastline 'call commentable#CreateBlock()'
+	catch
+		echoerr v:exception
+	endtry
 
 	if a:setrepeat == 1
 		silent! call repeat#set("\<Plug>(CommentableCreate)")

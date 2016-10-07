@@ -13,21 +13,21 @@ Case 1 - default
 Case 2 - no initial part
 This will be a comment
 Caught expected exception!
-Commentable:INVALID SETTING:CommentableBlockStyle
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
 Case 3 - list too long
 This will be a comment
 Caught expected exception!
-Commentable:INVALID SETTING:CommentableBlockStyle
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
 Case 4 - not a list
 This will be a comment
 Caught expected exception!
-Commentable:INVALID SETTING:CommentableBlockStyle
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
 Case 5 - whitespace element
 This will be a comment
 Caught expected exception!
-Commentable:INVALID SETTING:CommentableBlockStyle
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
 -- End of Test --

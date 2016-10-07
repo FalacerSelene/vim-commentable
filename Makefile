@@ -15,7 +15,7 @@ SOURCE += doc/commentable.txt
 #----------------------------------------------------------------------------#
 # Temporary test files                                                       #
 #----------------------------------------------------------------------------#
-TEMPTESTS  = $(shell find tests -type f \( -name '*.out' -o -name '*.dif' \) )
+TEMPTESTS  = $(shell find tests -type f \( -name '*.out' -o -name '*.diff' \) )
 TEMPTESTS += regression.trc
 
 #----------------------------------------------------------------------------#

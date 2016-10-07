@@ -13,16 +13,16 @@ Case 1 - default
 Case 2 - global width negative
 This will be a comment
 Caught expected exception
-Commentable:INVALID SETTING:CommentableBlockWidth
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockWidth
 ==============================================================================
 Case 3 - global width string
 This will be a comment
 Caught expected exception
-Commentable:INVALID SETTING:CommentableBlockWidth
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockWidth
 ==============================================================================
 Case 4 - buffer width list
 This will be a comment
 Caught expected exception
-Commentable:INVALID SETTING:CommentableBlockWidth
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockWidth
 ==============================================================================
 -- End of Test --
