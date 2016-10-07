@@ -29,7 +29,7 @@ PRINTF = printf
 # Special variables and rules for rules section                              #
 #----------------------------------------------------------------------------#
 .DEFAULT_GOAL = $(VIMBALL)
-.PHONY: clean
+.PHONY: clean test install test-clean
 
 #----------------------------------------------------------------------------#
 # Rules                                                                      #
@@ -43,5 +43,17 @@ $(VIMBALL): $(LISTFILE)
 $(LISTFILE): $(SOURCE)
 	$(PRINTF) '%s\n' $(foreach I,$(SOURCE),"$(I)") >| $(LISTFILE)
 
-clean:
-	@-$(RM) $(VIMBALL) $(LISTFILE) $(TEMPTESTS)
+install: $(VIMBALL)
+	$(VIM) $(VIMBALL) \
+		-c 'source %' \
+		-c 'quitall!'
+	@echo 'Installed - you will need to update helptags manually!'
+
+test:
+	./run-regressions --suite external
+
+test-clean:
+	@-$(RM) $(TEMPTESTS)
+
+clean: test-clean
+	@-$(RM) $(VIMBALL) $(LISTFILE)

@@ -523,7 +523,7 @@ local function main (args) -- {{{
 	removefile(VIMRCNAME)
 	trcendfn()
 
-	if numpassed ~= 0 then
+	if numfailed ~= 0 then
 		return 1
 	else
 		return 0
