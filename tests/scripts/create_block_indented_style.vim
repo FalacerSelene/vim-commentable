@@ -5,13 +5,14 @@ source utils.vim
 edit input/create_indented_comment.in
 
 "|===========================================================================|
-"| Create a comment from each case - check it works                          |
+"| Create a comment from each case - check the style applies                 |
 "|===========================================================================|
 function s:RunCases()
 	for l:case in range(1, 4)
 		NextCase
 		Out 'Comment from case: ' . l:case
 		let g:CommentableBlockStyle = ['/*', '*', '*/']
+		let g:CommentableSubStyle = ['#*', '*', '*#']
 		call append(line('$'), GetCase(l:case))
 		try
 			execute line('$') . 'CommentableCreate'
@@ -29,5 +30,5 @@ call <SID>RunCases()
 "|===========================================================================|
 NextCase
 Out '-- End of Test --'
-saveas output/create_block_indented.out
+saveas output/create_block_indented_style.out
 quitall!

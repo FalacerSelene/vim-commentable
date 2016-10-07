@@ -1,10 +1,12 @@
 -- Start of Input --
 ==============================================================================
 -- CASE 1 --
-  2 space indented comment
+Normal comment
 -- CASE 2 --
-    4 space indented comment
+  2 space indented comment
 -- CASE 3 --
+    4 space indented comment
+-- CASE 4 --
 	1 tab indented comment
 ==============================================================================
 -- End of Input --
