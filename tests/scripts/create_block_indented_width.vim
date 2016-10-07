@@ -5,7 +5,7 @@ source utils.vim
 edit input/create_indented_comment.in
 
 "|===========================================================================|
-"| Create a comment from each case - check the style applies                 |
+"| Create a comment from each case - check the width applies                 |
 "|===========================================================================|
 function s:RunCases()
 	for l:case in range(1, 4)
