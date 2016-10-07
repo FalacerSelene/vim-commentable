@@ -13,6 +13,11 @@ function s:RunCases()
 		Out 'Comment from case: ' . l:case
 		let g:CommentableBlockStyle = ['/*', '*', '*/']
 		let g:CommentableSubStyle = ['#*', '*', '*#']
+		if l:case ==# 3
+			let b:CommentableBlockStyle = ['#=','=','=|']
+		elseif l:case ==# 4
+			let b:CommentableSubStyle = [';;','-','|']
+		endif
 		call append(line('$'), GetCase(l:case))
 		try
 			execute line('$') . 'CommentableCreate'
