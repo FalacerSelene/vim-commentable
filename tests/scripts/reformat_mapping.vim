@@ -2,15 +2,16 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_single_comment.in
+edit input/short_comment.in
 
 "|===========================================================================|
-"| Create a comment from a single line of text                               |
+"| Reformat a comment using the mapping.                                     |
 "|===========================================================================|
 NextCase
+Out 'Reformat a comment using a mapping'
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 call append(line('$'), GetCase(1))
-nmap (testmap) <Plug>(CommentableCreate)
+nmap (testmap) <Plug>(CommentableReformat)
 
 try
 	call cursor(line('$'), '1')
@@ -25,5 +26,5 @@ endtry
 "|===========================================================================|
 NextCase
 Out '-- End of Test --'
-saveas output/create_block_single_mapping.out
+saveas output/reformat_mapping.out
 quitall!

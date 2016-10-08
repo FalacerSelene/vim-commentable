@@ -628,14 +628,14 @@ endfunction
 "| not a comment, returns [0,0].                                             |
 "|===========================================================================|
 function! s:GetBlockRange(lineno, style) abort
-	if <SID>IsCommentBlock(a:lineno) == 0
+	if <SID>IsCommentBlock(a:lineno, a:style) == 0
 		return [0, 0]
 	endif
 
 	let l:startline = a:lineno
 	let l:endline = a:lineno
 
-	while <SID>IsCommentBlock(l:startline - 1) != 0 &&
+	while <SID>IsCommentBlock(l:startline - 1, a:style) != 0 &&
 	 \    l:startline > 1
 		let l:startline -= 1
 		if <SID>IsCommentWall(l:startline, a:style)
@@ -643,7 +643,7 @@ function! s:GetBlockRange(lineno, style) abort
 		endif
 	endwhile
 
-	while <SID>IsCommentBlock(l:endline + 1) != 0 &&
+	while <SID>IsCommentBlock(l:endline + 1, a:style) != 0 &&
 	 \    l:endline < line('$')
 		let l:endline += 1
 		if <SID>IsCommentWall(l:endline, a:style)
