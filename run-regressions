@@ -1,6 +1,8 @@
 #! /usr/bin/env lua
 
--- Require modules {{{
+--[========================================================================]--
+--[ Require modules {{{                                                    ]--
+--[========================================================================]--
 
 local lfs = require('lfs')
 
@@ -9,9 +11,14 @@ if not lfs then
 	print('Tests may be slightly slower.')
 end
 
--- }}}
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
 
--- Configuration {{{
+--[========================================================================]--
+--[ Configuration {{{                                                      ]--
+--[========================================================================]--
+
 local TRCFILE = "regression.trc"
 local TESTSDIR = "tests"
 local SUITESFILE = "suites.cfg"
@@ -20,9 +27,15 @@ local VIMRC = {
 	'let &rtp = "' .. os.getenv('PWD') .. '"',
 	'runtime plugin/commentable.vim',
 }
--- }}}
 
--- Trace functions {{{
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ Trace functions {{{                                                    ]--
+--[========================================================================]--
+
 local trcfile, trcerr = io.open(TRCFILE, "w")
 if not trcfile then
 	print(trcerr)
@@ -47,16 +60,21 @@ local function trcendfn ()
 	trcfile:write('}')
 	trcfile:write('\n')
 end
--- }}}
 
--- isdir (dirname) {{{
---
--- Does the specified directory exist, and is it a directory?
---
--- Params: dirname - dir to check
---
--- Returns: true/false
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ isdir (dirname) {{{                                                    ]--
+--[                                                                        ]--
+--[ Does the specified directory exist, and is it a directory?             ]--
+--[                                                                        ]--
+--[ Params: dirname - dir to check                                         ]--
+--[                                                                        ]--
+--[ Returns: true/false                                                    ]--
+--[========================================================================]--
+
 local function isdir (dirname)
 	local isdir = false
 	local diratts
@@ -75,16 +93,22 @@ local function isdir (dirname)
 
 	trcendfn()
 	return isdir
-end -- }}}
+end
 
--- isfile (filename) {{{
---
--- Does the specified file exist, and is it a normal file?
---
--- Params: filename - file to check
---
--- Returns: true/false
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ isfile (filename) {{{                                                  ]--
+--[                                                                        ]--
+--[ Does the specified file exist, and is it a normal file?                ]--
+--[                                                                        ]--
+--[ Params: filename - file to check                                       ]--
+--[                                                                        ]--
+--[ Returns: true/false                                                    ]--
+--[========================================================================]--
+
 local function isfile (filename)
 	local isfile = false
 	local fileatts
@@ -103,14 +127,20 @@ local function isfile (filename)
 
 	trcendfn()
 	return isfile
-end -- }}}
+end
 
--- removefile (filename) {{{
---
--- Delete the specified file
---
--- Params: filename - file to delete
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ removefile (filename) {{{                                              ]--
+--[                                                                        ]--
+--[ Delete the specified file                                              ]--
+--[                                                                        ]--
+--[ Params: filename - file to delete                                      ]--
+--[========================================================================]--
+
 local function removefile (filename)
 	trcfn('removefile')
 	trc('filename: ' .. filename)
@@ -119,18 +149,23 @@ local function removefile (filename)
 
 	trcendfn()
 end
--- }}}
 
--- readsuites (suitefile) {{{
---
--- Read a suite file to work out which tests belong to which suite.
---
--- Params: suitefile - The file to read
---
--- Returns: suites  - A table of suitenames to a list of tests in that suite.
---                    On error, nil.
---          errtext - Reason for error. On success, nil.
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ readsuites (suitefile) {{{                                             ]--
+--[                                                                        ]--
+--[ Read a suite file to work out which tests belong to which suite.       ]--
+--[                                                                        ]--
+--[ Params: suitefile - The file to read                                   ]--
+--[                                                                        ]--
+--[ Returns: suites  - A table of suitenames to a list of tests in that    ]--
+--[                    suite. On error, nil.                               ]--
+--[          errtext - Reason for error. On success, nil.                  ]--
+--[========================================================================]--
+
 local function readsuites (suitefile)
 	local line        -- Line read from file
 	local newsuite    -- Line parsed as suitename
@@ -222,20 +257,26 @@ local function readsuites (suitefile)
 
 	trcendfn()
 	return outsuite, nil
-end -- }}}
+end
 
--- parseargs (args) {{{
---
--- Parse args to work out which suites and individual tests to run
---
--- Params: args - command line args.
---
--- Returns:
---   On success: tests  - a list of individual testnames to run.
---               suites - a list of suites to run.
---   On failure: nil
---               errtext - reason for error.
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ parseargs (args) {{{                                                   ]--
+--[                                                                        ]--
+--[ Parse args to work out which suites and individual tests to run        ]--
+--[                                                                        ]--
+--[ Params: args - command line args.                                      ]--
+--[                                                                        ]--
+--[ Returns:                                                               ]--
+--[   On success: tests  - a list of individual testnames to run.          ]--
+--[               suites - a list of suites to run.                        ]--
+--[   On failure: nil                                                      ]--
+--[               errtext - reason for error.                              ]--
+--[========================================================================]--
+
 local function parseargs (args)
 	local issuite = false  -- Is the next arg a suite?
 	local tests = {}       -- List of tests to run
@@ -282,17 +323,23 @@ local function parseargs (args)
 	trcendfn()
 	return tests, suites
 end
--- }}}
 
--- checktestsexist (testdir, tests) {{{
---
--- Verify that all the tests specified exist in the given test dir.
---
--- Params: testdir - the dir to search for tests.
---         tests   - list of test to search for.
---
--- Returns: The number of missing test, and a list of tests which don't exist.
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ checktestsexist (testdir, tests) {{{                                   ]--
+--[                                                                        ]--
+--[ Verify that all the tests specified exist in the given test dir.       ]--
+--[                                                                        ]--
+--[ Params: testdir - the dir to search for tests.                         ]--
+--[         tests   - list of test to search for.                          ]--
+--[                                                                        ]--
+--[ Returns: The number of missing tests, and a list of tests which don't  ]--
+--[          exist.                                                        ]--
+--[========================================================================]--
+
 local function checktestsexist (testdir, tests)
 	local missingtests = {}   -- List of missing tests
 	local nummissing = 0      -- Number of missing tests
@@ -315,17 +362,22 @@ local function checktestsexist (testdir, tests)
 	trcendfn()
 	return nummissing, missingtests
 end
--- }}}
 
--- runvimtest (testdir, test) {{{
---
--- Run a given vim test.
---
--- Params: testdir  - the dir to search for tests.
---         test     - the test to run.
---
--- Returns: true if the test passed, else false.
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ runvimtest (testdir, test) {{{                                         ]--
+--[                                                                        ]--
+--[ Run a given vim test.                                                  ]--
+--[                                                                        ]--
+--[ Params: testdir  - the dir to search for tests                         ]--
+--[         test     - the test to run                                     ]--
+--[                                                                        ]--
+--[ Returns: true if the test passed, else false.                          ]--
+--[========================================================================]--
+
 local function runvimtest (testdir, test)
 	local passed              -- Whether the test passed
 	local fileroot            -- Filename root
@@ -389,17 +441,23 @@ local function runvimtest (testdir, test)
 	trcendfn()
 	return passed
 end
--- }}}
 
--- runalltests (testdir, tests) {{{
---
--- Run all the specified tests and return the number of passes and failures.
---
--- Params: testdir - the dir to search for tests.
---         tests   - the tests to run.
---
--- Returns: Number of passes, number of failures, names of failures
---
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ runalltests (testdir, tests) {{{                                       ]--
+--[                                                                        ]--
+--[ Run all the specified tests and return the number of passes and        ]--
+--[ failures.                                                              ]--
+--[                                                                        ]--
+--[ Params: testdir - the dir to search for tests.                         ]--
+--[         tests   - the tests to run.                                    ]--
+--[                                                                        ]--
+--[ Returns: Number of passes, number of failures, names of failures       ]--
+--[========================================================================]--
+
 local function runalltests (testdir, tests)
 	local numpassed = 0       -- Number of tests passed
 	local numfailed = 0       -- Number of tests failed
@@ -427,9 +485,16 @@ local function runalltests (testdir, tests)
 	trcendfn()
 	return numpassed, numfailed, failed
 end
--- }}}
 
-local function main (args) -- {{{
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ main(args) {{{                                                         ]--
+--[========================================================================]--
+
+local function main (args)
 	local testdir           -- Dir containing all tests
 	local cfgsuite          -- Configured suites
 	local argtests          -- Tests specified in the args
@@ -530,6 +595,8 @@ local function main (args) -- {{{
 	end
 end
 
--- }}}
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
 
 os.exit(main(arg))
