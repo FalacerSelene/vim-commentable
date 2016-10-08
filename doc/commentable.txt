@@ -1,0 +1,46 @@
+*commentable.txt*     Commentable - block comment formatter     *commentable*
+
+                            COMMENTABLE MANUAL
+
+1. About Commentable                              |commentable-about|
+2. Quick Start                                    |commentable-quickstart|
+3. Commands and Mappings                          |commentable-exposed|
+   3.1 Commands                                   |commentable-commands|
+   3.2 Mappings                                   |commentable-mappings|
+4. Configuration                                  |commentable-configuration|
+   4.1 Comment Style                              |commentable-style|
+   4.2 Comment Width                              |commentable-width|
+   4.3 Comment Paragraphs                         |commentable-paragraphs|
+
+=============================================================================
+1. ABOUT COMMENTABLE ~
+                                                          *commentable-about*
+
+=============================================================================
+2. QUICK START ~
+                                                     *commentable-quickstart*
+
+=============================================================================
+3. COMMANDS AND MAPPINGS ~
+                                                        *commentable-exposed*
+
+3.1 COMMANDS                                           *commentable-commands*
+------------
+
+3.2 MAPPINGS                                           *commentable-mappings*
+------------
+
+=============================================================================
+4. CONFIGURATION ~
+                                                  *commentable-configuration*
+
+4.1 COMMENT STYLE                                         *commentable-style*
+-----------------
+
+4.2 COMMENT WIDTH                                         *commentable-width*
+-----------------
+
+4.3 COMMENT PARAGRAPHS                               *commentable-paragraphs*
+----------------------
+
+" vim: set expandtab sts=2 ts=2 sw=2 tw=77 cc=78 ft=help norl:
