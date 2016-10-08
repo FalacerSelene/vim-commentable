@@ -21,7 +21,7 @@ TEMPTESTS += regression.trc
 #----------------------------------------------------------------------------#
 # Shell commands                                                             #
 #----------------------------------------------------------------------------#
-RM = rm
+RM = rm -f
 VIM = vim
 PRINTF = printf
 
@@ -41,13 +41,13 @@ $(VIMBALL): $(LISTFILE)
 		-c 'quitall!'
 
 $(LISTFILE): $(SOURCE)
-	$(PRINTF) '%s\n' $(foreach I,$(SOURCE),"$(I)") >| $(LISTFILE)
+	@$(PRINTF) '%s\n' $(foreach I,$(SOURCE),"$(I)") >| $(LISTFILE)
 
 install: $(VIMBALL)
 	$(VIM) $(VIMBALL) \
 		-c 'source %' \
 		-c 'quitall!'
-	@echo 'Installed - you will need to update helptags manually!'
+	@$(PRINTF) '%s\n' 'Installed - you will need to update helptags manually!'
 
 test:
 	./run-regressions --suite external
@@ -56,4 +56,5 @@ test-clean:
 	@-$(RM) $(TEMPTESTS)
 
 clean: test-clean
-	@-$(RM) $(VIMBALL) $(LISTFILE)
+	@-$(RM) $(VIMBALL)
+	@-$(RM) $(LISTFILE)
