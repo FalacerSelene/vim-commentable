@@ -1,25 +1,54 @@
 "|===========================================================================|
-"| File:        commentable.vim (autoload)                                   |
-"| Description: Adds utilities for block-commenting.                         |
-"| Author:      @galtish < mj dot git plus commentable at fastmail dot com > |
-"| Licence:     See LICENCE.md                                               |
-"| Version:     See plugin/commentable.vim                                   |
+"|                                                                           |
+"|         FILE:  autoload/commentable.vim                                   |
+"|                                                                           |
+"|  DESCRIPTION:  Primary autoload functions for plugin. Currently provides  |
+"|                all functionality.                                         |
+"|                                                                           |
+"|       AUTHOR:  @galtish                                                   |
+"|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
+"|      LICENCE:  See LICENCE.md                                             |
+"|      VERSION:  See plugin/commentable.vim                                 |
+"|                                                                           |
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#IsCommentBlock(lineno) abort                                  |
+"|                              API FUNCTIONS                                |
+"|===========================================================================|
+
+"|===========================================================================|
+"| commentable#IsCommentBlock(lineno) abort                              {{{ |
 "|                                                                           |
-"| Exposed wrapper around s:IsCommentBlock.                                  |
+"| Determines whether the given linenumber is part of a comment block or     |
+"| not. Exposed wrapper around s:IsCommentBlock.                             |
 "|                                                                           |
-"| Returns true/false.                                                       |
+"| PARAMS:                                                                   |
+"|   lineno) The line number to check.                                       |
+"|                                                                           |
+"| Returns zero if true, non-zero if false. May throw.                       |
 "|===========================================================================|
 function! commentable#IsCommentBlock(lineno) abort
 	let l:style = <SID>GetCommentStyle(indent(a:lineno) > 0)
 	return <SID>IsCommentBlock(a:lineno, l:style)
 endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
 
 "|===========================================================================|
-"| commentable#Reformat(lineno) abort                                        |
+"| commentable#Reformat(lineno) abort                                    {{{ |
+"|                                                                           |
+"| Reformat the comment block on the given line. Reformatting includes:      |
+"| - Aligning all the lines.                                                 |
+"| - Setting the line length to be correct.                                  |
+"| - Ensuring that all the text flows correctly from one line to the next.   |
+"| - Conforming to paragraph configuration.                                  |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   lineno) Reformat the comment block at this line. If the given line does |
+"|           not have a comment block on it, then do nothing.                |
+"|                                                                           |
+"| Returns nothing. May throw.                                               |
 "|===========================================================================|
 function! commentable#Reformat(lineno) abort
 	let l:indent = indent(a:lineno)
@@ -40,11 +69,23 @@ function! commentable#Reformat(lineno) abort
 	let l:lines = <SID>ReflowParagraphs(l:lines, l:textwidth)
 	let l:lines = <SID>CreateBlock(l:lines, l:style, l:textwidth, l:indentchars)
 
+	"|===============================================|
+	"| Changes occur after this point.               |
+	"|===============================================|
 	execute l:startline . ',' . l:endline . 'call <SID>ReplaceLines(l:lines)'
 endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
 
 "|===========================================================================|
-"| commentable#CreateBlock() abort range                                     |
+"| commentable#CreateBlock() abort range                                 {{{ |
+"|                                                                           |
+"| Create a new comment block comprising the text in the given range.        |
+"|                                                                           |
+"| PARAMS: NONE                                                              |
+"|                                                                           |
+"| Returns nothing. May throw.                                               |
 "|===========================================================================|
 function! commentable#CreateBlock() abort range
 	let l:indent = indent(a:firstline)
@@ -68,13 +109,20 @@ function! commentable#CreateBlock() abort range
 	"|===============================================|
 	execute a:firstline . ',' . a:lastline . 'call <SID>ReplaceLines(l:lines)'
 endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
 
 "|===========================================================================|
-"| Constant checking                                                         |
+"|                            SCRIPT CONSTANTS                               |
 "|===========================================================================|
 let s:t_number = v:version >= 800 ? v:t_number : type(0)
-let s:t_list = v:version >= 800 ? v:t_list : type([])
-let s:t_string = v:version >= 800 ? v:t_string : type([])
+let s:t_list   = v:version >= 800 ? v:t_list   : type([])
+let s:t_string = v:version >= 800 ? v:t_string : type('')
+
+"|===========================================================================|
+"|                           INTERNAL FUNCTIONS                              |
+"|===========================================================================|
 
 "|===========================================================================|
 "| s:IsCommentBlock(lineno, style) abort                                 {{{ |
@@ -89,7 +137,11 @@ let s:t_string = v:version >= 800 ? v:t_string : type([])
 "| 3) Begins with the non-null medial from the current style, and            |
 "|    immediately follows a line which also counts as a comment.             |
 "|                                                                           |
-"| Returns true/false.                                                       |
+"| PARAMS:                                                                   |
+"|   lineno) The line to evaluate.                                           |
+"|   style ) The style by which to evaluate the line.                        |
+"|                                                                           |
+"| Returns true/false. May throw.                                            |
 "|===========================================================================|
 function! s:IsCommentBlock(lineno, style) abort
 	let l:linetext = substitute(getline(a:lineno),
@@ -104,7 +156,7 @@ function! s:IsCommentBlock(lineno, style) abort
 		"| Line starts with the correct opener           |
 		"|===============================================|
 		return 1
-	elseif ((l:finisher !=# '') &&
+	elseif ((l:finisher !=# '')                        &&
 	 \      (strlen(l:linetext) >= strlen(l:finisher)) &&
 	 \      (match(l:linetext, '\V' . l:finisher)
 	 \       == l:linelength - len(l:finisher)))
@@ -112,9 +164,9 @@ function! s:IsCommentBlock(lineno, style) abort
 		"| Line terminaties with the correct finisher    |
 		"|===============================================|
 		return 2
-	elseif ((l:medial !=# '') &&
-	 \      (a:lineno > 1) &&
-	 \      (strlen(l:linetext) >= strlen(l:medial)) &&
+	elseif ((l:medial !=# '')                         &&
+	 \      (a:lineno > 1)                            &&
+	 \      (strlen(l:linetext) >= strlen(l:medial))  &&
 	 \      (match(l:linetext, '\V' . l:medial) == 0) &&
 	 \      (<SID>IsCommentBlock(a:lineno - 1, a:style)))
 		"|===============================================|
@@ -135,6 +187,14 @@ endfunction
 
 "|===========================================================================|
 "| s:GetVar(varname) abort                                               {{{ |
+"|                                                                           |
+"| Fetch a configuration variable.                                           |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   varname) The config item to fetch.                                      |
+"|                                                                           |
+"| Returns a buffer local version of the variable, if one exists. Else,      |
+"| returns the global version. If neither is set, throws.                    |
 "|===========================================================================|
 function! s:GetVar(varname) abort
 	if exists('b:' . a:varname)
@@ -151,6 +211,19 @@ endfunction
 
 "|===========================================================================|
 "| s:GetCommentStyle(is_indented) abort                                  {{{ |
+"|                                                                           |
+"| Get the current comment style, and ensure that it is valid. A valid style |
+"| must:                                                                     |
+"| - Be a list.                                                              |
+"| - Be 3 items long.                                                        |
+"| - Contain only strings.                                                   |
+"| - Contain no strings with whitespace.                                     |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   is_indented) If this is true, then will first check and attempt to      |
+"|                return the sub-style.                                      |
+"|                                                                           |
+"| Returns the configured style. Throws if the style is invalid.             |
 "|===========================================================================|
 function! s:GetCommentStyle(is_indented) abort
 	"|===============================================|
@@ -174,14 +247,13 @@ function! s:GetCommentStyle(is_indented) abort
 	"| Now we have a style - validate it.            |
 	"|===============================================|
 	if type(l:style) !=# s:t_list ||
-	 \ len(l:style) !=# 3 ||
-	 \ l:style[0] ==# ''
+	 \ len(l:style)  !=# 3        ||
+	 \ l:style[0]    ==# ''
 		throw 'Commentable:INVALID SETTING:' . l:using_var
 	else
-		let l:elem = ''
 		for l:elem in l:style
 			if type(l:elem) !=# s:t_string ||
-			 \ l:elem =~# '\m\_s'
+			 \ l:elem       =~# '\m\_s'
 				throw 'Commentable:INVALID SETTING:' . l:using_var
 			endif
 		endfor

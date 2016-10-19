@@ -1,13 +1,19 @@
 "|===========================================================================|
-"| File:        commentable.vim                                              |
-"| Description: Main entrance point. Adds utilities for block-commenting.    |
-"| Author:      @galtish < mj dot git plus commentable at fastmail dot com > |
-"| Licence:     See LICENCE.md                                               |
-"| Version:     0.1.0 <indev>                                                |
+"|                                                                           |
+"|         FILE:  plugin/commentable.vim                                     |
+"|                                                                           |
+"|  DESCRIPTION:  Main entrance point for plugin. Adds utilities for block   |
+"|                commenting.                                                |
+"|                                                                           |
+"|       AUTHOR:  @galtish                                                   |
+"|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
+"|      LICENCE:  See LICENCE.md                                             |
+"|      VERSION:  0.1.0 <indev>                                              |
+"|                                                                           |
 "|===========================================================================|
 
 "|===========================================================================|
-"| Initial setup                                                         {{{ |
+"|                                  SETUP                                    |
 "|===========================================================================|
 scriptencoding utf-8
 
@@ -16,12 +22,70 @@ if &compatible || exists('g:loaded_commentable') || v:version < 704
 endif
 
 let g:loaded_commentable = 1
+
 "|===========================================================================|
-"| }}}                                                                       |
+"|                             USER INTERFACE                                |
+"|===========================================================================|
+
+"|===========================================================================|
+"| CommentableReformat                                                       |
+"|===========================================================================|
+command -nargs=0 -range -bar CommentableReformat <line1>,<line2>call <SID>Reformat(0)
+nnoremap <silent><unique> <Plug>(CommentableReformat)
+	\ :<c-u>call <SID>Reformat(1)<CR>
+
+"|===========================================================================|
+"| CommentableCreate                                                         |
+"|===========================================================================|
+command -nargs=0 -range -bar CommentableCreate <line1>,<line2>call <SID>CreateBlock(0)
+nnoremap <silent><unique> <Plug>(CommentableCreate)
+	\ :<c-u>call <SID>CreateBlock(1)<CR>
+xnoremap <silent><unique> <Plug>(CommentableCreate)
+	\ :<c-u>'<,'>call <SID> CreateBlock(1)<CR>
+
+"|===========================================================================|
+"| CommentableSetDefaultStyle                                                |
+"|===========================================================================|
+command -nargs=0 -bar CommentableSetDefaultStyle
+	\ let g:CommentableBlockStyle = ['#', '', '']
+	\ let g:CommentableBlockWidth = 80
+	\ let g:CommentableParaBefore = ['\m^[+-\*o]']
+	\ let g:CommentableParaAfter  = ['\m:$']
+	\ let g:CommentableParaBoth = [
+	\   '\V' . split(&foldmarker, '\v\\@<!,')[0],
+	\   '\V' . split(&foldmarker, '\v\\@<!,')[1],
+	\   '\m^\s*$'
+	\ ]
+	\ augroup Commentable
+	\   autocmd!
+	\   autocmd FileType python let b:CommentableBlockStyle = ['#' , '-', ''  ]
+	\   autocmd FileType perl   let b:CommentableBlockStyle = ['#*', '*', '*#']
+	\   autocmd FileType sh     let b:CommentableBlockStyle = ['#' , '#', '#' ]
+	\   autocmd FileType c      let b:CommentableBlockStyle = ['/*', '*', '*/']
+	\   autocmd FileType cpp    let b:CommentableBlockStyle = ['/*', '*', '*/']
+	\   autocmd FileType java   let b:CommentableBlockStyle = ['//', '-', '//']
+	\   autocmd FileType scheme let b:CommentableBlockStyle = [';;', '-', ';;']
+	\   autocmd FileType vim    let b:CommentableBlockStyle = ['"' , '-', ''  ]
+	\   autocmd FileType make   let b:CommentableBlockStyle = ['#' , '-', ''  ]
+	\   autocmd FileType python let b:CommentableBlockWidth = 79
+	\ augroup END
+
+"|===========================================================================|
+"|                                FUNCTIONS                                  |
+"|===========================================================================|
+
 "|===========================================================================|
 "| s:Reformat(setrepeat) range                                           {{{ |
+"|                                                                           |
+"| Reformat the current block at the current location, or if a range is      |
+"| given, then reformat all comment blocks within the range.                 |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   setrepeat) If 1, set vim-repeat's '.' command.                          |
+"|                                                                           |
+"| Returns nothing. May error, if a lower exception propagate upwards.       |
 "|===========================================================================|
-function! s:Reformat(setrepeat) range
+function s:Reformat(setrepeat) range
 	try
 		let l:toreformat = []
 		let l:primed = 1
@@ -58,9 +122,18 @@ endfunction
 "|===========================================================================|
 "| }}}                                                                       |
 "|===========================================================================|
-"| s:CreateBlock(setrepeat) range                                        {{{ |
+
 "|===========================================================================|
-function! s:CreateBlock(setrepeat) range
+"| s:CreateBlock(setrepeat) range                                        {{{ |
+"|                                                                           |
+"| Create a new comment block comprising the text in the given range.        |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   setrepeat) If 1, set vim-repeat's '.' command.                          |
+"|                                                                           |
+"| Returns nothing. May error, if a lower exception propagate upwards.       |
+"|===========================================================================|
+function s:CreateBlock(setrepeat) range
 	try
 		execute a:firstline . ',' . a:lastline 'call commentable#CreateBlock()'
 	catch
@@ -71,43 +144,6 @@ function! s:CreateBlock(setrepeat) range
 		silent! call repeat#set("\<Plug>(CommentableCreate)")
 	endif
 endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-"| Commands (exposed to user)                                            {{{ |
-"|===========================================================================|
-command -nargs=0 -range CommentableReformat <line1>,<line2>call <SID>Reformat(0)
-nnoremap <silent><unique> <Plug>(CommentableReformat)
-	\ :<c-u>call <SID>Reformat(1)<CR>
-
-command -nargs=0 -range CommentableCreate <line1>,<line2>call <SID>CreateBlock(0)
-nnoremap <silent><unique> <Plug>(CommentableCreate)
-	\ :<c-u>call <SID>CreateBlock(1)<CR>
-xnoremap <silent><unique> <Plug>(CommentableCreate)
-	\ :<c-u>'<,'>call <SID> CreateBlock(1)<CR>
-
-command -nargs=0 CommentableSetDefaultStyle
-	\ let g:CommentableBlockStyle = ['#', '', '']
-	\ let g:CommentableBlockWidth = 80
-	\ let g:CommentableParaBefore = ['\m^[+-\*o]']
-	\ let g:CommentableParaAfter  = ['\m:$']
-	\ let g:CommentableParaBoth = [
-	\   '\V' . split(&foldmarker, '\v\\@<!,')[0],
-	\   '\V' . split(&foldmarker, '\v\\@<!,')[1],
-	\   '\m^\s*$'
-	\ ]
-	\ augroup Commentable
-	\   autocmd FileType python let b:CommentableBlockStyle = ['#', '-', '']
-	\   autocmd FileType perl let b:CommentableBlockStyle = ['#*', '*', '*#']
-	\   autocmd FileType sh let b:CommentableBlockStyle = ['#', '#', '#']
-	\   autocmd FileType c let b:CommentableBlockStyle = ['/*', '*', '*/']
-	\   autocmd FileType cpp let b:CommentableBlockStyle = ['/*', '*', '*/']
-	\   autocmd FileType java let b:CommentableBlockStyle = ['//', '-', '//']
-	\   autocmd FileType scheme let b:CommentableBlockStyle = [';;', '-', ';;']
-	\   autocmd FileType vim let b:CommentableBlockStyle = ['"', '-', '']
-	\   autocmd FileType make let b:CommentableBlockStyle = ['#', '-', '']
-	\   autocmd FileType python let b:CommentableBlockWidth = 79
-	\ augroup END
 "|===========================================================================|
 "| }}}                                                                       |
 "|===========================================================================|
