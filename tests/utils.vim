@@ -35,8 +35,10 @@ function ResetVariables() abort
 	let l:vars = [
 	\ 'CommentableBlockStyle',
 	\ 'CommentableBlockWidth',
+	\ 'CommentableBlockColumn',
 	\ 'CommentableSubStyle',
 	\ 'CommentableSubWidth',
+	\ 'CommentableSubColumn',
 	\ 'CommentableParaBefore',
 	\ 'CommentableParaAfter',
 	\ 'CommentableParaBoth',
@@ -94,5 +96,5 @@ endfunction
 "| Commands                                                                  |
 "|===========================================================================|
 command -nargs=1 Out call Out(<args>)
-command NextCase call Out(repeat('=', 78)) | call ResetVariables()
+command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
 
