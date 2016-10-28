@@ -51,7 +51,7 @@ command -nargs=0 -bar CommentableSetDefaultStyle
 	\ let g:CommentableBlockWidth = 80
 	\ let g:CommentableParaBefore = ['\m^[+-\*o]']
 	\ let g:CommentableParaAfter  = ['\m:$']
-	\ let g:CommentableParaBoth = [
+	\ let g:CommentableParaBoth   = [
 	\   '\V' . split(&foldmarker, '\v\\@<!,')[0],
 	\   '\V' . split(&foldmarker, '\v\\@<!,')[1],
 	\   '\m^\s*$'

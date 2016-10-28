@@ -10,12 +10,12 @@ edit input/comment_styles.in
 NextCase
 Out 'Reformat C-style comments with both styles set'
 
-Out "C-style set"
+Out 'C style set'
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 call append(line('$'), GetCase(1))
 execute line('$') . 'CommentableReformat'
 
-Out "Lua-style set"
+Out 'Lua style set'
 let g:CommentableBlockStyle = ['--[', '=', ']--']
 call append(line('$'), GetCase(1))
 execute line('$') . 'CommentableReformat'
@@ -26,12 +26,12 @@ execute line('$') . 'CommentableReformat'
 NextCase
 Out 'Reformat Lua-style comments with both styles set'
 
-Out "C-style set"
+Out 'C style set'
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 call append(line('$'), GetCase(2))
 execute line('$') . 'CommentableReformat'
 
-Out "Lua-style set"
+Out 'Lua style set'
 let g:CommentableBlockStyle = ['--[', '=', ']--']
 call append(line('$'), GetCase(2))
 execute line('$') . 'CommentableReformat'
@@ -42,22 +42,22 @@ execute line('$') . 'CommentableReformat'
 NextCase
 Out 'Reformat a comment with only a leader'
 
-Out "Normal C-style"
+Out 'Normal C-style'
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 call append(line('$'), GetCase(3))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no final"
+Out 'C style with no final'
 let g:CommentableBlockStyle = ['/*', '*', '']
 call append(line('$'), GetCase(3))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no medial"
+Out 'C style with no medial'
 let g:CommentableBlockStyle = ['/*', '', '*/']
 call append(line('$'), GetCase(3))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no medial or final"
+Out 'C style with no medial or final'
 let g:CommentableBlockStyle = ['/*', '', '']
 call append(line('$'), GetCase(3))
 execute line('$') . 'CommentableReformat'
@@ -68,22 +68,22 @@ execute line('$') . 'CommentableReformat'
 NextCase
 Out 'Reformat a comment with only a final'
 
-Out "Normal C-style"
+Out 'Normal C-style'
 let g:CommentableBlockStyle = ['/*', '*', '*/']
 call append(line('$'), GetCase(4))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no final"
+Out 'C style with no final'
 let g:CommentableBlockStyle = ['/*', '*', '']
 call append(line('$'), GetCase(4))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no medial"
+Out 'C style with no medial'
 let g:CommentableBlockStyle = ['/*', '', '*/']
 call append(line('$'), GetCase(4))
 execute line('$') . 'CommentableReformat'
 
-Out "C-style with no medial or final"
+Out 'C style with no medial or final'
 let g:CommentableBlockStyle = ['/*', '', '']
 call append(line('$'), GetCase(4))
 execute line('$') . 'CommentableReformat'

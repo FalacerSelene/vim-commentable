@@ -25,17 +25,17 @@ Only has a final? */
 -- End of Input --
 ==============================================================================
 Reformat C-style comments with both styles set
-C-style set
+C style set
 /******************************************************************************/
 /* C-style comment                                                            */
 /******************************************************************************/
-Lua-style set
+Lua style set
 /* C-style comment */
 ==============================================================================
 Reformat Lua-style comments with both styles set
-C-style set
+C style set
 --[ Lua-style comment ]--
-Lua-style set
+Lua style set
 --[==========================================================================]--
 --[ Lua-style comment                                                        ]--
 --[==========================================================================]--
@@ -45,13 +45,13 @@ Normal C-style
 /******************************************************************************/
 /* Only has a leader?                                                         */
 /******************************************************************************/
-C-style with no final
+C style with no final
 /*******************************************************************************
 /* Only has a leader?                                                           
 /*******************************************************************************
-C-style with no medial
+C style with no medial
 /* Only has a leader?                                                         */
-C-style with no medial or final
+C style with no medial or final
 /* Only has a leader?                                                           
 ==============================================================================
 Reformat a comment with only a final
@@ -59,11 +59,11 @@ Normal C-style
 /******************************************************************************/
 /* Only has a final?                                                          */
 /******************************************************************************/
-C-style with no final
+C style with no final
 Only has a final? */
-C-style with no medial
+C style with no medial
 /* Only has a final?                                                          */
-C-style with no medial or final
+C style with no medial or final
 Only has a final? */
 ==============================================================================
 Reformat a multiline comment down to one line

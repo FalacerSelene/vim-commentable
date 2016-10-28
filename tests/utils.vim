@@ -95,6 +95,6 @@ endfunction
 "|===========================================================================|
 "| Commands                                                                  |
 "|===========================================================================|
-command -nargs=1 Out call Out(<args>)
+command -bar -nargs=1 Out call Out(<args>)
 command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
 
