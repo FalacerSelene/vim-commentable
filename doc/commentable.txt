@@ -12,25 +12,65 @@
    4.2 Comment Width                              |commentable-width|
    4.3 Comment Paragraphs                         |commentable-paragraphs|
 
-=============================================================================
+============================================================================
 1. ABOUT COMMENTABLE ~
                                                           *commentable-about*
 
-=============================================================================
+============================================================================
 2. QUICK START ~
                                                      *commentable-quickstart*
 
-=============================================================================
+============================================================================
 3. COMMANDS AND MAPPINGS ~
                                                         *commentable-exposed*
 
 3.1 COMMANDS                                           *commentable-commands*
 ------------
 
+:CommentableCreate                                       *:CommentableCreate*
+
+:CommentableReformat                                   *:CommentableReformat*
+
+:CommentableSetDefaultStyle                     *:CommentableSetDefaultStyle*
+
 3.2 MAPPINGS                                           *commentable-mappings*
 ------------
 
-=============================================================================
+Commentable does not provide any default mappings - it doesn't want to wreck
+your carefully crafted custom shortcuts. It does, however, provide a set of
+<Plug> mappings which call equivalents from the |commentable-commands|
+sections, and also integrates with Tim Pope's |vim-repeat| plugin, setting the
+'.' key to repeat the mapped-to action.
+
+The mappings are defined in `Normal-mode`, `Visual-mode`, and `Select-mode`.
+In Normal mode they call the corresponding command on the current line; in
+Visual and Select mode they call the command with the current selection as the
+range.
+
+In order to use these mappings you will need to map something on to them in
+your `vimrc` file. An example of how you might do this is: >
+      :nmap ,c <Plug>(CommentableReformat)
+      :vmap ,c <Plug>(CommentableReformat)
+      :nmap ,C <Plug>(CommentableCreate)
+      :vmap ,C <Plug>(CommentableCreate)
+In order for this to work the standard `:map` set of commands must be used
+rather then usually preferred `:noremap` set.
+
+<Plug>(CommentableCreate)                         *<Plug>(CommentableCreate)*
+                        Carries out the same action as
+                        |:CommentableCreate| - i.e. creates a new block
+                        comment with the current line as its contents. Also
+                        sets the '`.`' key to repeat this if |vim-repeat| is
+                        installed.
+
+<Plug>(CommentableReformat)                     *<Plug>(CommentableReformat)*
+                        Carries out the same action as
+                        |:CommentableReformat| - i.e. reformats the block
+                        under the cursor according to the current
+                        configuration. Also sets the '`.`' key to repeat this
+                        if |vim-repeat| is installed.
+
+============================================================================
 4. CONFIGURATION ~
                                                   *commentable-configuration*
 

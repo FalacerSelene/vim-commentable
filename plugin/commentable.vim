@@ -33,6 +33,8 @@ let g:loaded_commentable = 1
 command -nargs=0 -range -bar CommentableReformat <line1>,<line2>call <SID>Reformat(0)
 nnoremap <silent><unique> <Plug>(CommentableReformat)
 	\ :<c-u>call <SID>Reformat(1)<CR>
+vnoremap <silent><unique> <Plug>(CommentableReformat)
+	\ :<c-u>'<,'>call <SID>Reformat(1)<CR>
 
 "|===========================================================================|
 "| CommentableCreate                                                         |
@@ -40,8 +42,8 @@ nnoremap <silent><unique> <Plug>(CommentableReformat)
 command -nargs=0 -range -bar CommentableCreate <line1>,<line2>call <SID>CreateBlock(0)
 nnoremap <silent><unique> <Plug>(CommentableCreate)
 	\ :<c-u>call <SID>CreateBlock(1)<CR>
-xnoremap <silent><unique> <Plug>(CommentableCreate)
-	\ :<c-u>'<,'>call <SID> CreateBlock(1)<CR>
+vnoremap <silent><unique> <Plug>(CommentableCreate)
+	\ :<c-u>'<,'>call <SID>CreateBlock(1)<CR>
 
 "|===========================================================================|
 "| CommentableSetDefaultStyle                                                |
