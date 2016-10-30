@@ -408,7 +408,7 @@ local function runvimtest (testdir, test)
 
 	vimcmd = ("vim -E -n -N -u " ..
 	          testdir .. "/../" .. VIMRCNAME ..
-	          ' -c "source ' .. vimfile .. '"')
+	          ' -c "silent source ' .. vimfile .. '"')
 
 	-- Running test
 	trc("Run test: " .. vimfile)
