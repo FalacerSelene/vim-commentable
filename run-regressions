@@ -290,7 +290,7 @@ local function parseargs (args)
 	if not args[1] then
 		-- Set default suite
 		trc("Set default suite")
-		args = {"--suite", "external"}
+		args = {"--suite", "all"}
 	end
 
 	for _,arg in ipairs(args) do
