@@ -27,10 +27,4 @@ for s:paraboth in [['\m^\s*$'], []]
 	endfor
 endfor
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/reformat_5_lines.out
-quitall!
+EndTest reformat_5_lines

@@ -28,10 +28,4 @@ endfunction
 
 call <SID>RunCases()
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/create_too_short.out
-quitall!
+EndTest create_too_short

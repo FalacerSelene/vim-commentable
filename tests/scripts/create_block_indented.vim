@@ -24,10 +24,4 @@ endfunction
 
 call <SID>RunCases()
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/create_block_indented.out
-quitall!
+EndTest create_block_indented

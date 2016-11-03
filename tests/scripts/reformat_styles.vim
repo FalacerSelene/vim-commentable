@@ -124,10 +124,4 @@ while match(s:linetext, '\V\/*') == -1
 endwhile
 execute s:linenum . 'CommentableReformat'
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/reformat_styles.out
-quitall!
+EndTest reformat_styles

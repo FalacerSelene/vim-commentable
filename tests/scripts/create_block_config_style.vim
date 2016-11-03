@@ -31,10 +31,4 @@ call <SID>DoCase('Case 5 - style with no medial part',
 call <SID>DoCase('Case 6 - style with initial and medial only',
  \               [';;', '', ';;'])
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/create_block_config_style.out
-quitall!
+EndTest create_block_config_style

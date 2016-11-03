@@ -20,10 +20,4 @@ catch
 	call Out(v:exception)
 endtry
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/create_block_single_mapping.out
-quitall!
+EndTest create_block_single_mapping

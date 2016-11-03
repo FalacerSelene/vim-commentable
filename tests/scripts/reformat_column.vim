@@ -47,10 +47,4 @@ for s:case in range(1, 5)
 	call <SID>RunCase(s:case)
 endfor
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/reformat_column.out
-quitall!
+EndTest reformat_column

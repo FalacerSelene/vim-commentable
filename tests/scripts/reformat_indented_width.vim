@@ -37,10 +37,4 @@ endfunction
 
 call <SID>RunCases()
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/reformat_indented_width.out
-quitall!
+EndTest reformat_indented_width

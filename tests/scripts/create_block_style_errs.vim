@@ -41,10 +41,4 @@ call <SID>DoCase('Case 5 - whitespace element',
  \               ['/*', ' ', '*/'],
  \               1)
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/create_block_style_errs.out
-quitall!
+EndTest create_block_style_errs

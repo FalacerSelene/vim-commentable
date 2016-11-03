@@ -21,10 +21,4 @@ catch
 	call Out(v:exception)
 endtry
 
-"|===========================================================================|
-"| Save and conclude                                                         |
-"|===========================================================================|
-NextCase
-Out '-- End of Test --'
-saveas output/reformat_mapping.out
-quitall!
+EndTest reformat_mapping

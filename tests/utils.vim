@@ -93,8 +93,29 @@ function GetCase(casenum) abort
 endfunction
 
 "|===========================================================================|
+"| Finish the test elegantly                                                 |
+"|===========================================================================|
+function EndTest(testname) abort
+	call Out(repeat('=', 78))
+	call Out('-- End of Test --')
+	let l:firstline = getline(1)
+	if l:firstline ==# '-- Start of Input --'
+		let l:lastlinenum = 2
+		while getline(l:lastlinenum) !=# '-- End of Input --'
+			let l:lastlinenum += 1
+		endwhile
+		execute "1," . l:lastlinenum . "delete _"
+		call append(line(0), '-- Start of Test --')
+	endif
+
+	execute "saveas output/" . a:testname . ".out"
+	quitall!
+endfunction
+
+"|===========================================================================|
 "| Commands                                                                  |
 "|===========================================================================|
 command -bar -nargs=1 Out call Out(<args>)
 command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
+command -bar -nargs=1 EndTest call EndTest(<q-args>)
 
