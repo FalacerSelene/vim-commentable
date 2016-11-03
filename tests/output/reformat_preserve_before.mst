@@ -1,0 +1,100 @@
+-- Start of Test --
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  []
+/******************************************************************************/
+/* And did those feet in ancient time, Walk upon Englands mountains green:    */
+/* And was the holy Lamb of God, On Englands pleasant pastures seen! And did  */
+/* the Countenance Divine, Shine forth upon our clouded hills? And was        */
+/* Jerusalem builded here, Among these dark Satanic Mills? Bring me my Bow of */
+/* burning gold; Bring me my Arrows of desire: Bring me my Spear: O clouds    */
+/* unfold! Bring me my Chariot of fire! I will not cease from Mental Fight,   */
+/* Nor shall my Sword sleep in my hand: Till we have built Jerusalem, In      */
+/* Englands green & pleasant Land                                             */
+/******************************************************************************/
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  ['']
+/******************************************************************************/
+/* And did those feet in ancient time,                                        */
+/* Walk upon Englands mountains green:                                        */
+/* And was the holy Lamb of God,                                              */
+/* On Englands pleasant pastures seen!                                        */
+/* And did the Countenance Divine,                                            */
+/* Shine forth upon our clouded hills?                                        */
+/* And was Jerusalem builded here,                                            */
+/* Among these dark Satanic Mills?                                            */
+/* Bring me my Bow of burning gold;                                           */
+/* Bring me my Arrows of desire:                                              */
+/* Bring me my Spear: O clouds unfold!                                        */
+/* Bring me my Chariot of fire!                                               */
+/* I will not cease from Mental Fight,                                        */
+/* Nor shall my Sword sleep in my hand:                                       */
+/* Till we have built Jerusalem,                                              */
+/* In Englands green & pleasant Land                                          */
+/******************************************************************************/
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  ['\m^\s*$']
+/******************************************************************************/
+/* And did those feet in ancient time, Walk upon Englands mountains green:    */
+/* And was the holy Lamb of God, On Englands pleasant pastures seen!          */
+/* And did the Countenance Divine, Shine forth upon our clouded hills? And    */
+/* was Jerusalem builded here, Among these dark Satanic Mills?                */
+/* Bring me my Bow of burning gold; Bring me my Arrows of desire: Bring me my */
+/* Spear: O clouds unfold! Bring me my Chariot of fire!                       */
+/* I will not cease from Mental Fight, Nor shall my Sword sleep in my hand:   */
+/* Till we have built Jerusalem, In Englands green & pleasant Land            */
+/******************************************************************************/
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  ['e']
+/******************************************************************************/
+/* And did those feet in ancient time,                                        */
+/* Walk upon Englands mountains green:                                        */
+/* And was the holy Lamb of God,                                              */
+/* On Englands pleasant pastures seen!                                        */
+/* And did the Countenance Divine,                                            */
+/* Shine forth upon our clouded hills?                                        */
+/* And was Jerusalem builded here,                                            */
+/* Among these dark Satanic Mills?                                            */
+/* Bring me my Bow of burning gold;                                           */
+/* Bring me my Arrows of desire:                                              */
+/* Bring me my Spear: O clouds unfold!                                        */
+/* Bring me my Chariot of fire!                                               */
+/* I will not cease from Mental Fight,                                        */
+/* Nor shall my Sword sleep in my hand:                                       */
+/* Till we have built Jerusalem,                                              */
+/* In Englands green & pleasant Land                                          */
+/******************************************************************************/
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  ['England']
+/******************************************************************************/
+/* And did those feet in ancient time,                                        */
+/* Walk upon Englands mountains green: And was the holy Lamb of God,          */
+/* On Englands pleasant pastures seen! And did the Countenance Divine, Shine  */
+/* forth upon our clouded hills? And was Jerusalem builded here, Among these  */
+/* dark Satanic Mills? Bring me my Bow of burning gold; Bring me my Arrows of */
+/* desire: Bring me my Spear: O clouds unfold! Bring me my Chariot of fire! I */
+/* will not cease from Mental Fight, Nor shall my Sword sleep in my hand:     */
+/* Till we have built Jerusalem,                                              */
+/* In Englands green & pleasant Land                                          */
+/******************************************************************************/
+==============================================================================
+Reformat the comment with PreserveBefore ...
+  ['^Bring']
+/******************************************************************************/
+/* And did those feet in ancient time, Walk upon Englands mountains green:    */
+/* And was the holy Lamb of God, On Englands pleasant pastures seen! And did  */
+/* the Countenance Divine, Shine forth upon our clouded hills? And was        */
+/* Jerusalem builded here, Among these dark Satanic Mills?                    */
+/* Bring me my Bow of burning gold;                                           */
+/* Bring me my Arrows of desire:                                              */
+/* Bring me my Spear: O clouds unfold!                                        */
+/* Bring me my Chariot of fire! I will not cease from Mental Fight, Nor shall */
+/* my Sword sleep in my hand: Till we have built Jerusalem, In Englands green */
+/* & pleasant Land                                                            */
+/******************************************************************************/
+==============================================================================
+-- End of Test --
