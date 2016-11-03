@@ -12,7 +12,7 @@ for s:paraboth in [['\m^\s*$'], []]
 		NextCase
 
 		call Out('Reformat a comment with cursor from line ' . s:at_lineno)
-		Out '  With g:CommentableParaBoth ...'
+		Out '  With g:CommentablePreserveBoth ...'
 		if empty(s:paraboth)
 			Out '    EMPTY'
 		else
@@ -20,7 +20,7 @@ for s:paraboth in [['\m^\s*$'], []]
 		endif
 
 		let g:CommentableBlockStyle = ['/*', '*', '*/']
-		let g:CommentableParaBoth = s:paraboth
+		let g:CommentablePreserveBoth = s:paraboth
 		call append(line('$'), GetCase(1))
 		let s:line = line('$') + s:at_lineno - 6
 		execute s:line . 'CommentableReformat'

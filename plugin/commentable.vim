@@ -30,7 +30,8 @@ let g:loaded_commentable = 1
 "|===========================================================================|
 "| CommentableReformat                                                       |
 "|===========================================================================|
-command -nargs=0 -range -bar CommentableReformat <line1>,<line2>call <SID>Reformat(0)
+command -nargs=0 -range -bar CommentableReformat
+	\ <line1>,<line2>call <SID>Reformat(0)
 nnoremap <silent><unique> <Plug>(CommentableReformat)
 	\ :<c-u>call <SID>Reformat(1)<CR>
 vnoremap <silent><unique> <Plug>(CommentableReformat)
@@ -39,7 +40,8 @@ vnoremap <silent><unique> <Plug>(CommentableReformat)
 "|===========================================================================|
 "| CommentableCreate                                                         |
 "|===========================================================================|
-command -nargs=0 -range -bar CommentableCreate <line1>,<line2>call <SID>CreateBlock(0)
+command -nargs=0 -range -bar CommentableCreate
+	\ <line1>,<line2>call <SID>CreateBlock(0)
 nnoremap <silent><unique> <Plug>(CommentableCreate)
 	\ :<c-u>call <SID>CreateBlock(1)<CR>
 vnoremap <silent><unique> <Plug>(CommentableCreate)
@@ -49,11 +51,11 @@ vnoremap <silent><unique> <Plug>(CommentableCreate)
 "| CommentableSetDefaultStyle                                                |
 "|===========================================================================|
 command -nargs=0 -bar CommentableSetDefaultStyle
-	\ let g:CommentableBlockStyle = ['#', '', '']
-	\ let g:CommentableBlockWidth = 80
-	\ let g:CommentableParaBefore = ['\m^[+-\*o]']
-	\ let g:CommentableParaAfter  = ['\m:$']
-	\ let g:CommentableParaBoth   = [
+	\ let g:CommentableBlockStyle     = ['#', '', '']
+	\ let g:CommentableBlockWidth     = 80
+	\ let g:CommentablePreserveBefore = ['\m^[+-\*o]']
+	\ let g:CommentablePreserveAfter  = ['\m:$']
+	\ let g:CommentablePreserveBoth   = [
 	\   '\V' . split(&foldmarker, '\v\\@<!,')[0],
 	\   '\V' . split(&foldmarker, '\v\\@<!,')[1],
 	\   '\m^\s*$'

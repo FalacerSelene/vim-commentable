@@ -364,9 +364,9 @@ endfunction
 function! s:GetPreserveList() abort
 	let l:ret = []
 	for [l:name, l:default] in [
-	 \   ['CommentableParaBefore', []],
-	 \   ['CommentableParaAfter', []],
-	 \   ['CommentableParaBoth', ['\m^\s*$']],
+	 \   ['CommentablePreserveBefore', []],
+	 \   ['CommentablePreserveAfter', []],
+	 \   ['CommentablePreserveBoth', ['\m^\s*$']],
 	 \ ]
 		try
 			let l:val = <SID>GetVar(l:name)
