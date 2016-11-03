@@ -4,10 +4,11 @@
 --[ Require modules {{{                                                    ]--
 --[========================================================================]--
 
-local lfs = require('lfs')
+local lfs = nil
 
-if not lfs then
+if not pcall(function () lfs = require('lfs') end) then
 	print('Warning - running without lfs.')
+	print('Will fall back to shell.')
 	print('Tests may be slightly slower.')
 end
 
