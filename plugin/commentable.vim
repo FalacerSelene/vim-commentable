@@ -83,7 +83,8 @@ command -nargs=0 -bar CommentableSetDefaultStyle
 "| Returns nothing. May error, if a lower exception propagate upwards.       |
 "|===========================================================================|
 function s:Reformat(setrepeat) range
-	"try
+	try
+		CommentableDebug 'Running reformat command'
 		let l:toreformat = []
 		let l:primed = 1
 		for l:lineno in range(a:firstline, a:lastline)
@@ -105,9 +106,9 @@ function s:Reformat(setrepeat) range
 		for l:lineno in l:toreformat
 			call commentable#Reformat(l:lineno)
 		endfor
-	"catch
-		"echoerr v:exception
-	"endtry
+	catch
+		echoerr v:exception
+	endtry
 
 	"|===============================================|
 	"| Set '.' command if we have the right plugin.  |
