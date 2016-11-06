@@ -16,24 +16,26 @@
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#paragraph#New(intro, indent) abort                        {{{ |
+"| commentable#paragraph#New(line) abort                                 {{{ |
 "|                                                                           |
 "| Create a new paragraph object.                                            |
 "|                                                                           |
 "| PARAMS:                                                                   |
-"|   intro) Text introducing the paragraph. Any lines after the first will   |
-"|          have this length of text as whitespace prepended.                |
-"|   indent) Amount of leading whitespace to prepend to every line.          |
+"|   line) The first line of the paragraph, which determines the indent and  |
+"|         intro string.                                                     |
 "|                                                                           |
 "| Returns a paragraph object.                                               |
 "|===========================================================================|
-function! commentable#paragraph#New(intro, indent) abort
-	let l:obj = {
-	 \ "indent": a:indent,
-	 \ "intro": a:intro,
-	 \ "body": "",
-	 \ "GetText": function("<SID>GetText"),
-	 \ "AddLine": function("<SID>AddLine"),
+function! commentable#paragraph#New(line) abort
+	let [l:indent, l:intro] = <SID>GetLineIntro(a:line)
+	let l:restofline = a:line[(l:indent + strlen(l:intro)):]
+	return {
+	 \ 'indent': l:indent,
+	 \ 'intro': l:intro,
+	 \ 'body': l:restofline,
+	 \ 'GetFormat': function('<SID>GetFormat'),
+	 \ 'AddLine': function('<SID>AddLine'),
+	 \ 'IsInParagraph': function('<SID>IsInParagraph'),
 	 \ }
 endfunction
 "|===========================================================================|
@@ -45,14 +47,14 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| paragraph.GetText(width) abort dict                                   {{{ |
+"| paragraph.GetFormat(width) abort dict                                 {{{ |
 "|                                                                           |
 "| PARAMS:                                                                   |
 "|   width) The required length of the lines to be output.                   |
 "|                                                                           |
 "| Returns a list of lines of the requested length comprising the paragraph. |
 "|===========================================================================|
-function! s:GetText(width) abort dict
+function! s:GetFormat(width) abort dict
 	let l:introlength = strlen(l:self.intro)
 	let l:reqlength = a:width - l:introlength - l:self.indent
 
@@ -66,7 +68,7 @@ function! s:GetText(width) abort dict
 	"| spaces to rest of lines.                      |
 	"|===============================================|
 	call map(l:outlist, 'repeat(" ",' . l:introlength . ') . v:val')
-	let l:outlist[0] = l:self.intro . l:outlist[l:introlength:]
+	let l:outlist[0] = l:self.intro . l:outlist[0][(l:introlength):]
 
 	"|===============================================|
 	"| Prepend indent to all lines                   |
@@ -85,16 +87,27 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| paragraph.AddLine(text) abort dict                                    {{{ |
+"| paragraph.AddLine(line) abort dict                                    {{{ |
+"|                                                                           |
+"| Add the given line to this paragraph.                                     |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   line) The line to add.                                                  |
+"|                                                                           |
+"| Returns nothing.                                                          |
 "|===========================================================================|
-function! s:AddLine(text) abort dict
+function! s:AddLine(line) abort dict
 	"|===============================================|
 	"| Strip leading and trailing spaces             |
 	"|===============================================|
-	let l:text = substitute(a:text, '\m^\s*', '', '')
-	let l:text = substitute(l:text, '\m\s*$', '', '')
+	let l:line = substitute(a:line, '\m^\s*', '', '')
+	let l:line = substitute(l:line, '\m\s*$', '', '')
 
-	let l:self.text = l:self.text . ' ' . l:text
+	if l:self.body ==# ''
+		let l:self.body = l:line
+	else
+		let l:self.body .= ' ' . l:line
+	endif
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -102,11 +115,18 @@ endfunction
 
 "|===========================================================================|
 "| paragraph.IsInParagraph(line) abort dict                              {{{ |
+"|                                                                           |
+"| Determine if the given line belong to this paragraph by checking leading  |
+"| whitespace.                                                               |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   line) The line to check.                                                |
+"|                                                                           |
+"| Returns 1 if the line belongs, else 0.                                    |
 "|===========================================================================|
-function! s:IsInParagraph(text) abort dict
-	"|===============================================|
-	"| TODO                                          |
-	"|===============================================|
+function! s:IsInParagraph(line) abort dict
+	let l:indent = strlen(substitute(a:line, '\m^\(\s*\).*$', '\1', ''))
+	return l:indent == l:self.indent + strlen(l:self.intro) ? 1 : 0
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -118,12 +138,21 @@ endfunction
 
 "|===========================================================================|
 "| s:PadRight(text, reqlength, padding) abort                            {{{ |
+"|                                                                           |
+"| Pad the given text until it reaches the required length.                  |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   text) The text to pad.                                                  |
+"|   reqlength) The length to pad until.                                     |
+"|   padding) The character to use for padding.                              |
+"|                                                                           |
+"| Returns the padded text.                                                  |
 "|===========================================================================|
 function! s:PadRight(text, reqlength, padding) abort
 	let l:textlength = strlen(a:text)
 	let l:fillerlength = strlen(a:padding)
 
-	if a:padding ==# '' || l:textlength >= a:reqlength
+	if l:fillerlength == 0 || l:textlength >= a:reqlength
 		return a:text
 	endif
 
@@ -140,12 +169,13 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:BreakIntoLines(text, reqlength) abort                               {{{ |
+"| s:BreakIntoLines(text, reqlen) abort                                  {{{ |
 "|===========================================================================|
-function! s:BreakIntoLines(text, reqlength) abort
+function! s:BreakIntoLines(text, reqlen) abort
 	let l:text = a:text
 	let l:textlen = strlen(l:text)
 	let l:outlist = []
+
 	while l:textlen > 0
 		if l:textlen <= a:reqlen
 			"|===============================================|
@@ -158,7 +188,7 @@ function! s:BreakIntoLines(text, reqlength) abort
 			"| Find the last valid space to break at         |
 			"|===============================================|
 			let l:lastspaceidx = -1
-			for l:idx in range(a:reqlen - 1, 0, -1)
+			for l:idx in range(a:reqlen, 0, -1)
 				if l:text[l:idx] ==# ' '
 					let l:lastspaceidx = l:idx
 					break
@@ -213,6 +243,27 @@ function! s:BreakIntoLines(text, reqlength) abort
 		"|===============================================|
 		let l:textlen = strlen(l:text)
 	endwhile
+
+	if len(l:outlist) == 0
+		call add(l:outlist, '')
+	endif
+
+	return l:outlist
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:GetLineIntro(line) abort                                            {{{ |
+"|                                                                           |
+"| Returns a 2list [indentsize, introstr] from the line.                     |
+"|===========================================================================|
+function! s:GetLineIntro(line) abort
+	"|===============================================|
+	"| TODO                                          |
+	"|===============================================|
+	return [0, '']
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

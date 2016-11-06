@@ -29,16 +29,24 @@ call <SID>DoCase('Case 2 - no initial part',
  \               ['', '*', '*/'],
  \               1)
 
-call <SID>DoCase('Case 3 - list too long',
- \               ['/*', '*', '*/', 'a'],
+call <SID>DoCase('Case 3 - list too short',
+ \               ['/*', '*'],
  \               1)
 
 call <SID>DoCase('Case 4 - not a list',
  \               '/***/',
  \               1)
 
-call <SID>DoCase('Case 5 - whitespace element',
- \               ['/*', ' ', '*/'],
+call <SID>DoCase('Case 5 - leading whitespace in first',
+ \               [' /*', '', '*/'],
  \               1)
+
+call <SID>DoCase('Case 6 - trailing whitespace in last',
+ \               ['/*', '', '*/ '],
+ \               1)
+
+call <SID>DoCase('Case 7 - set textlead',
+ \               ['/*', '*', '*/', '-'],
+ \               0)
 
 EndTest create_block_style_errs
