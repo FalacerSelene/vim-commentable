@@ -192,7 +192,7 @@ comment body over lines correctly and aligning the comment walls.
 Also exposed is the command:
 
 ```vim
-CommentableCreateBlock
+CommentableCreate
 ```
 
 *Create* embeds the current line of text within a new comment block, reflowing
@@ -273,13 +273,6 @@ after installing.
 
 ```vim
 help commentable
-```
-
-If you run Neovim or have manually installed [Vim-Tutor-Mode][tutor]
-then you can also walk throught the interactive tutorial:
-
-```vim
-Tutor commentable
 ```
 
 ## 5\. Contact <!-- {{{1 -->
