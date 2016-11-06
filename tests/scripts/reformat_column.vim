@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/indented_comments.in
+StartTest reformat_column indented_comments
 
 command -buffer -nargs=1 -bar ReformatCase
 	\ let g:CommentableBlockStyle = ['/*', '*', '*/'] |
@@ -47,4 +47,4 @@ for s:case in range(1, 5)
 	call <SID>RunCase(s:case)
 endfor
 
-EndTest reformat_column
+EndTest

@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_single_comment.in
+StartTest create_block_style_errs create_single_comment
 
 function! s:DoCase(text, style, expect_fail)
 	NextCase
@@ -49,4 +49,4 @@ call <SID>DoCase('Case 7 - set textlead',
  \               ['/*', '*', '*/', '-'],
  \               0)
 
-EndTest create_block_style_errs
+EndTest

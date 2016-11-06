@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/indented_comments.in
+StartTest reformat_indented_style indented_comments
 
 "|===========================================================================|
 "| Create a comment from each case - check the style applies                 |
@@ -39,4 +39,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest reformat_indented_style
+EndTest

@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/reformat_indented_comment.in
+StartTest reformat_indented_width reformat_indented_comment
 
 "|===========================================================================|
 "| Reformat the comment from each case and check the width applies           |
@@ -37,4 +37,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest reformat_indented_width
+EndTest

@@ -90,11 +90,32 @@ function GetCase(casenum) abort
 endfunction
 
 "|===========================================================================|
-"| Finish the test elegantly                                                 |
+"| Start and finish the test elegantly                                       |
 "|===========================================================================|
-function EndTest(testname) abort
-	call Out(repeat('=', 78))
-	call Out('-- End of Test --')
+function StartTest(...) abort
+	if a:0 != 2
+		echoerr 'Invalid call to StartTest()'
+		return
+	else
+		let l:testname = a:1
+		let l:sourcefile = a:2
+	endif
+
+	let s:testname = l:testname
+	if l:sourcefile !=# ''
+		execute 'edit input/' . l:sourcefile . '.in'
+	endif
+
+	if !isdirectory('message')
+		call mkdir('message')
+	endif
+
+	execute 'redir! > message/' . l:testname . '.msg'
+endfunction
+
+function EndTest() abort
+	Out repeat('=', 78)
+	Out '-- End of Test --'
 	let l:firstline = getline(1)
 	if l:firstline ==# '-- Start of Input --'
 		let l:lastlinenum = 2
@@ -105,7 +126,8 @@ function EndTest(testname) abort
 		call append(line(0), '-- Start of Test --')
 	endif
 
-	execute "saveas output/" . a:testname . ".out"
+	redir END
+	execute 'saveas! output/' . s:testname . '.out'
 	quitall!
 endfunction
 
@@ -114,5 +136,6 @@ endfunction
 "|===========================================================================|
 command -bar -nargs=1 Out call Out(<args>)
 command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
-command -bar -nargs=1 EndTest call EndTest(<q-args>)
+command -bar -nargs=0 EndTest call EndTest()
+command -nargs=* StartTest call StartTest(<f-args>)
 

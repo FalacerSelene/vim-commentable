@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_single_comment.in
+StartTest create_block_config_errs create_single_comment
 
 "|===========================================================================|
 "| Create a comment from a single line of text                               |
@@ -70,4 +70,4 @@ catch
 	call Out(v:exception)
 endtry
 
-EndTest create_block_config_errs
+EndTest

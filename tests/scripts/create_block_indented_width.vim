@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_indented_comment.in
+StartTest create_block_indented_width create_indented_comment
 
 "|===========================================================================|
 "| Create a comment from each case - check the width applies                 |
@@ -31,4 +31,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest create_block_indented_width
+EndTest

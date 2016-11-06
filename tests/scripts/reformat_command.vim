@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/short_comment.in
+StartTest reformat_command short_comment
 
 "|===========================================================================|
 "| Reformat a comment using the command.                                     |
@@ -18,4 +18,4 @@ catch
 	call Out(v:exception)
 endtry
 
-EndTest reformat_command
+EndTest

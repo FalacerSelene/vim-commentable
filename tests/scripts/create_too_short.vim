@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_single_comment.in
+StartTest create_too_short create_single_comment
 
 "|===========================================================================|
 "| Create a comment from a single line of text, with width/column too short. |
@@ -28,4 +28,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest create_too_short
+EndTest

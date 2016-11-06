@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/multiline_comment.in
+StartTest create_block_multiline multiline_comment
 
 "|===========================================================================|
 "| Create a comment from a single line of text                               |
@@ -26,4 +26,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest create_block_multiline
+EndTest

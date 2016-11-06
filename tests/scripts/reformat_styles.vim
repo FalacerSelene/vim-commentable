@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/comment_styles.in
+StartTest reformat_styles comment_styles
 
 "|===========================================================================|
 "| Reformat a C-style comment with both styles set.                          |
@@ -124,4 +124,4 @@ while match(s:linetext, '\V\/*') == -1
 endwhile
 execute s:linenum . 'CommentableReformat'
 
-EndTest reformat_styles
+EndTest

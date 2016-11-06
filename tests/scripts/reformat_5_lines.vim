@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/5_line_comment.in
+StartTest reformat_5_lines 5_line_comment
 
 "|===========================================================================|
 "| Reformat a comment at each line inside it.                                |
@@ -20,4 +20,4 @@ for s:atlineno in [0, 1, 2, 3, 4, 5, 6]
 	call RunCase(s:atlineno)
 endfor
 
-EndTest reformat_5_lines
+EndTest

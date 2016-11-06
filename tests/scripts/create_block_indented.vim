@@ -2,7 +2,7 @@
 "| Begin                                                                     |
 "|===========================================================================|
 source utils.vim
-edit input/create_indented_comment.in
+StartTest create_block_indented create_indented_comment
 
 "|===========================================================================|
 "| Create a comment from each case - check it works                          |
@@ -24,4 +24,4 @@ endfunction
 
 call <SID>RunCases()
 
-EndTest create_block_indented
+EndTest
