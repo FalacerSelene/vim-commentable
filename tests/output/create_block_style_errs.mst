@@ -10,7 +10,7 @@ This will be a comment
 Caught expected exception!
 Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
-Case 3 - list too long
+Case 3 - list too short
 This will be a comment
 Caught expected exception!
 Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
@@ -20,9 +20,19 @@ This will be a comment
 Caught expected exception!
 Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
-Case 5 - whitespace element
+Case 5 - leading whitespace in first
 This will be a comment
 Caught expected exception!
 Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
+==============================================================================
+Case 6 - trailing whitespace in last
+This will be a comment
+Caught expected exception!
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
+==============================================================================
+Case 7 - set textlead
+/******************************************************************************/
+/*-This will be a comment                                                    -*/
+/******************************************************************************/
 ==============================================================================
 -- End of Test --

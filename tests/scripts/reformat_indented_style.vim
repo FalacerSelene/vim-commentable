@@ -26,6 +26,7 @@ function s:RunCases()
 			call Out('SubStyle: ' . string(g:CommentableSubStyle))
 
 			call append(line('$'), GetCase(l:case))
+				execute line('$') . 'CommentableReformat'
 			try
 				execute line('$') . 'CommentableReformat'
 			catch
