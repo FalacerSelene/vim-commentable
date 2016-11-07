@@ -12,6 +12,13 @@
 "|===========================================================================|
 
 "|===========================================================================|
+"|                            SCRIPT CONSTANTS                               |
+"|===========================================================================|
+let s:t_number = v:version >= 800 ? v:t_number : type(0)
+let s:t_list   = v:version >= 800 ? v:t_list   : type([])
+let s:t_string = v:version >= 800 ? v:t_string : type('')
+
+"|===========================================================================|
 "|                               CONSTRUCTOR                                 |
 "|===========================================================================|
 
@@ -29,14 +36,20 @@
 function! commentable#paragraph#New(line) abort
 	let [l:indent, l:intro] = <SID>GetLineIntro(a:line)
 	let l:restofline = a:line[(l:indent + strlen(l:intro)):]
-	return {
+	let l:self = {
 	 \ 'indent': l:indent,
 	 \ 'intro': l:intro,
-	 \ 'body': l:restofline,
+	 \ 'body': '',
 	 \ 'GetFormat': function('<SID>GetFormat'),
 	 \ 'AddLine': function('<SID>AddLine'),
 	 \ 'IsInParagraph': function('<SID>IsInParagraph'),
 	 \ }
+
+	if l:restofline !=# ''
+		call l:self.AddLine(l:restofline)
+	endif
+
+	return l:self
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -64,6 +77,11 @@ function! s:GetFormat(width) abort dict
 	let l:outlist = <SID>BreakIntoLines(l:self.body, l:reqlength)
 
 	"|===============================================|
+	"| Make sure everything is long enough           |
+	"|===============================================|
+	call map(l:outlist, '<SID>PadRight(v:val, ' . l:reqlength . ', " ")')
+
+	"|===============================================|
 	"| Prepend intro to first line, equivalent       |
 	"| spaces to rest of lines.                      |
 	"|===============================================|
@@ -74,11 +92,6 @@ function! s:GetFormat(width) abort dict
 	"| Prepend indent to all lines                   |
 	"|===============================================|
 	call map(l:outlist, 'repeat(" ",' . l:self.indent . ') . v:val')
-
-	"|===============================================|
-	"| Make sure everything is long enough           |
-	"|===============================================|
-	call map(l:outlist, '<SID>PadRight(v:val, ' . l:reqlength . ', " ")')
 
 	return l:outlist
 endfunction
@@ -257,13 +270,51 @@ endfunction
 "|===========================================================================|
 "| s:GetLineIntro(line) abort                                            {{{ |
 "|                                                                           |
+"| PARAMS:                                                                   |
+"|   line) The line to extract elements of.                                  |
+"|                                                                           |
 "| Returns a 2list [indentsize, introstr] from the line.                     |
 "|===========================================================================|
 function! s:GetLineIntro(line) abort
-	"|===============================================|
-	"| TODO                                          |
-	"|===============================================|
-	return [0, '']
+	let l:intromatch = []
+	let l:introvarname = 'CommentableParagraphIntro'
+
+	try
+		let l:intromatch = commentable#GetVar(l:introvarname)
+	catch /^Commentable:NO VALUE:/
+	endtry
+
+	if type(l:intromatch) != s:t_list                              ||
+	 \ len(filter(copy(l:intromatch), 'v:val == s:t_string')) != 0
+		throw 'Commentable:INVALID SETTING:' . l:introvarname
+	endif
+
+	let [l:intro, l:introstart, l:introend] = ['', -1, -1]
+
+	for l:trial in l:intromatch
+		let [l:intro, l:introstart, l:introend] = matchstrpos(a:line, l:trial)
+		if l:introstart != -1
+			break
+		endif
+	endfor
+
+	let l:retsize = 0
+	let l:retstr = ''
+
+	if l:introstart != -1
+		"|===============================================|
+		"| Got an intro                                  |
+		"|===============================================|
+		let l:retsize = l:introstart
+		let l:retstr = l:intro
+	else
+		"|===============================================|
+		"| No intro, just indent                         |
+		"|===============================================|
+		let l:retsize = strlen(substitute(a:line, '\m^\(\s*\).*', '\1', ''))
+	endif
+
+	return [l:retsize, l:retstr]
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

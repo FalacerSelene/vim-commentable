@@ -39,6 +39,7 @@ function ResetVariables() abort
 	\ 'CommentableSubStyle',
 	\ 'CommentableSubWidth',
 	\ 'CommentableSubColumn',
+	\ 'CommentableParagraphIntro',
 	\ ]
 
 	for l:var in l:vars
