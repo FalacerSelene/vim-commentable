@@ -1,6 +1,8 @@
 Commentable
 ===========
 
+Version: 0.1.0
+
 1. [Introduction](#introduction)
 2. [Installation](#installation)
 2.1. [Requirements](#requirements)

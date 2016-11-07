@@ -16,6 +16,9 @@
 1. ABOUT COMMENTABLE ~
                                                           *commentable-about*
 
+Note: Commentable is still in beta! This doc is not yet written and what is
+here is not guaranteed to be correct.
+
 ============================================================================
 2. QUICK START ~
                                                      *commentable-quickstart*
