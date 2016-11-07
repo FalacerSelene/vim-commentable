@@ -84,7 +84,6 @@ command -nargs=0 -bar CommentableSetDefaultStyle
 "|===========================================================================|
 function s:Reformat(setrepeat) range
 	try
-		CommentableDebug 'Running reformat command'
 		let l:toreformat = []
 		let l:primed = 1
 		for l:lineno in range(a:firstline, a:lastline)
