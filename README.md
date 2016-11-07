@@ -6,10 +6,11 @@ Version: 0.1.0
 1. [Introduction](#introduction)
 2. [Installation](#installation)
   1. [Requirements](#requirements)
-  2. [Installing Manually](#install-manual)
+  2. [Installing old-style](#install-old)
   3. [Install from Vimball](#install-vimball)
   4. [Install with Pathogen](#install-pathogen)
   5. [Install with Vundle](#install-vundle)
+  6. [Install as a Package](#install-package)
 3. [Quickstart](#quickstart)
 4. [Configuration](#configuration)
 5. [Contact](#contact)
@@ -50,8 +51,8 @@ Commentable assumes a version of Vim compiled with the `normal` feature set.
 Some vital features that are required are `eval` and `user_commands`.
 Commentable requires a version of Vim of at least 7.4.
 
-### 2.2\. Installing manually <!-- {{{2 -->
-<a name="install-manual"></a>
+### 2.2\. Installing old-style <!-- {{{2 -->
+<a name="install-old"></a>
 
 Once you have a clone of this repo, copy the contents of each of the
 directories (excluding "tests") in the repo into an identically named
@@ -167,6 +168,28 @@ Plugin 'fi-vim/commentable.vim'
 ```
 
 and run *PluginInstall*.
+
+### 2.5\. Installing as a Package <!-- {{{2 -->
+<a name="install-package"></a>
+
+If you have a Vim (not Neovim) of version 8 or later then you can use the
+package interface to install Commentable.
+
+Create the following directory tree in your .vim config directory:
+
+.vim/pack/&lt;packagename&gt;/start/
+
+where &lt;packagename&gt; is a name for this package (collection of plugins).
+One possible scheme for naming packages is by author on Github, but the name
+chosen will not affect plugin installation.
+
+Inside the start/ directory, take a clone of this repository:
+
+```sh
+git clone http://github.com/galtish/vim-commentable
+```
+
+And that's all you need to do - the plugin is now installed!
 
 ## 3\. Quickstart <!-- {{{1 -->
 <a name="quickstart"></a>
