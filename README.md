@@ -285,16 +285,17 @@ Please email all bugs report and feature suggestions to:
 
 As per convention, Commentable is licenced under the term of the [Vim
 licence][vim-lic], and may also be bound by the Neovim licence when run as a
-[Neovim][3] plugin instead.
+[Neovim][neovim] plugin instead.
 
 <!-- Links {{{1 -->
 
 [vim]: http://www.vim.org/
-[pathogen]: https://github.com/tpope/vim-pathogen
+[pathogen]: http://github.com/tpope/vim-pathogen
+[neovim]: http://neovim.io/
 [vim-lic]: http://vimdoc.sourceforge.net/htmldoc/uganda.html#license
-[repeat]: https://github.com/tpope/vim-repeat
-[vundle]: https://github.com/VundleVim/Vundle.vim
-[tutor]: https://github.com/fmoralesc/vim-tutor-mode
+[repeat]: http://github.com/tpope/vim-repeat
+[vundle]: http://github.com/VundleVim/Vundle.vim
+[tutor]: http://github.com/fmoralesc/vim-tutor-mode
 
 <!--
 vim:tw=78:expandtab:
