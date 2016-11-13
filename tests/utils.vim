@@ -31,7 +31,7 @@ endfunction
 "| Reset all variables                                                       |
 "|===========================================================================|
 function ResetVariables() abort
-	let l:scopes = ['b', 'g']
+	let l:scopes = [b:, g:]
 	let l:vars = [
 	\ 'CommentableBlockStyle',
 	\ 'CommentableBlockWidth',
@@ -44,8 +44,8 @@ function ResetVariables() abort
 
 	for l:var in l:vars
 		for l:scope in l:scopes
-			if eval("exists('" . l:scope . ':' . l:var . "')")
-				execute 'unlet ' . l:scope . ':' . l:var
+			if has_key(l:scope, l:var)
+				unlet l:scope[l:var]
 			endif
 		endfor
 	endfor
