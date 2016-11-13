@@ -17,8 +17,10 @@
 "|===========================================================================|
 scriptencoding utf-8
 
-if &compatible || exists('g:loaded_commentable') || v:version < 704
+if &compatible || exists('g:loaded_commentable')
 	finish
+elseif v:version < 704
+	echoerr 'Commentable requires vim 7.4 or later!'
 endif
 
 let g:loaded_commentable = 1
