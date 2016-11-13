@@ -276,13 +276,16 @@ endfunction
 "| Returns a 2list [indentsize, introstr] from the line.                     |
 "|===========================================================================|
 function! s:GetLineIntro(line) abort
-	let l:intromatch = []
 	let l:introvarname = 'CommentableParagraphIntro'
 
 	try
 		let l:intromatch = commentable#GetVar(l:introvarname)
 	catch /^Commentable:NO VALUE:/
 	endtry
+
+	if !has_key(l:, 'intromatch')
+		let l:intromatch = <SID>IntroFromListPat()
+	endif
 
 	if type(l:intromatch) != s:t_list                              ||
 	 \ len(filter(copy(l:intromatch), 'v:val == s:t_string')) != 0
@@ -315,6 +318,22 @@ function! s:GetLineIntro(line) abort
 	endif
 
 	return [l:retsize, l:retstr]
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:IntroFromListPat() abort                                            {{{ |
+"|                                                                           |
+"| Generate an introlist from the 'formatlistpat'.                           |
+"|                                                                           |
+"| PARAMS: None.                                                             |
+"|                                                                           |
+"| Returns the singlet introlist.                                            |
+"|===========================================================================|
+function! s:IntroFromListPat() abort
+	return [&formatlistpat]
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

@@ -4,8 +4,9 @@ Reformat with ParagraphIntro unset
 /******************************************************************************/
 /* This comment contains a list.                                              */
 /*                                                                            */
-/* 1: Eat the pig. 2: Wash the dog. Really scrub him                          */
-/*    well - he's not had a bath for over 7 months.                           */
+/* 1: Eat the pig.                                                            */
+/* 2: Wash the dog. Really scrub him well - he's not had a bath for over 7    */
+/*    months.                                                                 */
 /* 3: Wonder what on Earth I'm writing.                                       */
 /******************************************************************************/
 ==============================================================================
@@ -16,6 +17,15 @@ Reformat with ParagraphIntro set to match '\d: '
 /* 1: Eat the pig.                                                            */
 /* 2: Wash the dog. Really scrub him well - he's not had a bath for over 7    */
 /*    months.                                                                 */
+/* 3: Wonder what on Earth I'm writing.                                       */
+/******************************************************************************/
+==============================================================================
+Reformat with ParagraphIntro explicitly set empty
+/******************************************************************************/
+/* This comment contains a list.                                              */
+/*                                                                            */
+/* 1: Eat the pig. 2: Wash the dog. Really scrub him                          */
+/*    well - he's not had a bath for over 7 months.                           */
 /* 3: Wonder what on Earth I'm writing.                                       */
 /******************************************************************************/
 ==============================================================================

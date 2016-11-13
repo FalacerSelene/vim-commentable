@@ -34,8 +34,8 @@ Comment case 2
 Setting 2, block width 50, sub width 20
   /******************/
   /* 2 space        */
-  /* indented       */
-  /* comment        */
+  /*   indented     */
+  /*   comment      */
   /******************/
 ==============================================================================
 Comment case 3
@@ -54,8 +54,8 @@ Comment case 3
 Setting 2, block width 50, sub width 20
     /******************/
     /* 4 space        */
-    /* indented       */
-    /* comment        */
+    /*   indented     */
+    /*   comment      */
     /******************/
 ==============================================================================
 Comment case 4
@@ -74,7 +74,7 @@ Comment case 4
 Setting 2, block width 50, sub width 20
 	/******************/
 	/* 1 tab indented */
-	/* comment        */
+	/*   comment      */
 	/******************/
 ==============================================================================
 -- End of Test --

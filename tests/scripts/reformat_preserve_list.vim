@@ -25,4 +25,15 @@ let g:CommentableParagraphIntro = ['\m^\d: ']
 call append(line('$'), GetCase(1))
 $CommentableReformat
 
+"|===========================================================================|
+"| Reformat with intro explicitly empty.                                     |
+"|===========================================================================|
+NextCase
+Out 'Reformat with ParagraphIntro explicitly set empty'
+let g:CommentableBlockStyle = ['/*', '*', '*/']
+let g:CommentableBlockWidth = 80
+let g:CommentableParagraphIntro = []
+call append(line('$'), GetCase(1))
+$CommentableReformat
+
 EndTest
