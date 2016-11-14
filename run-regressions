@@ -1,3 +1,11 @@
 #! /usr/bin/env bash
 
-./vim-regressions/vim-regressions "$@"
+if (( $# == 0 )) ; then
+	set -- --suite all
+fi
+
+./vim-regressions/vim-regressions \
+    --testdir   ./tests           \
+    --vimrc     regression.vimrc  \
+    --suitefile suites.cfg        \
+    "$@"
