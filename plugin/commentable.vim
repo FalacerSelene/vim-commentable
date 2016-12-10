@@ -8,7 +8,7 @@
 "|       AUTHOR:  @galtish                                                   |
 "|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
 "|      LICENCE:  See LICENCE.md                                             |
-"|      VERSION:  0.1.0 <indev>                                              |
+"|      VERSION:  0.1.1 <indev>                                              |
 "|                                                                           |
 "|===========================================================================|
 
