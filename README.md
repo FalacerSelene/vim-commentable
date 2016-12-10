@@ -164,7 +164,7 @@ updated as necessary with the command *PluginInstall*.
 To install Commentable, simply add the line:
 
 ```vim
-Plugin 'fi-vim/commentable.vim'
+Plugin 'galtish/commentable.vim'
 ```
 
 and run *PluginInstall*.
