@@ -17,11 +17,12 @@ SOURCE += doc/commentable.txt
 #----------------------------------------------------------------------------#
 TEMPTESTS  = $(shell find tests -type f \( -name '*.out' -o -name '*.diff' \) )
 TEMPTESTS += regression.trc
+TEMPTESTS += tests/message
 
 #----------------------------------------------------------------------------#
 # Shell commands                                                             #
 #----------------------------------------------------------------------------#
-RM     = rm -f
+RM     = rm -rf
 VIM    = vim
 PRINTF = printf
 

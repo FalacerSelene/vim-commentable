@@ -1,0 +1,23 @@
+# The file follows the format given at http://editorconfig.org
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+
+[*.vim]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
+max_line_length = 78
+
+[doc/commentable.txt]
+trim_trailing_whitespace = false
+max_line_length = 77
+
+[tests/output/*]
+trim_trailing_whitespace = false
+

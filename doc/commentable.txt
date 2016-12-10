@@ -47,8 +47,8 @@ sections, and also integrates with Tim Pope's |vim-repeat| plugin, setting the
 
 The mappings are defined in `Normal-mode`, `Visual-mode`, and `Select-mode`.
 In Normal mode they call the corresponding command on the current line; in
-Visual and Select mode they call the command with the current selection as the
-range.
+Visual and Select mode they call the command with the current selection as
+the range.
 
 In order to use these mappings you will need to map something on to them in
 your `vimrc` file. An example of how you might do this is: >
