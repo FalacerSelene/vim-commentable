@@ -295,8 +295,10 @@ function! s:GetLineIntro(line) abort
 	let [l:intro, l:introstart, l:introend] = ['', -1, -1]
 
 	for l:trial in l:intromatch
-		let [l:intro, l:introstart, l:introend] = matchstrpos(a:line, l:trial)
+		let l:introstart = match(a:line, l:trial)
 		if l:introstart != -1
+			let l:introend = matchend(a:line, l:trial) - 1
+			let l:intro = a:line[(l:introstart):(l:introend)]
 			break
 		endif
 	endfor
