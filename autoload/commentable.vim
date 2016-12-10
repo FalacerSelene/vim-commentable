@@ -270,12 +270,12 @@ endfunction
 "|                                                                           |
 "| Replaces lines in range with lines given as 'with'.                       |
 "|                                                                           |
-"| This function inherantly has side-effects! But tries to keep them at a    |
+"| This function inherently has side-effects! But tries to keep them at a    |
 "| minimum.                                                                  |
 "|===========================================================================|
 function! s:ReplaceLines(with) abort range
 	let l:savedreg = <SID>GetTempRegs()
-	let l:cursorpos = getcurpos()
+	let l:cursorpos = exists('*getcurpos') ? getcurpos() : getpos('.')
 	keepmarks execute a:firstline . ',' . a:lastline . 'delete _'
 	call append(a:firstline - 1, a:with)
 	call setpos('.', l:cursorpos)
