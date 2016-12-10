@@ -1,0 +1,11 @@
+language: lua
+os: linux
+
+install:
+  - sudo apt-get install vim
+  - sudo apt-get install lua5.1
+  - sudo apt-get install luarocks
+  - sudo luarocks install luafilesystem
+
+script:
+  - ./run-regressions --suite all
