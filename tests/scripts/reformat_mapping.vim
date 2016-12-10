@@ -21,4 +21,21 @@ catch
 	call Out(v:exception)
 endtry
 
+"|===========================================================================|
+"| Reformat a comment using the default mapping.                             |
+"|===========================================================================|
+NextCase
+Out 'Reformat a comment using the default mapping'
+let g:CommentableBlockStyle = ['/*', '*', '*/']
+call append(line('$'), GetCase(1))
+CommentableSetDefaultBindings
+
+try
+	call cursor(line('$'), '1')
+	normal gcq
+catch
+	Out 'Caught exception!'
+	call Out(v:exception)
+endtry
+
 EndTest

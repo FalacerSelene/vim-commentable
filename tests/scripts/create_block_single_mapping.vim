@@ -20,4 +20,20 @@ catch
 	call Out(v:exception)
 endtry
 
+"|===========================================================================|
+"| Create comment using the default mapping                                  |
+"|===========================================================================|
+NextCase
+let g:CommentableBlockStyle = ['/*', '*', '*/']
+call append(line('$'), GetCase(1))
+CommentableSetDefaultBindings
+
+try
+	call cursor(line('$'), '1')
+	normal gcc
+catch
+	Out 'Caught exception!'
+	call Out(v:exception)
+endtry
+
 EndTest

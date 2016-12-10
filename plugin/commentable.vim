@@ -50,31 +50,56 @@ vnoremap <silent><unique> <Plug>(CommentableCreate)
 	\ :<c-u>'<,'>call <SID>CreateBlock(1)<CR>
 
 "|===========================================================================|
-"| CommentableSetDefaultStyle                                                |
+"| CommentableSetDefault...                                                  |
 "|===========================================================================|
-command -nargs=0 -bar CommentableSetDefaultStyle
-	\ let g:CommentableBlockStyle     = ['#', '', '']
-	\ let g:CommentableBlockColumn    = 80
-	\ augroup Commentable
-	\   autocmd!
-	\   autocmd FileType python let b:CommentableBlockStyle = ['#' , '-', ''  ]
-	\   autocmd FileType perl   let b:CommentableBlockStyle = ['#*', '*', '*#']
-	\   autocmd FileType sh     let b:CommentableBlockStyle = ['#' , '#', '#' ]
-	\   autocmd FileType c      let b:CommentableBlockStyle = ['/*', '*', '*/']
-	\   autocmd FileType cpp    let b:CommentableBlockStyle = ['/*', '*', '*/']
-	\   autocmd FileType java   let b:CommentableBlockStyle = ['//', '-', '//']
-	\   autocmd FileType scheme let b:CommentableBlockStyle = [';;', '-', ';;']
-	\   autocmd FileType vim    let b:CommentableBlockStyle = ['"' , '-', ''  ]
-	\   autocmd FileType make   let b:CommentableBlockStyle = ['#' , '-', ''  ]
-	\   autocmd FileType python let b:CommentableBlockWidth = 79
-	\ augroup END
+command -nargs=0 -bar CommentableSetDefaultStyle call <SID>SetDefStyle()
+command -nargs=0 -bar CommentableSetDefaultBindings call <SID>SetDefBindings()
 
 "|===========================================================================|
 "|                                FUNCTIONS                                  |
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:Reformat(setrepeat) range                                           {{{ |
+"| s:SetDefStyle() {{{                                                       |
+"|                                                                           |
+"| Set default style parameters.                                             |
+"|===========================================================================|
+function s:SetDefStyle()
+	let g:CommentableBlockStyle  = ['#', '', '']
+	let g:CommentableBlockColumn = 80
+	augroup Commentable
+		autocmd!
+		autocmd FileType python let b:CommentableBlockStyle = ['#' , '-', ''  ]
+		autocmd FileType perl   let b:CommentableBlockStyle = ['#*', '*', '*#']
+		autocmd FileType sh     let b:CommentableBlockStyle = ['#' , '#', '#' ]
+		autocmd FileType c      let b:CommentableBlockStyle = ['/*', '*', '*/']
+		autocmd FileType cpp    let b:CommentableBlockStyle = ['/*', '*', '*/']
+		autocmd FileType java   let b:CommentableBlockStyle = ['//', '-', '//']
+		autocmd FileType scheme let b:CommentableBlockStyle = [';;', '-', ';;']
+		autocmd FileType vim    let b:CommentableBlockStyle = ['"' , '-', ''  ]
+		autocmd FileType make   let b:CommentableBlockStyle = ['#' , '-', ''  ]
+		autocmd FileType python let b:CommentableBlockWidth = 79
+	augroup END
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:SetDefBindings() {{{                                                    |
+"|                                                                           |
+"| Set default keybindings.                                                  |
+"|===========================================================================|
+function s:SetDefBindings()
+	nmap gcc <Plug>(CommentableCreate)
+	nmap gcq <Plug>(CommentableReformat)
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:Reformat(setrepeat) range {{{                                           |
 "|                                                                           |
 "| Reformat the current block at the current location, or if a range is      |
 "| given, then reformat all comment blocks within the range.                 |
@@ -123,7 +148,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:CreateBlock(setrepeat) range                                        {{{ |
+"| s:CreateBlock(setrepeat) range {{{                                        |
 "|                                                                           |
 "| Create a new comment block comprising the text in the given range.        |
 "|                                                                           |
