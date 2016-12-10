@@ -1,7 +1,10 @@
+language: lua
+os: linux
+
 install:
-  - sudo apt-get install vim=2:7.4.1689-3ubuntu1.2
-  - sudo apt-get install lua5.1=5.1.5-8ubuntu1
-  - sudo apt-get install luarocks=2.2.0+dfsg-2
+  - sudo apt-get install vim
+  - sudo apt-get install lua5.1
+  - sudo apt-get install luarocks
   - sudo luarocks install luafilesystem
 
 script:
