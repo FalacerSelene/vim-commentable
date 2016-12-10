@@ -1,7 +1,9 @@
 Commentable
 ===========
 
-Version: 0.1.0
+[![Travis Build Status](https://travis-ci.org/galtish/vim-commentable.svg?branch=master)](https://travis-ci.org/galtish/vim-commentable)
+
+Version: *0.1.0*
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)
