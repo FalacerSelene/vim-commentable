@@ -3,6 +3,7 @@
                             COMMENTABLE MANUAL
 
 1. About Commentable                              |commentable-about|
+   1.1 Requirements                               |commentable-requirements|
 2. Quick Start                                    |commentable-quickstart|
 3. Commands and Mappings                          |commentable-exposed|
    3.1 Commands                                   |commentable-commands|
@@ -16,8 +17,22 @@
 1. ABOUT COMMENTABLE ~
                                                           *commentable-about*
 
-Note: Commentable is still in beta! This doc is not yet written and what is
-here is not guaranteed to be correct.
+Commentable provides expanded comment block handling for Vim, specifically
+for comments with "walls" - right-aligned closing boundaries and marker
+lines above and below the block. It has many different configuration
+variables, allowing you to set the block generation and formatting to your
+preferred style for each filetype or project.
+
+Commentable's homepage is its github repository:
+https://www.github.com/galtish/vim-commentable.git
+
+1.1 REQUIREMENTS                                   *commentable-requirements*
+----------------
+
+Commentable requires Vim version 7.4 or later, and only loads if the
+'compatible' option is not set. It does not require Vim to be compiled with
+any particular plugin language support - but obviously requires the |+eval|
+feature.
 
 ============================================================================
 2. QUICK START ~

@@ -2,8 +2,7 @@
 "|                                                                           |
 "|         FILE:  autoload/commentable.vim                                   |
 "|                                                                           |
-"|  DESCRIPTION:  Primary autoload functions for plugin. Currently provides  |
-"|                all functionality.                                         |
+"|  DESCRIPTION:  Primary autoload functions for plugin.                     |
 "|                                                                           |
 "|       AUTHOR:  @galtish                                                   |
 "|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
