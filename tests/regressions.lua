@@ -168,11 +168,11 @@ local function checkargfiles(args)
 	if not isdir(args.testdir) then
 		error("Could not find directory: " .. args.testdir)
 	elseif args.vimrc and
-	       not isfile(args.testdir .. "/" .. args.vimrc) then
-		error("Could not find file in testdir: " .. args.vimrc)
+	       not isfile(args.vimrc) then
+		error("Could not find file: " .. args.vimrc)
 	elseif args.suitefile and
-	       not isfile(args.testdir .. "/" .. args.suitefile) then
-		error("Could not find file in testdir: " .. args.suitefile)
+	       not isfile(args.suitefile) then
+		error("Could not find file: " .. args.suitefile)
 	end
 	return(args)
 end
@@ -294,7 +294,8 @@ end
 local function runsingletest(name, args)
 	local vimcmd = "vim -E -n -N"
 	if args.vimrc then
-		vimcmd = vimcmd .. " -u " .. args.vimrc
+		local curdir = os.getenv("PWD")
+		vimcmd = vimcmd .. " -u '" .. curdir .. '/' .. args.vimrc .. "'"
 	end
 
 	vimcmd = vimcmd .. ' -c "silent source scripts/' .. name .. '.vim"'
@@ -344,7 +345,7 @@ local function testlistfromargs(args)
 	end
 	for _, suite in ipairs(args.suites) do
 		if not suiteresolver then
-			suiteresolver = getsuiteresolver(args.testdir .. "/" .. args.suitefile)
+			suiteresolver = getsuiteresolver(args.suitefile)
 		end
 		for _, test in ipairs(suiteresolver(suite)) do
 			if not testset[test] then
