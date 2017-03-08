@@ -1,7 +1,7 @@
 Commentable
 ===========
 
-[![Travis Build Status](https://travis-ci.org/galtish/vim-commentable.svg?branch=master)](https://travis-ci.org/galtish/vim-commentable)
+[![Travis Build Status](https://travis-ci.org/FalacerSelene/vim-commentable.svg?branch=master)](https://travis-ci.org/FalacerSelene/vim-commentable)
 
 Version: *0.1.1*
 
