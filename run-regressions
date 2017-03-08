@@ -4,8 +4,8 @@ if (( $# == 0 )) ; then
 	set -- --suite all
 fi
 
-./vim-regressions/vim-regressions \
-    --testdir   ./tests           \
-    --vimrc     regression.vimrc  \
-    --suitefile suites.cfg        \
+./tests/regressions.lua          \
+    --testdir   ./tests          \
+    --vimrc     regression.vimrc \
+    --suitefile suites.cfg       \
     "$@"

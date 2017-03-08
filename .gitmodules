@@ -1,3 +1,0 @@
-[submodule "vim-regressions"]
-	path = vim-regressions
-	url = http://github.com/galtish/vim-regressions
