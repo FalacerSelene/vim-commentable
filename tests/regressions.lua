@@ -2,6 +2,8 @@
 
 --[========================================================================]--
 --[ Colours {{{                                                            ]--
+--[                                                                        ]--
+--[ ANSI terminal colours for pretty output.                               ]--
 --[========================================================================]--
 
 local escape = string.char(27)
@@ -16,6 +18,10 @@ local ansi_end   = escape .. '[m'
 
 --[========================================================================]--
 --[ Modules {{{                                                            ]--
+--[                                                                        ]--
+--[ I use LFS later on to check that tests and directories exist before    ]--
+--[ trying to run/open them. However, I can still shell out instead, so    ]--
+--[ LFS isn't mandatory.                                                   ]--
 --[========================================================================]--
 local function req (modname)
 	local mod = nil
@@ -37,11 +43,14 @@ end
 --[========================================================================]--
 --[ isdir (dirname) {{{                                                    ]--
 --[                                                                        ]--
---[ Does the specified directory exist, and is it a directory?             ]--
+--[ Description:                                                           ]--
+--[   Does the specified directory exist, and is it a directory?           ]--
 --[                                                                        ]--
---[ Params: dirname - dir to check                                         ]--
+--[ Params:                                                                ]--
+--[   1) dirname - dir to check                                            ]--
 --[                                                                        ]--
---[ Returns: true/false                                                    ]--
+--[ Returns:                                                               ]--
+--[   1) true/false                                                        ]--
 --[========================================================================]--
 
 local function isdir (dirname)
@@ -65,11 +74,14 @@ end
 --[========================================================================]--
 --[ isfile (filename) {{{                                                  ]--
 --[                                                                        ]--
---[ Does the specified file exist, and is it a normal file?                ]--
+--[ Description:                                                           ]--
+--[   Does the specified file exist, and is it a normal file?              ]--
 --[                                                                        ]--
---[ Params: filename - file to check                                       ]--
+--[ Params:                                                                ]--
+--[   1) filename - file to check                                          ]--
 --[                                                                        ]--
---[ Returns: true/false                                                    ]--
+--[ Returns:                                                               ]--
+--[   1) true/false                                                        ]--
 --[========================================================================]--
 
 local function isfile (filename)
@@ -91,7 +103,7 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ parseargs(args) {{{                                                    ]--
+--[ parseargs (args) {{{                                                   ]--
 --[========================================================================]--
 local function parseargs (args)
 	local parsed = {}
@@ -176,9 +188,19 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ checkargfiles(args) {{{                                                ]--
+--[ assertfilesexist (args) {{{                                            ]--
+--[                                                                        ]--
+--[ Description:                                                           ]--
+--[   Assert that the files given by command line argements exist.         ]--
+--[                                                                        ]--
+--[ Params:                                                                ]--
+--[   1) args - The command line arguments.                                ]--
+--[                                                                        ]--
+--[ Returns:                                                               ]--
+--[   1) The same arguments as passed in. Errors if any of the required    ]--
+--[      files do not exist.                                               ]--
 --[========================================================================]--
-local function checkargfiles(args)
+local function assertfilesexist (args)
 	if not isdir(args.testdir) then
 		error("Could not find directory: " .. args.testdir)
 	elseif args.vimrc and
@@ -195,23 +217,28 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ getsuiteresolver(filename) {{{                                         ]--
+--[ getsuiteresolver (filename) {{{                                        ]--
 --[========================================================================]--
-local function getsuiteresolver(filename)
+local function getsuiteresolver (filename)
 	local TYPE_TEST = 0
 	local TYPE_SUITE = 1
 
-	local function extendtable(first, second)
+	-- extendtable (first, second) {{{
+	-- Utility function to extend a table
+	local function extendtable (first, second)
 		local e
 		for _,e in ipairs(second) do
 			first[#first+1] = e
 		end
-	end
+	end -- }}}
 
-	local function resolvesuites(unresolved)
+	-- resolvesuites (unresolved) -- {{{
+	local function resolvesuites (unresolved)
 		resolved = {}
 		local resolving, entries
 		for resolving, entries in pairs(unresolved) do
+
+			-- Recursively reduce a suite down to a list of tests.
 			local function resolvesinglesuite(suitename)
 				if suitename == resolving then
 					error("Circular reference to suite: " .. suitename)
@@ -245,23 +272,24 @@ local function getsuiteresolver(filename)
 			end
 		end
 		return resolved
-	end
+	end -- }}}
 
+	-- readlines (filename) {{{
 	local function readlines(filename)
 		local read = {}
 		local current, line
 		for line in io.lines(filename) do
 			if not string.match(line, "^[ \t]*#") and
-		   	not string.match(line, "^[ \t]*$") then
+		      not string.match(line, "^[ \t]*$") then
 				local newsuite = line:match('^%[([a-zA-Z0-9_]*)%].*$')
 				local suiteref = line:match('^%.%[([a-zA-Z0-9_]*)%].*$')
 				local testname = line:match('^[ \t]*([a-zA-Z0-9_]*)[ \t]*$')
 				if not (newsuite or suiteref or testname) then
 					error("Invalid line in file " .. filename .. ":\n" ..
-				      	"  " .. line)
+				         "  " .. line)
 				elseif not (newsuite or current) then
 					error("Definition outside of suite in line:\n" ..
-				      	"  " .. line)
+				         "  " .. line)
 				elseif newsuite then
 					if read[newsuite] then
 						error("Multiple definitions of suite " .. newsuite)
@@ -283,18 +311,19 @@ local function getsuiteresolver(filename)
 					}
 				else
 					error("Unreadable line at line:\n" ..
-				      	"  " .. line)
+				         "  " .. line)
 				end
 			end
 		end
 		return read
-	end
+	end -- }}}
 
+	-- produceaccessor (filetable) {{{
 	local function produceaccessor (filetable)
 		return function (suitename)
 			return filetable[suitename] or error("No such suite: " .. suitename)
 		end
-	end
+	end -- }}}
 
 	return produceaccessor(resolvesuites(readlines(filename)))
 end
@@ -303,9 +332,9 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ runsingletest(name, args) {{{                                          ]--
+--[ runsingletest (name, args) {{{                                         ]--
 --[========================================================================]--
-local function runsingletest(name, args)
+local function runsingletest (name, args)
 	local vimcmd = "vim -E -n -N"
 	if args.vimrc then
 		local curdir = os.getenv("PWD")
@@ -345,9 +374,20 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ testlistfromargs(args) {{{                                             ]--
+--[ testlistfromargs (args) {{{                                            ]--
+--[                                                                        ]--
+--[ Description:                                                           ]--
+--[   Create a list of tests to run from the command line arguments passed ]--
+--[   in. This involves parsing the suite file and resolving any families  ]--
+--[   given recursively.                                                   ]--
+--[                                                                        ]--
+--[ Params:                                                                ]--
+--[   1) args - command line args.                                         ]--
+--[                                                                        ]--
+--[ Returns:                                                               ]--
+--[   1) A list of test file names.                                        ]--
 --[========================================================================]--
-local function testlistfromargs(args)
+local function testlistfromargs (args)
 	local testlist = {}
 	local testset = {}
 	local _, test, suite, suiteresolver
@@ -375,10 +415,10 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ main(args) {{{                                                         ]--
+--[ main (args) {{{                                                        ]--
 --[========================================================================]--
 local function main (args)
-	local args = checkargfiles(parseargs(args))
+	local args = assertfilesexist(parseargs(args))
 
 	local successcount = 0
 	local failurecount = 0
@@ -403,14 +443,17 @@ local function main (args)
 
 	print(ansi_blue .. "TOTAL" .. ansi_end .. ":\t" .. (successcount + failurecount))
 	print(ansi_blue .. "SUCCESSES" .. ansi_end .. ":\t" .. successcount)
+
 	if failurecount == 0 then
 		print(ansi_green .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
 	else
 		print(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
 	end
+
 	for _, test in ipairs(failures) do
 		print("  " .. test)
 	end
+
 	if notfoundcount > 0 then
 		print(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
 		for _, test in ipairs(notfound) do

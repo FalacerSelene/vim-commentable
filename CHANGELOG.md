@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [unreleased]
 ### Added
 - CommentableSetDefaultBindings adds some standard maps.
+- Pretty colours for test output.
 ### Remove
 - No submodule dependencies.
+### Changed
+- Better commenting througout.
 
 ## [0.1.0]
 ### Added
