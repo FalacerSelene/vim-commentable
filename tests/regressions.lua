@@ -1,6 +1,20 @@
 #! /usr/bin/env lua
 
 --[========================================================================]--
+--[ Colours {{{                                                            ]--
+--[========================================================================]--
+
+local escape = string.char(27)
+local ansi_red   = escape .. '[31m' .. escape .. '[1m'
+local ansi_green = escape .. '[32m' .. escape .. '[1m'
+local ansi_blue  = escape .. '[34m' .. escape .. '[1m'
+local ansi_end   = escape .. '[m'
+
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
 --[ Modules {{{                                                            ]--
 --[========================================================================]--
 local function req (modname)
@@ -386,14 +400,19 @@ local function main (args)
 			end
 		end
 	end
-	print("TOTAL:\t" .. (successcount + failurecount))
-	print("SUCCESSES:\t" .. successcount)
-	print("FAILURES:\t" .. failurecount)
+
+	print(ansi_blue .. "TOTAL" .. ansi_end .. ":\t" .. (successcount + failurecount))
+	print(ansi_blue .. "SUCCESSES" .. ansi_end .. ":\t" .. successcount)
+	if failurecount == 0 then
+		print(ansi_green .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
+	else
+		print(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
+	end
 	for _, test in ipairs(failures) do
 		print("  " .. test)
 	end
 	if notfoundcount > 0 then
-		print("NOTFOUND:\t" .. notfoundcount)
+		print(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
 		for _, test in ipairs(notfound) do
 			print("  " .. test)
 		end
