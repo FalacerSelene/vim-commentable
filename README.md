@@ -9,10 +9,9 @@ Version: *0.1.1*
 2. [Installation](#installation)
   1. [Requirements](#requirements)
   2. [Installing old-style](#install-old)
-  3. [Install from Vimball](#install-vimball)
-  4. [Install with Pathogen](#install-pathogen)
-  5. [Install with Vundle](#install-vundle)
-  6. [Install as a Package](#install-package)
+  3. [Install with Pathogen](#install-pathogen)
+  4. [Install with Vundle](#install-vundle)
+  5. [Install as a Package](#install-package)
 3. [Quickstart](#quickstart)
 4. [Configuration](#configuration)
 5. [Contact](#contact)
@@ -70,22 +69,7 @@ This assumes a posix compliant version of find. If you use a non-posix find,
 you probably already know enough to generate an equivalent command for your
 system.
 
-### 2.3\. Installing from vimball <!-- {{{2 -->
-<a name="install-vimball"></a>
-
-In order to create a vimball for installing this plugin, run `make` in the
-base directory. This will create a file named commentable.vmb. Once you have
-this file, run:
-
-```sh
-vim commentable.vba
-:so %
-:q
-```
-
-to install the plugin.
-
-### 2.4\. Installing with Pathogen <!-- {{{2 -->
+### 2.3\. Installing with Pathogen <!-- {{{2 -->
 <a name="install-pathogen"></a>
 
 If you already have [Pathogen][pathogen] working then skip
@@ -122,7 +106,7 @@ Once you have followed these steps than Commentable is installed:
 3. Did the `git clone` of Commentable inside `~/.vim/bundle`
 4. Have permissions to access all of these directories.
 
-### 2.5\. Installing with Vundle <!-- {{{2 -->
+### 2.4\. Installing with Vundle <!-- {{{2 -->
 <a name="install-vundle"></a>
 
 #### 2.5.1\. Step 1: Install Vundle <!-- {{{3 -->
