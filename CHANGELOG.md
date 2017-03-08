@@ -15,5 +15,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Initial project structure, tests and functionality.
 
-[unreleased]: https://www.github.com/galtish/vim-commentable
-[0.1.0]: https://www.github.com/galtish/vim-commentable/tree/0.1.0
+[unreleased]: https://www.github.com/FalacerSelene/vim-commentable
+[0.1.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.1.0

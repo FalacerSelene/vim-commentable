@@ -166,7 +166,7 @@ updated as necessary with the command *PluginInstall*.
 To install Commentable, simply add the line:
 
 ```vim
-Plugin 'galtish/commentable.vim'
+Plugin 'FalacerSelene/commentable.vim'
 ```
 
 and run *PluginInstall*.
@@ -188,7 +188,7 @@ chosen will not affect plugin installation.
 Inside the start/ directory, take a clone of this repository:
 
 ```sh
-git clone http://github.com/galtish/vim-commentable
+git clone http://github.com/FalacerSelene/vim-commentable
 ```
 
 And that's all you need to do - the plugin is now installed!

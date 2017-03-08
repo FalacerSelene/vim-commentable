@@ -5,8 +5,8 @@
 "|  DESCRIPTION:  Main entrance point for plugin. Adds utilities for block   |
 "|                commenting.                                                |
 "|                                                                           |
-"|       AUTHOR:  @galtish                                                   |
-"|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
+"|       AUTHOR:  @FalacerSelene                                             |
+"|      CONTACT:  < github at adamselene dot net >                           |
 "|      LICENCE:  See LICENCE.md                                             |
 "|      VERSION:  0.1.1 <indev>                                              |
 "|                                                                           |

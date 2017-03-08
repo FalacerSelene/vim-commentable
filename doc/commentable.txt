@@ -24,7 +24,7 @@ variables, allowing you to set the block generation and formatting to your
 preferred style for each filetype or project.
 
 Commentable's homepage is its github repository:
-https://www.github.com/galtish/vim-commentable.git
+https://www.github.com/FalacerSelene/vim-commentable.git
 
 1.1 REQUIREMENTS                                   *commentable-requirements*
 ----------------

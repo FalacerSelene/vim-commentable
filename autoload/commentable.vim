@@ -4,8 +4,8 @@
 "|                                                                           |
 "|  DESCRIPTION:  Primary autoload functions for plugin.                     |
 "|                                                                           |
-"|       AUTHOR:  @galtish                                                   |
-"|      CONTACT:  < mj dot git plus commentable at fastmail dot com >        |
+"|       AUTHOR:  @FalacerSelene                                             |
+"|      CONTACT:  < github at adamselene dot net >                           |
 "|      LICENCE:  See LICENCE.md                                             |
 "|      VERSION:  See plugin/commentable.vim                                 |
 "|                                                                           |
