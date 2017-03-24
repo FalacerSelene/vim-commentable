@@ -24,9 +24,7 @@ Commentable is a [Vim][vim] plugin that provides a set of commands and
 functions that make it easy to use block (walled) comments across various
 languages.
 
-Although all languages offer a commenting feature, and may offer block
-comments in addition to line comments, it's often preferred by style guidlines
-to write more visually distinct comments as follows -- using C comments:
+Block comments are used to make comments more visualy distinct:
 
 ```c
 /*********************************************************************/
@@ -34,13 +32,9 @@ to write more visually distinct comments as follows -- using C comments:
 /*********************************************************************/
 ```
 
-These "walled" comment blocks are a pain to rewrite manually, with the closing
-boundary changing position and the need to reflow the lines arising.
-Commentable provides a series of bindings and commands making this a single
-action job.
-
-Commentable integrates neatly with [vim-repeat][repeat]'s extensible .
-command.
+These "walled" comment blocks are a pain to rewrite manually, since the
+closing boundary moves around and you need to reformat the walls. Commentable
+makes this a single action job.
 
 ## 2\. Installation <!-- {{{1 -->
 <a name="installation"></a>
@@ -50,24 +44,17 @@ command.
 
 Commentable assumes a version of Vim compiled with the `normal` feature set.
 Some vital features that are required are `eval` and `user_commands`.
-Commentable requires a version of Vim of at least 7.4.
+Commentable requires a version of Vim of at least 7.4 -- as long as you're
+running a relatively modern OS the version available in your package manager
+will be fine.
 
 ### 2.2\. Installing old-style <!-- {{{2 -->
 <a name="install-old"></a>
 
 Once you have a clone of this repo, copy the contents of each of the
 directories (excluding "tests") in the repo into an identically named
-directory in your vim config directory: on GNU/Linux this is ~/.vim; on
-Windows, this is C:/users/&lt;username&gt;/.vim/. A shell command for achiving
-this on GNU/Linux is:
-
-```sh
-find . -maxdepth 1 -type d -a \! -name tests -exec cp -r \{} ~/.vim/ \;
-```
-
-This assumes a posix compliant version of find. If you use a non-posix find,
-you probably already know enough to generate an equivalent command for your
-system.
+directory in your vim config directory: on GNU/Linux this is ~/.vim and on
+Windows this is C:/users/&lt;username&gt;/.vim/.
 
 ### 2.3\. Installing with Pathogen <!-- {{{2 -->
 <a name="install-pathogen"></a>
@@ -99,12 +86,9 @@ execute pathogen#infect()
 You now have pathogen installed and should clone Commentable into into
 `~/.vim/bundle`.
 
-Once you have followed these steps than Commentable is installed:
-
-1. Created both the `~/.vim/autoload` and `~/.vim/bundle` directories.
-2. Added the `execute pathogen#infect()` line to your `~/.vimrc` file
-3. Did the `git clone` of Commentable inside `~/.vim/bundle`
-4. Have permissions to access all of these directories.
+```sh
+git clone http://github.com/FalacerSelene/vim-commentable ~/.vim/bundle/
+```
 
 ### 2.4\. Installing with Vundle <!-- {{{2 -->
 <a name="install-vundle"></a>
@@ -141,16 +125,16 @@ call vundle#end()
 filetype plugin indent on
 ```
 
-All plugins added between the #start and #end calls will be installed or
+All plugins added between the #begin and #end calls will be installed or
 updated as necessary with the command *PluginInstall*.
 
 #### 2.5.2\. Step 2: Install Commentable as a Vundle Plugin <!-- {{{3 -->
 <a name="install-vundle-step2"></a>
 
-To install Commentable, simply add the line:
+To install Commentable, add the line:
 
 ```vim
-Plugin 'FalacerSelene/commentable.vim'
+Plugin 'FalacerSelene/vim-commentable'
 ```
 
 and run *PluginInstall*.
@@ -166,8 +150,8 @@ Create the following directory tree in your .vim config directory:
 .vim/pack/&lt;packagename&gt;/start/
 
 where &lt;packagename&gt; is a name for this package (collection of plugins).
-One possible scheme for naming packages is by author on Github, but the name
-chosen will not affect plugin installation.
+One possible scheme for naming packages is by author on Github, but this won't
+affect plugin installation.
 
 Inside the start/ directory, take a clone of this repository:
 
@@ -214,9 +198,8 @@ requirements, then you can define your own comment styles at either a
 per-buffer or global level.
 
 In order to set a new global style, assign a 3-valued list to the variable
-g:CommentableBlockStyle. The values of this list are, in turn, the left-hand
-edge of the block, the top and bottom edges, and the right hand edge of the
-desired block.
+g:CommentableBlockStyle. The values of this list are the left-hand edge of the
+block, the top and bottom edges, and the right hand edge of the desired block.
 
 For example, if you set:
 
@@ -274,9 +257,7 @@ In code.pl:
 #------------------------------------------------------------------#
 ```
 
-This section has only covered the simplest configuration of Commentable - to
-see all the possible configuration parameters, please read the Vim help doc
-after installing.
+For more information, see the in-vim help documentation:
 
 ```vim
 help commentable
@@ -287,14 +268,13 @@ help commentable
 
 Please email all bugs report and feature suggestions to:
 
-&lt; mj dot git plus commentable at fastmail dot com &gt;
+&lt; git at adamselene dot net &gt;
 
 ## 6\. Licence <!-- {{{1 -->
 <a name="licence"></a>
 
-As per convention, Commentable is licenced under the term of the [Vim
-licence][vim-lic], and may also be bound by the Neovim licence when run as a
-[Neovim][neovim] plugin instead.
+Commentable is licenced under the UNLICENCE. It may also be bound by the terms
+of the [Vim licence][vim-lic] or the [Neovim][neovim] licence aswell.
 
 <!-- Links {{{1 -->
 
@@ -302,9 +282,7 @@ licence][vim-lic], and may also be bound by the Neovim licence when run as a
 [pathogen]: http://github.com/tpope/vim-pathogen
 [neovim]: http://neovim.io/
 [vim-lic]: http://vimdoc.sourceforge.net/htmldoc/uganda.html#license
-[repeat]: http://github.com/tpope/vim-repeat
 [vundle]: http://github.com/VundleVim/Vundle.vim
-[tutor]: http://github.com/fmoralesc/vim-tutor-mode
 
 <!--
 vim:tw=78:expandtab:
