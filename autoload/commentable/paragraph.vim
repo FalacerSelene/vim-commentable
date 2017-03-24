@@ -23,7 +23,7 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#paragraph#New(line) abort                                 {{{ |
+"| commentable#paragraph#New(line) abort {{{                                 |
 "|                                                                           |
 "| Create a new paragraph object.                                            |
 "|                                                                           |
@@ -60,7 +60,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| paragraph.GetFormat(width) abort dict                                 {{{ |
+"| paragraph.GetFormat(width) abort dict {{{                                 |
 "|                                                                           |
 "| PARAMS:                                                                   |
 "|   width) The required length of the lines to be output.                   |
@@ -100,7 +100,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| paragraph.AddLine(line) abort dict                                    {{{ |
+"| paragraph.AddLine(line) abort dict {{{                                    |
 "|                                                                           |
 "| Add the given line to this paragraph.                                     |
 "|                                                                           |
@@ -127,7 +127,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| paragraph.IsInParagraph(line) abort dict                              {{{ |
+"| paragraph.IsInParagraph(line) abort dict {{{                              |
 "|                                                                           |
 "| Determine if the given line belong to this paragraph by checking leading  |
 "| whitespace.                                                               |
@@ -150,7 +150,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:PadRight(text, reqlength, padding) abort                            {{{ |
+"| s:PadRight(text, reqlength, padding) abort {{{                            |
 "|                                                                           |
 "| Pad the given text until it reaches the required length.                  |
 "|                                                                           |
@@ -182,10 +182,24 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:BreakIntoLines(text, reqlen) abort                                  {{{ |
+"| s:BreakIntoLines(text, reqlen) abort {{{                                  |
+"|                                                                           |
+"| Breaks a text string or list of strings into a list of lines of a given   |
+"| length.                                                                   |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   text) Text to normalise. Either a string or a list of strings.          |
+"|   reqlen) Desired length of output lines. Lines will be this length or    |
+"|           shorted, unless a single word is longer than this length, in    |
+"|           which case the lines will be of that length.                    |
+"|                                                                           |
+"| Returns the lines of the required length.                                 |
 "|===========================================================================|
 function! s:BreakIntoLines(text, reqlen) abort
 	let l:text = a:text
+	if type(l:text) == s:t_list
+		let l:text = join(l:text)
+	endif
 	let l:textlen = strlen(l:text)
 	let l:outlist = []
 
@@ -268,7 +282,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:GetLineIntro(line) abort                                            {{{ |
+"| s:GetLineIntro(line) abort {{{                                            |
 "|                                                                           |
 "| PARAMS:                                                                   |
 "|   line) The line to extract elements of.                                  |
@@ -326,7 +340,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:IntroFromListPat() abort                                            {{{ |
+"| s:IntroFromListPat() abort {{{                                            |
 "|                                                                           |
 "| Generate an introlist from the 'formatlistpat'.                           |
 "|                                                                           |

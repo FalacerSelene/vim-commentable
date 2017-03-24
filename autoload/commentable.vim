@@ -23,7 +23,7 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#IsCommentBlock(lineno) abort                              {{{ |
+"| commentable#IsCommentBlock(lineno) abort {{{                              |
 "|                                                                           |
 "| Determines whether the given linenumber is part of a comment block or     |
 "| not.                                                                      |
@@ -42,7 +42,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#Reformat(lineno) abort                                    {{{ |
+"| commentable#Reformat(lineno) abort {{{                                    |
 "|                                                                           |
 "| Reformat the comment block on the given line. Reformatting includes:      |
 "| - Aligning all the lines.                                                 |
@@ -75,7 +75,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#CreateBlock() abort range                                 {{{ |
+"| commentable#CreateBlock() abort range {{{                                 |
 "|                                                                           |
 "| Create a new comment block comprising the text in the given range.        |
 "|                                                                           |
@@ -121,7 +121,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#GetVar(varname) abort                                     {{{ |
+"| commentable#GetVar(varname) abort {{{                                     |
 "|                                                                           |
 "| Fetch a configuration variable.                                           |
 "|                                                                           |
@@ -150,7 +150,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#StripSpaces(line) abort                                   {{{ |
+"| commentable#StripSpaces(line) abort {{{                                   |
 "|                                                                           |
 "| Strip leading and trailing spaces from a line.                            |
 "|                                                                           |
@@ -171,7 +171,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:GetCommentBlockWidth(amount_indented) abort                         {{{ |
+"| s:GetCommentBlockWidth(amount_indented) abort {{{                         |
 "|===========================================================================|
 function! s:GetCommentBlockWidth(amount_indented) abort
 	let l:is_indented = a:amount_indented !=# 0
@@ -245,7 +245,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:GetTempRegs() abort                                                 {{{ |
+"| s:GetTempRegs() abort {{{                                                 |
 "|===========================================================================|
 function! s:GetTempRegs() abort
 	return [@-,@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@"]
@@ -255,7 +255,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:RestoreTempRegs(saved) abort                                        {{{ |
+"| s:RestoreTempRegs(saved) abort {{{                                        |
 "|===========================================================================|
 function! s:RestoreTempRegs(saved) abort
 	let [@-,@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@"] = a:saved
@@ -265,12 +265,17 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:ReplaceLines(with) abort range                                      {{{ |
+"| s:ReplaceLines(with) abort range {{{                                      |
 "|                                                                           |
 "| Replaces lines in range with lines given as 'with'.                       |
 "|                                                                           |
 "| This function inherently has side-effects! But tries to keep them at a    |
 "| minimum.                                                                  |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   with) Lines to use instead.                                             |
+"|                                                                           |
+"| Returns nothing.                                                          |
 "|===========================================================================|
 function! s:ReplaceLines(with) abort range
 	let l:savedreg = <SID>GetTempRegs()
@@ -285,7 +290,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:RemoveIndent(size, line) abort                                      {{{ |
+"| s:RemoveIndent(size, line) abort {{{                                      |
 "|                                                                           |
 "| Remove indentchars from a given line.                                     |
 "|                                                                           |

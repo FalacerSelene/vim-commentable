@@ -27,7 +27,7 @@ let g:commentable#block#lmat_wall = 2 " Wall of a comment
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#block#New(indentamount) abort                             {{{ |
+"| commentable#block#New(indentamount) abort {{{                             |
 "|                                                                           |
 "| Create a new block object. Only needs to know if it is indented or not;   |
 "| the remaining parameters are determined in the constructor.               |
@@ -57,7 +57,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| block.AddParagraph(para) abort dict                                   {{{ |
+"| block.AddParagraph(para) abort dict {{{                                   |
 "|                                                                           |
 "| Add a new paragraph of text to this block.                                |
 "|                                                                           |
@@ -74,7 +74,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| block.AddExisting(linenum) abort dict                                 {{{ |
+"| block.AddExisting(linenum) abort dict {{{                                 |
 "|                                                                           |
 "| Add paragraphs from an existing block.                                    |
 "|                                                                           |
@@ -140,7 +140,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| block.LineMatches(linenum) abort dict                                 {{{ |
+"| block.LineMatches(linenum) abort dict {{{                                 |
 "|                                                                           |
 "| Determine if a given existing line is valid for this block.               |
 "|                                                                           |
@@ -186,7 +186,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| block.GetFormat(width) abort dict                                     {{{ |
+"| block.GetFormat(width) abort dict {{{                                     |
 "|                                                                           |
 "| PARAMS:                                                                   |
 "|   width) The required length of the lines to be output.                   |
@@ -232,7 +232,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| block._GetRange(linenum) abort dict                                   {{{ |
+"| block._GetRange(linenum) abort dict {{{                                   |
 "|                                                                           |
 "| Get block range around a given line.                                      |
 "|                                                                           |
@@ -334,7 +334,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:GetCommentStyle(isindented) abort                                   {{{ |
+"| s:GetCommentStyle(isindented) abort {{{                                   |
 "|                                                                           |
 "| Get the current comment style, and ensure that it is valid. A valid style |
 "| must:                                                                     |
@@ -412,7 +412,7 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| s:StyleFromCommentString() abort                                      {{{ |
+"| s:StyleFromCommentString() abort {{{                                      |
 "|                                                                           |
 "| Generate a style from the 'commentstring' setting.                        |
 "|                                                                           |
