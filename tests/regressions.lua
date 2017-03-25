@@ -428,13 +428,16 @@ local function main (args)
 	local _, test
 	for _, test in ipairs(testlistfromargs(args)) do
 		if not isfile(args.testdir .. "/scripts/" .. test .. ".vim") then
+			print(test .. "... " .. ansi_red .. "NOTFOUND" .. ansi_end)
 			notfoundcount = notfoundcount + 1
 			notfound[#notfound+1] = test
 		else
 			local passed = runsingletest(test, args)
 			if passed then
+				print(test .. "... " .. ansi_green .. "PASSED" .. ansi_end)
 				successcount = successcount + 1
 			else
+				print(test .. "... " .. ansi_red .. "FAILED" .. ansi_end)
 				failurecount = failurecount + 1
 				failures[#failures+1] = test
 			end
@@ -450,15 +453,8 @@ local function main (args)
 		print(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
 	end
 
-	for _, test in ipairs(failures) do
-		print("  " .. test)
-	end
-
 	if notfoundcount > 0 then
 		print(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
-		for _, test in ipairs(notfound) do
-			print("  " .. test)
-		end
 	end
 end
 --[========================================================================]--
