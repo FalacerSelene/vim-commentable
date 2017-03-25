@@ -273,8 +273,9 @@ Please email all bugs report and feature suggestions to:
 ## 6\. Licence <!-- {{{1 -->
 <a name="licence"></a>
 
-Commentable is licensed under the UNLICENCE. It may also be bound by the terms
-of the [Vim licence][vim-lic] or the [Neovim][neovim] licence as well.
+Commentable is licensed under the [UNLICENCE][unlicence]. It may also be bound
+by the terms of the [Vim licence][vim-lic] or the [Neovim][neovim] licence as
+well.
 
 <!-- Links {{{1 -->
 
@@ -283,6 +284,7 @@ of the [Vim licence][vim-lic] or the [Neovim][neovim] licence as well.
 [neovim]: http://neovim.io/
 [vim-lic]: http://vimdoc.sourceforge.net/htmldoc/uganda.html#license
 [vundle]: http://github.com/VundleVim/Vundle.vim
+[unlicence]: http://unlicense.org/
 
 <!--
 vim:tw=78:expandtab:
