@@ -24,7 +24,7 @@ Commentable is a [Vim][vim] plugin that provides a set of commands and
 functions that make it easy to use block (walled) comments across various
 languages.
 
-Block comments are used to make comments more visualy distinct:
+Block comments are used to make comments more visually distinct:
 
 ```c
 /*********************************************************************/
@@ -231,7 +231,7 @@ let g:CommentableBlockStyle = ['/*', 'xo', '*/']
 ```
 
 This same variable may be set on a per-buffer level, in which case it is used
-in preferrence to the global value. One of the recommended ways to use
+in preference to the global value. One of the recommended ways to use
 Commentable is to set per-buffer values of this variable using either filetype
 autocommands, or using ftplugin/&lt;filetype&gt;.vim files in your vim
 directory.
@@ -273,8 +273,8 @@ Please email all bugs report and feature suggestions to:
 ## 6\. Licence <!-- {{{1 -->
 <a name="licence"></a>
 
-Commentable is licenced under the UNLICENCE. It may also be bound by the terms
-of the [Vim licence][vim-lic] or the [Neovim][neovim] licence aswell.
+Commentable is licensed under the UNLICENCE. It may also be bound by the terms
+of the [Vim licence][vim-lic] or the [Neovim][neovim] licence as well.
 
 <!-- Links {{{1 -->
 
