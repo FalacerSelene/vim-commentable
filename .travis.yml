@@ -1,11 +1,16 @@
-language: lua
 os: linux
+dist: trusty
+sudo: false
+language: lua
 
-install:
-  - sudo apt-get install vim
-  - sudo apt-get install lua5.1
-  - sudo apt-get install luarocks
-  - sudo luarocks install luafilesystem
+addons:
+  apt:
+    packages:
+      - vim=2:7.4.052-1ubuntu3.1
+      - lua5.1
+      - lua-filesystem
+
+install: true
 
 script:
   - ./run-regressions --suite all

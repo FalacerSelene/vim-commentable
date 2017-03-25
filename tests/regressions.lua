@@ -60,7 +60,7 @@ local function isdir (dirname)
 	if lfs then
 		diratts = lfs.attributes(dirname)
 		isdir = diratts and diratts.mode == 'directory'
-	elseif os.execute('[[ -d ' .. dirname .. ' ]]') then
+	elseif os.execute('[ -d "' .. dirname .. '" ]') then
 		isdir = true
 	end
 
@@ -91,7 +91,7 @@ local function isfile (filename)
 	if lfs then
 		fileatts = lfs.attributes(filename)
 		isfile = fileatts and fileatts.mode == 'file'
-	elseif os.execute('[[ -f ' .. filename .. ' ]]') then
+	elseif os.execute('[ -f "' .. filename .. '" ]') then
 		isfile = true
 	end
 
