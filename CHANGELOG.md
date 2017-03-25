@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - No submodule dependencies.
 ### Changed
 - Better commenting througout.
+- CommentableCreate has join functionality.
 
 ## [0.1.0]
 ### Added

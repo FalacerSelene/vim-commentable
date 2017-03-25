@@ -34,8 +34,7 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "| Returns zero if true, non-zero if false. May throw.                       |
 "|===========================================================================|
 function! commentable#IsCommentBlock(lineno) abort
-	let l:block = commentable#block#New(indent(a:lineno))
-	return l:block.LineMatches(a:lineno)
+	return commentable#block#IsComment(a:lineno)
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -58,17 +57,21 @@ endfunction
 "|===========================================================================|
 function! commentable#Reformat(lineno) abort
 	let l:indent = indent(a:lineno)
-	let l:indentchars = substitute(getline(a:lineno), '\m^\(\s*\).*', '\1', '')
-	let l:blockwidth = <SID>GetCommentBlockWidth(l:indent)
+	let l:indent_chars =
+	 \  substitute(getline(a:lineno), '\m^\(\s*\).*', '\1', '')
+	let l:block_width = <SID>GetCommentBlockWidth(l:indent)
 	let l:block = commentable#block#New(l:indent)
-	let [l:startline, l:endline] = l:block.AddExisting(a:lineno)
-	let l:lines = l:block.GetFormat(l:blockwidth)
-	call map(l:lines, 'l:indentchars . v:val')
+	let [l:start_line, l:end_line] = l:block.AddExisting(a:lineno)
+	let l:lines = l:block.GetFormat(l:block_width)
+	call map(l:lines, 'l:indent_chars . v:val')
 
 	"|===============================================|
 	"| Changes occur after this point.               |
 	"|===============================================|
-	execute l:startline . ',' . l:endline . 'call <SID>ReplaceLines(l:lines)'
+	execute (l:start_line
+	 \       . ','
+	 \       . l:end_line
+	 \       . 'call <SID>ReplaceLines(l:lines)')
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -84,66 +87,69 @@ endfunction
 "| Returns nothing. May throw.                                               |
 "|===========================================================================|
 function! commentable#CreateBlock() abort range
+	"|===============================================|
+	"| Determine the size of the block we're about   |
+	"| to construct                                  |
+	"|===============================================|
 	let l:indent = indent(a:firstline)
 	let l:indentchars = substitute(getline(a:firstline), '\m^\(\s*\).*', '\1', '')
 	let l:blockwidth = <SID>GetCommentBlockWidth(l:indent)
-	let l:lines = getline(a:firstline, a:lastline)
-	call map(l:lines, '<SID>RemoveIndent(l:indent, v:val)')
 
+	"|===============================================|
+	"| Get all the paragraphs in range               |
+	"|===============================================|
+	let l:blockpattern = <SID>GetExistingPattern(a:firstline, a:lastline)
+	let l:outfirst = l:blockpattern[0][1]
+	let l:outlast = l:blockpattern[-1][2]
+	let l:paras = <SID>PatternToParagraphs(l:blockpattern)
+
+	"|===============================================|
+	"| Create a block from the paragraphs.           |
+	"|===============================================|
 	let l:block = commentable#block#New(l:indent)
-	let l:curpar = commentable#paragraph#New(l:lines[0])
-	let l:lastlineblank = 0
-	for l:line in l:lines[1:]
-		if l:line =~# '\m^\s*$'
-			call l:block.AddParagraph(l:curpar)
-			let l:curpar = commentable#paragraph#New(l:line)
-			let l:lastlineblank = 1
-		elseif l:curpar.IsInParagraph(l:line) && (!l:lastlineblank)
-			call l:curpar.AddLine(l:line)
-		else
-			call l:block.AddParagraph(l:curpar)
-			let l:curpar = commentable#paragraph#New(l:line)
-			let l:lastlineblank = 0
-		endif
+	for l:para in l:paras
+		call l:block.AddParagraph(l:para)
 	endfor
-	call l:block.AddParagraph(l:curpar)
 
+	"|===============================================|
+	"| Get the lines from the block, and prepare     |
+	"|===============================================|
 	let l:lines = l:block.GetFormat(l:blockwidth)
 	call map(l:lines, 'l:indentchars . v:val')
 
 	"|===============================================|
-	"| Changes occur after this point.               |
+	"| Dump the lines to file.                       |
 	"|===============================================|
-	execute a:firstline . ',' . a:lastline . 'call <SID>ReplaceLines(l:lines)'
+	execute l:outfirst . ',' . l:outlast . 'call <SID>ReplaceLines(l:lines)'
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#GetVar(varname) abort {{{                                     |
+"| commentable#GetVar(var_name) abort {{{                                    |
 "|                                                                           |
 "| Fetch a configuration variable.                                           |
 "|                                                                           |
 "| PARAMS:                                                                   |
-"|   varname) The config item to fetch.                                      |
+"|   var_name) The config item to fetch.                                     |
 "|                                                                           |
 "| Returns a buffer local version of the variable, if one exists. Else,      |
 "| returns the global version. If neither is set, throws.                    |
 "|===========================================================================|
-function! commentable#GetVar(varname) abort
+function! commentable#GetVar(var_name) abort
 	for l:t in [b:, g:]
-		if has_key(l:t, a:varname)
+		if has_key(l:t, a:var_name)
 			let l:d = l:t
 			break
 		endif
 	endfor
 
 	if !has_key(l:, 'd')
-		throw 'Commentable:NO VALUE:' . a:varname
+		throw 'Commentable:NO VALUE:' . a:var_name
 	endif
 
-	return get(l:d, a:varname)
+	return get(l:d, a:var_name)
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -171,7 +177,154 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
+"| s:GetExistingPattern(first, last) abort {{{                               |
+"|                                                                           |
+"| Scan the pattern of block/lines for source lines in a range.              |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   first) Lineno of the first line to scan.                                |
+"|   last) Lineno of the last line to scan.                                  |
+"|                                                                           |
+"| Returns a list of lists where:                                            |
+"|   [0] = 'block' or 'lines'                                                |
+"|   [1] = starting line number                                              |
+"|   [2] = ending line number                                                |
+"|===========================================================================|
+function! s:GetExistingPattern(first, last) abort
+	let l:items = []
+	let l:cur_item = ['none', 0, 0]
+	let l:cur_line = a:first
+	while l:cur_line <= a:last
+		if commentable#block#IsComment(l:cur_line)
+			call add(l:items, l:cur_item)
+			let [l:bs, l:be] = commentable#block#GetBlockRange(l:cur_line)
+			let l:cur_item = ['block', l:bs, l:be]
+			let l:cur_line = l:be + 1
+		else
+			if l:cur_item[0] ==# 'lines'
+				let l:cur_item[2] = l:cur_line
+			else
+				call add(l:items, l:cur_item)
+				let l:cur_item = ['lines', l:cur_line, l:cur_line]
+			endif
+			let l:cur_line += 1
+		endif
+	endwhile
+
+	call add(l:items, l:cur_item)
+
+	return l:items[1:]
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:ParagraphsFromLines(first, last) abort {{{                              |
+"|                                                                           |
+"| Read a set of lines into paragraph objects.                               |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   first) Lineno of the first line to include in the paragraphs.           |
+"|   last) Lineno of the last line to include in the paragraphs.             |
+"|                                                                           |
+"| Returns a list of replacement paragraphs.                                 |
+"|===========================================================================|
+function! s:ParagraphsFromLines(first, last) abort
+	let l:paras = []
+
+	"|===============================================|
+	"| Get the lines to put in the block             |
+	"|===============================================|
+	let l:indent = indent(a:first)
+	let l:lines = getline(a:first, a:last)
+	call map(l:lines, '<SID>RemoveIndent(l:indent, v:val)')
+
+	"|===============================================|
+	"| Create the first paragraph                    |
+	"|===============================================|
+	let l:cur_par = commentable#paragraph#New(l:lines[0])
+
+	let l:was_last_line_blank = (l:lines[0] =~# '\m^\s*$')
+	for l:line in l:lines[1:]
+		"|===============================================|
+		"| For each of the rest of the lines ...         |
+		"|===============================================|
+		if l:line =~# '\m^\s*$'
+			"|===============================================|
+			"| If it's blank, start a new paragraph.         |
+			"|===============================================|
+			call add(l:paras, l:cur_par)
+			let l:cur_par = commentable#paragraph#New(l:line)
+			let l:was_last_line_blank = 1
+		elseif l:cur_par.IsInParagraph(l:line) && (!l:was_last_line_blank)
+			"|===============================================|
+			"| If it looks like it fits in this paragraph,   |
+			"| add it.                                       |
+			"|===============================================|
+			call l:cur_par.AddLine(l:line)
+		else
+			"|===============================================|
+			"| Else, start a new paragraph.                  |
+			"|===============================================|
+			call add(l:paras, l:cur_par)
+			let l:cur_par = commentable#paragraph#New(l:line)
+			let l:was_last_line_blank = 0
+		endif
+	endfor
+
+	"|===============================================|
+	"| Add the final paragraph                       |
+	"|===============================================|
+	call add(l:paras, l:cur_par)
+
+	return l:paras
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| s:PatternToParagraphs(pattern) abort {{{                                  |
+"|                                                                           |
+"| Turn a block pattern as returned by GetExistingPattern into a list of     |
+"| paragraphs with all the text from within the pattern.                     |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   pattern) Block pattern to convert.                                      |
+"|                                                                           |
+"| Returns a list of paragraph objects.                                      |
+"|===========================================================================|
+function! s:PatternToParagraphs(pattern) abort
+	let l:paras = []
+	for l:elem in a:pattern
+		if l:elem[0] ==# 'block'
+			let l:block = commentable#block#New(indent(l:elem[1]))
+			call l:block.AddExisting(l:elem[1])
+			call extend(l:paras, l:block.paragraphs)
+		elseif l:elem[0] ==# 'lines'
+			call extend(l:paras,
+			 \          <SID>ParagraphsFromLines(l:elem[1], l:elem[2]))
+		else
+			throw 'Commentable:UNKNOWN ENUM:' . l:elem[0]
+		endif
+	endfor
+
+	return l:paras
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
 "| s:GetCommentBlockWidth(amount_indented) abort {{{                         |
+"|                                                                           |
+"| Calculate the block width for a block indented the given amount.          |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   amount_indented) Characters of indentation in this block.               |
+"|                                                                           |
+"| Returns the width of the block.                                           |
 "|===========================================================================|
 function! s:GetCommentBlockWidth(amount_indented) abort
 	let l:is_indented = a:amount_indented !=# 0

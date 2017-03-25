@@ -8,7 +8,7 @@
 "|       AUTHOR:  @FalacerSelene                                             |
 "|      CONTACT:  < github at adamselene dot net >                           |
 "|      LICENCE:  See LICENCE.md                                             |
-"|      VERSION:  0.1.1 <indev>                                              |
+"|      VERSION:  0.2.0 <alpha>                                              |
 "|                                                                           |
 "|===========================================================================|
 

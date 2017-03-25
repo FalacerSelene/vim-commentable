@@ -228,10 +228,6 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"|                              PRIVATE METHODS                              |
-"|===========================================================================|
-
-"|===========================================================================|
 "| block._GetRange(linenum) abort dict {{{                                   |
 "|                                                                           |
 "| Get block range around a given line.                                      |
@@ -324,6 +320,45 @@ function! s:GetRange(linenum) abort dict
 	endif
 
 	return [l:firstline, l:lastline]
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"|                              PUBLIC FUNCTIONS                             |
+"|===========================================================================|
+
+"|===========================================================================|
+"| commentable#block#GetBlockRange(lineno) abort {{{                         |
+"|                                                                           |
+"| Get the range of a block at a given line.                                 |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   lineno) Line to search around.                                          |
+"|                                                                           |
+"| Returns [firstline, lastline] of the block. Will throw if the given line  |
+"| is not a part of the block.                                               |
+"|===========================================================================|
+function! commentable#block#GetBlockRange(lineno) abort
+	return commentable#block#New(indent(a:lineno))._GetRange(a:lineno)
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"| commentable#block#IsComment(lineno) abort {{{                             |
+"|                                                                           |
+"| Determine if a given line is part of a block.                             |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   lineno) Line to check.                                                  |
+"|                                                                           |
+"| Returns true/false.                                                       |
+"|===========================================================================|
+function! commentable#block#IsComment(lineno) abort
+	return commentable#block#New(indent(a:lineno)).LineMatches(a:lineno)
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
