@@ -4,7 +4,12 @@ if (( $# == 0 )) ; then
 	set -- --suite all
 fi
 
+if [[ -t 1 ]] ; then
+	declare colours='--colours'
+fi
+
 ./tests/regressions.lua            \
+    ${colours}                     \
     --testdir   ./tests            \
     --vimrc     ./tests/vimrc.vim  \
     --suitefile ./tests/suites.cfg \

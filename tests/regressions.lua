@@ -12,6 +12,13 @@ local ansi_green = escape .. '[32m' .. escape .. '[1m'
 local ansi_blue  = escape .. '[34m' .. escape .. '[1m'
 local ansi_end   = escape .. '[m'
 
+local function remove_colours ()
+	ansi_red = ''
+	ansi_green = ''
+	ansi_blue = ''
+	ansi_end = ''
+end
+
 --[========================================================================]--
 --[ }}}                                                                    ]--
 --[========================================================================]--
@@ -145,6 +152,8 @@ local function parseargs (args)
 				state = STATE_VIMRC
 			elseif arg == '-f' or arg == '--suitefile' then
 				state = STATE_SUITES
+			elseif arg == '-c' or arg == '--colours' then
+				addarg('use_colours', true, true)
 			else
 				addarg('tests', arg)
 			end
@@ -419,6 +428,10 @@ end
 --[========================================================================]--
 local function main (args)
 	local args = assertfilesexist(parseargs(args))
+
+	if not args.use_colours then
+		remove_colours()
+	end
 
 	local successcount = 0
 	local failurecount = 0
