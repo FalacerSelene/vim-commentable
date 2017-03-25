@@ -14,3 +14,6 @@ install: true
 
 script:
   - ./run-regressions --suite all
+
+after_failure:
+  - ./tests/print-diffs.sh
