@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
-## [0.2.0]
+## [0.2.0] - 2017-03-25
 ### Added
 - CommentableSetDefaultBindings adds some standard maps.
 - Pretty colours for test output.
