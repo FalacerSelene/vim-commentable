@@ -471,9 +471,9 @@ local function main (args)
 	end
 
 	if failurecount == 0 and notfoundcount == 0 then
-		return true
+		return 0
 	else
-		return false
+		return 1
 	end
 end
 --[========================================================================]--
