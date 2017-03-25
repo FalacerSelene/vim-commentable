@@ -111,27 +111,7 @@ endfunction
 "|===========================================================================|
 function s:Reformat(setrepeat) range
 	try
-		let l:toreformat = []
-		let l:primed = 1
-		for l:lineno in range(a:firstline, a:lastline)
-			if commentable#IsCommentBlock(l:lineno)
-				if l:primed
-					call insert(l:toreformat, l:lineno)
-				endif
-				let l:primed = 0
-			else
-				let l:primed = 1
-			endif
-		endfor
-
-		"|===============================================|
-		"| Now we have a list of the start of every      |
-		"| comment block in range, in reverse order.     |
-		"| Work through and reformat them.               |
-		"|===============================================|
-		for l:lineno in l:toreformat
-			call commentable#Reformat(l:lineno)
-		endfor
+		execute a:firstline . ',' . a:lastline 'call commentable#Reformat()'
 	catch
 		echoerr v:exception
 	endtry

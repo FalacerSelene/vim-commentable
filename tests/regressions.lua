@@ -469,6 +469,12 @@ local function main (args)
 	if notfoundcount > 0 then
 		print(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
 	end
+
+	if failurecount == 0 and notfoundcount == 0 then
+		return true
+	else
+		return false
+	end
 end
 --[========================================================================]--
 --[ }}}                                                                    ]--

@@ -41,37 +41,53 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#Reformat(lineno) abort {{{                                    |
+"| commentable#Reformat() abort range {{{                                    |
 "|                                                                           |
-"| Reformat the comment block on the given line. Reformatting includes:      |
+"| Reformat the comment block on the given lines. Reformatting includes:     |
 "| - Aligning all the lines.                                                 |
 "| - Setting the line length to be correct.                                  |
 "| - Ensuring that all the text flows correctly from one line to the next.   |
 "| - Conforming to paragraph configuration.                                  |
 "|                                                                           |
-"| PARAMS:                                                                   |
-"|   lineno) Reformat the comment block at this line. If the given line does |
-"|           not have a comment block on it, then do nothing.                |
+"| PARAMS: NONE                                                              |
 "|                                                                           |
 "| Returns nothing. May throw.                                               |
 "|===========================================================================|
-function! commentable#Reformat(lineno) abort
-	let l:indent = indent(a:lineno)
-	let l:indent_chars =
-	 \  substitute(getline(a:lineno), '\m^\(\s*\).*', '\1', '')
-	let l:block_width = <SID>GetCommentBlockWidth(l:indent)
-	let l:block = commentable#block#New(l:indent)
-	let [l:start_line, l:end_line] = l:block.AddExisting(a:lineno)
-	let l:lines = l:block.GetFormat(l:block_width)
-	call map(l:lines, 'l:indent_chars . v:val')
+function! commentable#Reformat() abort range
+	"|===============================================|
+	"| Get all paragraphs in range                   |
+	"|===============================================|
+	let l:blockpattern = <SID>GetExistingPattern(a:firstline, a:lastline)
 
 	"|===============================================|
-	"| Changes occur after this point.               |
+	"| Starting at the end, reformat all the blocks  |
+	"| in range                                      |
 	"|===============================================|
-	execute (l:start_line
-	 \       . ','
-	 \       . l:end_line
-	 \       . 'call <SID>ReplaceLines(l:lines)')
+	for l:elem in reverse(l:blockpattern)
+		if l:elem[0] !=# 'block'
+			continue
+		endif
+
+		let l:at_line = (l:elem[1] < a:firstline ? a:firstline : l:elem[1])
+
+		let l:indent = indent(l:at_line)
+		let l:indent_chars =
+		 \  substitute(getline(l:at_line), '\m^\(\s*\).*', '\1', '')
+		let l:block_width = <SID>GetCommentBlockWidth(l:indent)
+		let l:block = commentable#block#New(l:indent)
+		let [l:start_line, l:end_line] = l:block.AddExisting(l:at_line)
+		let l:lines = l:block.GetFormat(l:block_width)
+		call map(l:lines, 'l:indent_chars . v:val')
+
+		"|===============================================|
+		"| Replace the block with the newly reformatted  |
+		"| block                                         |
+		"|===============================================|
+		execute (l:start_line
+		 \       . ','
+		 \       . l:end_line
+		 \       . 'call <SID>ReplaceLines(l:lines)')
+	endfor
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -92,7 +108,10 @@ function! commentable#CreateBlock() abort range
 	"| to construct                                  |
 	"|===============================================|
 	let l:indent = indent(a:firstline)
-	let l:indentchars = substitute(getline(a:firstline), '\m^\(\s*\).*', '\1', '')
+	let l:indentchars = substitute(getline(a:firstline),
+	 \                             '\m^\(\s*\).*',
+	 \                             '\1',
+	 \                             '')
 	let l:blockwidth = <SID>GetCommentBlockWidth(l:indent)
 
 	"|===============================================|
