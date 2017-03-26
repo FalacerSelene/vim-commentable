@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_block_config_errs create_single_comment
 
 "|===========================================================================|
@@ -9,14 +5,12 @@ StartTest create_block_config_errs create_single_comment
 "|===========================================================================|
 NextCase
 Out 'Case 1 - default'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
+NormalStyle
+InputCase 1
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 "|===========================================================================|
@@ -24,12 +18,11 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 2 - global width negative'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let g:CommentableBlockWidth = -1
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 	Out 'Did not catch expected exception!'
 catch
 	Out 'Caught expected exception'
@@ -41,12 +34,11 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 3 - global width string'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let g:CommentableBlockWidth = -1
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 	Out 'Did not catch expected exception!'
 catch
 	Out 'Caught expected exception'
@@ -58,12 +50,11 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 4 - buffer width list'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let b:CommentableBlockWidth = [100]
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 	Out 'Did not catch expected exception!'
 catch
 	Out 'Caught expected exception'

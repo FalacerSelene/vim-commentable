@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_too_short create_single_comment
 
 "|===========================================================================|
@@ -14,14 +10,13 @@ function s:RunCases()
 	 \ ]
 		NextCase
 		Out 'Create block with ' . l:text . ' set too short'
-		let g:CommentableBlockStyle = ['/*', '*', '*/']
+		NormalStyle
+		InputCase 1
 		execute 'let ' . l:var . ' = 10'
-		call append(line('$'), GetCase(1))
 		try
-			execute line('$') . 'CommentableCreate'
+			$CommentableCreate
 		catch
-			Out 'Caught exception!'
-			call Out(v:exception)
+			OutException
 		endtry
 	endfor
 endfunction

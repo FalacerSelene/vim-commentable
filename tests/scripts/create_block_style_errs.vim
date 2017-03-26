@@ -1,17 +1,12 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_block_style_errs create_single_comment
 
 function! s:DoCase(text, style, expect_fail)
 	NextCase
-	call Out(a:text)
+	Out a:text
 	let g:CommentableBlockStyle = a:style
-	let l:lines = GetCase(1)
-	call append(line('$'), l:lines)
+	InputCase 1
 	try
-		execute line('$') . 'CommentableCreate'
+		$CommentableCreate
 		if a:expect_fail
 			Out 'Did not catch expected exception!'
 		endif

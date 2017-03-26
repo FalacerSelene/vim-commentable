@@ -1,20 +1,14 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_block_config_style create_single_comment
 
 function! s:DoCase(text, style)
 	NextCase
-	call Out(a:text)
+	Out a:text
+	InputCase 1
 	let g:CommentableBlockStyle = a:style
-	let l:lines = GetCase(1)
-	call append(line('$'), l:lines)
 	try
-		execute line('$') . 'CommentableCreate'
+		$CommentableCreate
 	catch
-		Out 'Caught exception!'
-		call Out(v:exception)
+		OutException
 	endtry
 endfunction
 

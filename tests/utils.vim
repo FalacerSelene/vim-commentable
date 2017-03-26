@@ -107,6 +107,15 @@ function StartTest(...) abort
 		execute 'edit input/' . l:sourcefile . '.in'
 	endif
 
+	"|===============================================|
+	"| Delete blank lines at the end                 |
+	"|===============================================|
+	let l:lastline = line('$')
+	while getline(l:lastline) =~# '\C\m^\s*$'
+		execute l:lastline . 'delete _'
+		let l:lastline -= 1
+	endwhile
+
 	if !isdirectory('message')
 		call mkdir('message')
 	endif
@@ -139,4 +148,11 @@ command -bar -nargs=1 Out call Out(<args>)
 command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
 command -bar -nargs=0 EndTest call EndTest()
 command -nargs=* StartTest call StartTest(<f-args>)
-
+command -bar -nargs=1 InputCase
+ \   let b:case_firstline = line('$') + 1
+ \ | call append(line('$'), GetCase(<args>))
+ \ | let b:case_lastline = line('$')
+command -bar -nargs=0 NormalStyle let g:CommentableBlockStyle = ['/*', '*', '*/']
+command -bar -nargs=0 OutException
+ \   Out 'Caught exception!'
+ \ | Out v:exception

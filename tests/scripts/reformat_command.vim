@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest reformat_command short_comment
 
 "|===========================================================================|
@@ -9,13 +5,12 @@ StartTest reformat_command short_comment
 "|===========================================================================|
 NextCase
 Out 'Reformat a comment using a command'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
-call append(line('$'), GetCase(1))
+NormalStyle
+InputCase 1
 try
-	execute line('$') . 'CommentableReformat'
+	$CommentableReformat
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 EndTest

@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_block_config_column create_single_comment
 
 "|===========================================================================|
@@ -9,14 +5,12 @@ StartTest create_block_config_column create_single_comment
 "|===========================================================================|
 NextCase
 Out 'Case 1 - default'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
+NormalStyle
+InputCase 1
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 "|===========================================================================|
@@ -24,15 +18,13 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 2 - global column = 50'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let g:CommentableBlockColumn = 50
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 "|===========================================================================|
@@ -40,15 +32,13 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 3 - buffer column = 60'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let b:CommentableBlockColumn = 60
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 "|===========================================================================|
@@ -56,16 +46,14 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Case 4 - global column = 70, buffer column = 30'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
+NormalStyle
+InputCase 1
 let g:CommentableBlockColumn = 70
 let b:CommentableBlockColumn = 30
-let s:lines = GetCase(1)
-call append(line('$'), s:lines)
 try
-	execute line('$') . 'CommentableCreate'
+	$CommentableCreate
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 EndTest

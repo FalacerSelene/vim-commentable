@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest reformat_indented_style indented_comments
 
 "|===========================================================================|
@@ -22,16 +18,14 @@ function s:RunCases()
 			Out 'Comment from case: ' . l:case
 			let g:CommentableBlockStyle = l:block
 			let g:CommentableSubStyle = l:sub
-			call Out('BlockStyle: ' . string(g:CommentableBlockStyle))
-			call Out('SubStyle: ' . string(g:CommentableSubStyle))
+			Out 'BlockStyle: ' . string(g:CommentableBlockStyle)
+			Out 'SubStyle: ' . string(g:CommentableSubStyle)
 
-			call append(line('$'), GetCase(l:case))
-				execute line('$') . 'CommentableReformat'
+			InputCase l:case
 			try
-				execute line('$') . 'CommentableReformat'
+				$CommentableReformat
 			catch
-				Out 'Caught exception!'
-				call Out(v:exception)
+				OutException
 			endtry
 		endfor
 	endfor

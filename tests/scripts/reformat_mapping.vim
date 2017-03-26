@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest reformat_mapping short_comment
 
 "|===========================================================================|
@@ -9,16 +5,15 @@ StartTest reformat_mapping short_comment
 "|===========================================================================|
 NextCase
 Out 'Reformat a comment using a mapping'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
-call append(line('$'), GetCase(1))
+NormalStyle
+InputCase 1
 nmap (testmap) <Plug>(CommentableReformat)
 
 try
 	call cursor(line('$'), '1')
 	normal (testmap)
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 "|===========================================================================|
@@ -26,16 +21,15 @@ endtry
 "|===========================================================================|
 NextCase
 Out 'Reformat a comment using the default mapping'
-let g:CommentableBlockStyle = ['/*', '*', '*/']
-call append(line('$'), GetCase(1))
+NormalStyle
+InputCase 1
 CommentableSetDefaultBindings
 
 try
 	call cursor(line('$'), '1')
 	normal gcq
 catch
-	Out 'Caught exception!'
-	call Out(v:exception)
+	OutException
 endtry
 
 EndTest

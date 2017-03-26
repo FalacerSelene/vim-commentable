@@ -1,7 +1,3 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest create_block_commentstring create_single_comment
 
 "|===========================================================================|
@@ -10,12 +6,11 @@ StartTest create_block_commentstring create_single_comment
 function RunCase(comstr)
 	NextCase
 	let &commentstring = a:comstr
-	call append(line('$'), GetCase(1))
+	InputCase 1
 	try
 		$CommentableCreate
 	catch
-		Out 'Caught exception!'
-		Out v:exception
+		OutException
 	endtry
 endfunction
 

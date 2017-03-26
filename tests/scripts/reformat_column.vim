@@ -1,13 +1,7 @@
-"|===========================================================================|
-"| Begin                                                                     |
-"|===========================================================================|
-source utils.vim
 StartTest reformat_column indented_comments
 
 command -buffer -nargs=1 -bar ReformatCase
-	\ let g:CommentableBlockStyle = ['/*', '*', '*/'] |
-	\ call append(line('$'), GetCase(<args>))         |
-	\ execute line('$') . 'CommentableReformat'
+	\ NormalStyle | InputCase <args> | $CommentableReformat
 
 function s:RunCase(case)
 	"|===============================================|
