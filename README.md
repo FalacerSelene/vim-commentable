@@ -52,7 +52,7 @@ will be fine.
 <a name="install-old"></a>
 
 Once you have a clone of this repo, copy the contents of each of the
-directories (excluding "tests") in the repo into an identically named
+directories (excluding "test") in the repo into an identically named
 directory in your vim config directory: on GNU/Linux this is ~/.vim and on
 Windows this is C:/users/&lt;username&gt;/.vim/.
 

@@ -1,7 +1,7 @@
 regression.trc
-tests/output/*.out
-tests/output/*.diff
-tests/message
+test/output/*.out
+test/output/*.diff
+test/message
 doc/tags
 tags
 GTAGS

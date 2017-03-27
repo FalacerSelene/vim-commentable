@@ -8,9 +8,9 @@ if [[ -t 1 ]] ; then
 	declare colours='--colours'
 fi
 
-./tests/regressions.lua            \
-    ${colours}                     \
-    --testdir   ./tests            \
-    --vimrc     ./tests/vimrc.vim  \
-    --suitefile ./tests/suites.cfg \
+./test/regressions.lua            \
+    ${colours}                    \
+    --testdir   ./test            \
+    --vimrc     ./test/vimrc.vim  \
+    --suitefile ./test/suites.cfg \
     "$@"

@@ -16,4 +16,4 @@ script:
   - ./run-regressions --suite all
 
 after_failure:
-  - ./tests/print-diffs.sh
+  - ./test/print-diffs.sh

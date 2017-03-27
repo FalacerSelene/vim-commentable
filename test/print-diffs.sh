@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-for diff in tests/output/*.diff ; do
+for diff in test/output/*.diff ; do
 	if [[ "${diff}" == 'tests/output/*.diff' ]] ; then
 		continue
 	else
