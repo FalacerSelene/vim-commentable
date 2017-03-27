@@ -142,8 +142,8 @@ and run *PluginInstall*.
 ### 2.5\. Installing as a Package <!-- {{{2 -->
 <a name="install-package"></a>
 
-If you have a Vim (not Neovim) of version 8 or later then you can use the
-package interface to install Commentable.
+If you have a Vim version 8 or later or Neovim then you can use the package
+interface to install Commentable.
 
 Create the following directory tree in your .vim config directory:
 
@@ -151,7 +151,7 @@ Create the following directory tree in your .vim config directory:
 
 where &lt;packagename&gt; is a name for this package (collection of plugins).
 One possible scheme for naming packages is by author on Github, but this won't
-affect plugin installation.
+affect plugin installation - it's up to you what you call it!
 
 Inside the start/ directory, take a clone of this repository:
 
