@@ -6,7 +6,7 @@
 "|                commenting.                                                |
 "|                                                                           |
 "|       AUTHOR:  @FalacerSelene                                             |
-"|      CONTACT:  < github at adamselene dot net >                           |
+"|      CONTACT:  < git at adamselene dot net >                              |
 "|      LICENCE:  See LICENCE.md                                             |
 "|      VERSION:  0.2.0 <alpha>                                              |
 "|                                                                           |
@@ -24,6 +24,7 @@ elseif v:version < 704
 endif
 
 let g:loaded_commentable = 1
+let g:commentable_version = '0.2.0'
 
 "|===========================================================================|
 "|                             USER INTERFACE                                |

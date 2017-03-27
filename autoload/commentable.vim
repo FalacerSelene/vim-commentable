@@ -3,11 +3,7 @@
 "|         FILE:  autoload/commentable.vim                                   |
 "|                                                                           |
 "|  DESCRIPTION:  Primary autoload functions for plugin.                     |
-"|                                                                           |
-"|       AUTHOR:  @FalacerSelene                                             |
-"|      CONTACT:  < github at adamselene dot net >                           |
-"|      LICENCE:  See LICENCE.md                                             |
-"|      VERSION:  See plugin/commentable.vim                                 |
+"|                See plugin/commentable.vim for more details.               |
 "|                                                                           |
 "|===========================================================================|
 
