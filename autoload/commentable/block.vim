@@ -370,7 +370,8 @@ endfunction
 "| must:                                                                     |
 "| - Be a list.                                                              |
 "| - Be 3 or 4 items long.                                                   |
-"| - Contain only strings.                                                   |
+"| - Contain only strings.  However, the first element may also be a 2-list  |
+"|   of strings.                                                             |
 "| - Have no leading whitespace in the initial item.                         |
 "| - Have no trailing whitespace in the third item.                          |
 "|                                                                           |
@@ -414,7 +415,38 @@ function! s:GetCommentStyle(isindented) abort
 	 \ l:style[0]    ==# ''
 		throw 'Commentable:INVALID SETTING:' . l:using_var
 	else
-		for l:elem in l:style
+		"|===============================================|
+		"| The first element has a bit more flexibility  |
+		"|===============================================|
+		let l:first = l:style[0]
+		if type(l:first) ==# s:t_string
+			"|===============================================|
+			"| All is well                                   |
+			"|===============================================|
+		elseif type(l:first) ==# s:t_list
+			"|===============================================|
+			"| This is maybe also permitted                  |
+			"|===============================================|
+			if len(l:first) !=# 2
+				throw 'Commentable:INVALID SETTING:' . l:using_var
+			endif
+
+			"|===============================================|
+			"| Both elems must be strings                    |
+			"|===============================================|
+			for l:elem in l:first
+				if type(l:elem) !=# s:t_string
+					throw 'Commentable:INVALID SETTING:' . l:using_var
+				endif
+			endfor
+		else
+			throw 'Commentable:INVALID SETTING:' . l:using_var
+		endif
+
+		"|===============================================|
+		"| All other elements must be strings.           |
+		"|===============================================|
+		for l:elem in l:style[1:]
 			if type(l:elem) !=# s:t_string
 				throw 'Commentable:INVALID SETTING:' . l:using_var
 			endif
