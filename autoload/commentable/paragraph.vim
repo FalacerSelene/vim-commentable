@@ -288,7 +288,7 @@ function! s:GetLineIntro(line) abort
 	let l:introvarname = 'CommentableParagraphIntro'
 
 	try
-		let l:intromatch = commentable#GetVar(l:introvarname)
+		let l:intromatch = commentable#util#GetVar(l:introvarname)
 	catch /^Commentable:NO VALUE:/
 	endtry
 
