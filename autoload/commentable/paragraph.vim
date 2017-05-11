@@ -286,6 +286,7 @@ endfunction
 "|===========================================================================|
 function! s:GetLineIntro(line) abort
 	let l:introvarname = 'CommentableParagraphIntro'
+	let l:prependspaces = 1
 
 	try
 		let l:intromatch = commentable#GetVar(l:introvarname)
@@ -294,11 +295,27 @@ function! s:GetLineIntro(line) abort
 
 	if !has_key(l:, 'intromatch')
 		let l:intromatch = <SID>IntroFromListPat()
+		let l:introvarname = 'formatlistpat'
+		let l:prependspaces = 0
 	endif
 
-	if type(l:intromatch) != s:t_list                              ||
-	 \ len(filter(copy(l:intromatch), 'v:val == s:t_string')) != 0
+	if type(l:intromatch) != s:t_list
 		throw 'Commentable:INVALID SETTING:' . l:introvarname
+	endif
+
+	for l:elem in l:intromatch
+		if type(l:elem) != s:t_string ||
+		 \ l:elem ==# ''
+			throw 'Commentable:INVALID SETTING:' . l:introvarname
+		endif
+	endfor
+
+	"|===============================================|
+	"| Prefix each matcher with lots of spaces       |
+	"|===============================================|
+	if l:prependspaces
+		let l:intromatch =
+		 \ map(copy(l:intromatch), '''\m\C^\s*'' . v:val')
 	endif
 
 	let [l:intro, l:introstart, l:introend] = ['', -1, -1]
