@@ -18,7 +18,29 @@ Out 'Reformat with ParagraphIntro set to match ''\d: '''
 NormalStyle
 InputCase 1
 let g:CommentableBlockWidth = 80
-let g:CommentableParagraphIntro = ['\m^\d: ']
+let g:CommentableParagraphIntro = ['\d: ']
+$CommentableReformat
+
+"|===========================================================================|
+"| Reformat with the intro text.                                             |
+"|===========================================================================|
+NextCase
+Out 'Reformat with ParagraphIntro set to match ''well '''
+NormalStyle
+InputCase 1
+let g:CommentableBlockWidth = 80
+let g:CommentableParagraphIntro = ['well ']
+$CommentableReformat
+
+"|===========================================================================|
+"| Match a sublist.                                                          |
+"|===========================================================================|
+NextCase
+Out 'Match a nested list'
+NormalStyle
+InputCase 2
+let g:CommentableBlockWidth = 80
+let g:CommentableParagraphIntro = ['\d: ']
 $CommentableReformat
 
 "|===========================================================================|

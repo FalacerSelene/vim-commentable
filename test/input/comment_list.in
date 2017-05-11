@@ -10,5 +10,17 @@
 /*    over 7 months.                    */
 /* 3: Wonder what on Earth I'm writing. */
 /****************************************/
+-- CASE 2 --
+/****************************************/
+/* This comment contains nested lists.  */
+/*                                      */
+/* 1: Really important!                 */
+/* 2: Wash the dog.                     */
+/*    1: Subpoint 1.                    */
+/*    2: Subpoint 2.                    */
+/*      1: Mega-subpoint 1.             */
+/*    3: Subpoint 3.                    */
+/* 3: This list is less useful.         */
+/****************************************/
 ==============================================================================
 -- End of Input --

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
+### Changed
+- CommentableParagraphIntro now auto-inserts leading whitespace.
+- CommentableParagraphIntro now correctly matches sub-lists.
 
 ## [0.2.0] - 2017-03-25
 ### Added
