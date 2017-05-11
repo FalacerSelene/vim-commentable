@@ -30,6 +30,19 @@ Reformat with ParagraphIntro set to match 'well '
 /* 3: Wonder what on Earth I'm writing.                                       */
 /******************************************************************************/
 ==============================================================================
+Match a nested list
+/******************************************************************************/
+/* This comment contains nested lists.                                        */
+/*                                                                            */
+/* 1: Really important!                                                       */
+/* 2: Wash the dog.                                                           */
+/*    1: Subpoint 1.                                                          */
+/*    2: Subpoint 2.                                                          */
+/*      1: Mega-subpoint 1.                                                   */
+/*    3: Subpoint 3.                                                          */
+/* 3: This list is less useful.                                               */
+/******************************************************************************/
+==============================================================================
 Reformat with ParagraphIntro explicitly set empty
 /******************************************************************************/
 /* This comment contains a list.                                              */

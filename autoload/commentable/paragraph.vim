@@ -133,8 +133,22 @@ endfunction
 "| Returns 1 if the line belongs, else 0.                                    |
 "|===========================================================================|
 function! s:IsInParagraph(line) abort dict
-	let l:indent = strlen(substitute(a:line, '\m^\(\s*\).*$', '\1', ''))
-	return l:indent == l:self.indent + strlen(l:self.intro) ? 1 : 0
+	let [l:nindent, l:nintro] = <SID>GetLineIntro(a:line)
+
+	if l:nintro !=# ''
+		"|===============================================|
+		"| This line matches an intro, so must be a new  |
+		"| paragraph.                                    |
+		"|===============================================|
+		return 0
+	endif
+
+	let l:expectedindent = l:self.indent + strlen(l:self.intro)
+	if l:expectedindent == l:nindent
+		return 1
+	else
+		return 0
+	endif
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
