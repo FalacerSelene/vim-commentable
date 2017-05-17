@@ -17,13 +17,13 @@ endfunction
 "|===========================================================================|
 function Out(text) abort
 	if type(a:text) == type('')
-		call append(line('$'), a:text)
+		call append('$', a:text)
 	elseif type(a:text) == type([])
 		for l:line in a:text
-			call append(line('$'), l:line)
+			call append('$', l:line)
 		endfor
 	else
-		call append(line('$'), string(a:text))
+		call append('$', string(a:text))
 	endif
 endfunction
 
@@ -94,33 +94,27 @@ endfunction
 "| Start and finish the test elegantly                                       |
 "|===========================================================================|
 function StartTest(...) abort
-	if a:0 != 2
+	if a:0 == 0 || a:0 > 2
 		echoerr 'Invalid call to StartTest()'
 		return
-	else
-		let l:testname = a:1
-		let l:sourcefile = a:2
 	endif
 
-	let s:testname = l:testname
-	if l:sourcefile !=# ''
-		execute 'edit input/' . l:sourcefile . '.in'
+	let s:testname = a:1
+
+	if a:0 == 2
+		execute 'edit input/' . a:2 . '.in'
 	endif
 
 	"|===============================================|
 	"| Delete blank lines at the end                 |
 	"|===============================================|
-	let l:lastline = line('$')
-	while getline(l:lastline) =~# '\C\m^\s*$'
-		execute l:lastline . 'delete _'
-		let l:lastline -= 1
-	endwhile
+	while getline('$') =~# '\m^\s*$' | $delete _ | endwhile
 
 	if !isdirectory('message')
 		call mkdir('message')
 	endif
 
-	execute 'redir! > message/' . l:testname . '.msg'
+	execute 'redir! > message/' . s:testname . '.msg'
 endfunction
 
 function EndTest() abort
@@ -150,7 +144,7 @@ command -bar -nargs=0 EndTest call EndTest()
 command -nargs=* StartTest call StartTest(<f-args>)
 command -bar -nargs=1 InputCase
  \   let b:case_firstline = line('$') + 1
- \ | call append(line('$'), GetCase(<args>))
+ \ | call append('$', GetCase(<args>))
  \ | let b:case_lastline = line('$')
 command -bar -nargs=0 NormalStyle let g:CommentableBlockStyle = ['/*', '*', '*/']
 command -bar -nargs=0 OutException
