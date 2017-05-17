@@ -3,11 +3,11 @@
 "|===========================================================================|
 function AssertPluginLoad() abort
 	NextCase
-	Out "Assert Plugin loaded"
+	Say "Assert Plugin loaded"
 	if exists('g:loaded_commentable')
-		Out "Plugin loaded successfully"
+		Say "Plugin loaded successfully"
 	else
-		Out "Failed to load plugin"
+		Say "Failed to load plugin"
 		cquit!
 	endif
 endfunction
@@ -15,16 +15,18 @@ endfunction
 "|===========================================================================|
 "| Output                                                                    |
 "|===========================================================================|
-function Out(text) abort
-	if type(a:text) == type('')
-		call append('$', a:text)
-	elseif type(a:text) == type([])
-		for l:line in a:text
-			call append('$', l:line)
-		endfor
-	else
-		call append('$', string(a:text))
-	endif
+function Say(...) abort
+	for l:arg in a:000
+		if type(l:arg) == type('')
+			call append('$', l:arg)
+		elseif type(a:text) == type([])
+			for l:line in l:arg
+				call append('$', l:line)
+			endfor
+		else
+			call append('$', string(l:arg))
+		endif
+	endfor
 endfunction
 
 "|===========================================================================|
@@ -60,7 +62,7 @@ function GetCase(casenum) abort
 	let l:start = search('\m^-- Start of Input --$')
 	let l:end = search('\m^-- End of Input --$')
 	if l:start == 0 || l:end == 0
-		call Out('Could not find any input!')
+		call Say('Could not find any input!')
 		cquit!
 	endif
 	let l:start += 1
@@ -69,7 +71,7 @@ function GetCase(casenum) abort
 	call cursor(l:start, 1)
 	let l:casestart = search('\m^-- CASE ' . string(a:casenum) . ' --$')
 	if l:casestart == 0
-		call Out('Could not find CASE ' . string(a:casenum))
+		call Say('Could not find CASE ' . string(a:casenum))
 		cquit!
 	else
 		let l:casestart += 1
@@ -118,8 +120,8 @@ function StartTest(...) abort
 endfunction
 
 function EndTest() abort
-	Out repeat('=', 78)
-	Out '-- End of Test --'
+	Say repeat('=', 78)
+	Say '-- End of Test --'
 	let l:firstline = getline(1)
 	if l:firstline ==# '-- Start of Input --'
 		let l:lastlinenum = 2
@@ -138,15 +140,17 @@ endfunction
 "|===========================================================================|
 "| Commands                                                                  |
 "|===========================================================================|
-command -bar -nargs=1 Out call Out(<args>)
-command -bar -nargs=0 NextCase call Out(repeat('=', 78)) | call ResetVariables()
+command -bar -nargs=* Say call Say(<args>)
+command -bar -nargs=0 NextTest call Say(repeat('=', 78)) | call ResetVariables()
 command -bar -nargs=0 EndTest call EndTest()
 command -nargs=* StartTest call StartTest(<f-args>)
-command -bar -nargs=1 InputCase
+command -bar -nargs=1 UseCase
  \   let b:case_firstline = line('$') + 1
  \ | call append('$', GetCase(<args>))
  \ | let b:case_lastline = line('$')
 command -bar -nargs=0 NormalStyle let g:CommentableBlockStyle = ['/*', '*', '*/']
-command -bar -nargs=0 OutException
- \   Out 'Caught exception!'
- \ | Out v:exception
+command -bar -nargs=0 SayException
+ \   Say 'Caught exception!'
+ \ | Say v:exception
+command -nargs=* Assertq try | execute <q-args> | catch | SayException | endtry
+command -nargs=* Assert try | execute <args> | catch | SayException | endtry
