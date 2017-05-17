@@ -3,115 +3,115 @@ StartTest reformat_styles comment_styles
 "|===========================================================================|
 "| Reformat a C-style comment with both styles set.                          |
 "|===========================================================================|
-NextCase
-Out 'Reformat C-style comments with both styles set'
+NextTest
+Say 'Reformat C-style comments with both styles set'
 
-Out 'C style set'
+Say 'C style set'
 NormalStyle
-InputCase 1
-$CommentableReformat
+UseCase 1
+Assertq $CommentableReformat
 
-Out 'Lua style set'
+Say 'Lua style set'
 let g:CommentableBlockStyle = ['--[', '=', ']--']
-InputCase 1
-$CommentableReformat
+UseCase 1
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat a Lua-style comment with both styles set.                        |
 "|===========================================================================|
-NextCase
-Out 'Reformat Lua-style comments with both styles set'
+NextTest
+Say 'Reformat Lua-style comments with both styles set'
 
-Out 'C style set'
+Say 'C style set'
 NormalStyle
-InputCase 2
-$CommentableReformat
+UseCase 2
+Assertq $CommentableReformat
 
-Out 'Lua style set'
+Say 'Lua style set'
 let g:CommentableBlockStyle = ['--[', '=', ']--']
-InputCase 2
-$CommentableReformat
+UseCase 2
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat a comment with only a leader.                                    |
 "|===========================================================================|
-NextCase
-Out 'Reformat a comment with only a leader'
+NextTest
+Say 'Reformat a comment with only a leader'
 
-Out 'Normal C-style'
+Say 'Normal C-style'
 NormalStyle
-InputCase 3
-$CommentableReformat
+UseCase 3
+Assertq $CommentableReformat
 
-Out 'C style with no final'
+Say 'C style with no final'
 let g:CommentableBlockStyle = ['/*', '*', '']
-InputCase 3
-$CommentableReformat
+UseCase 3
+Assertq $CommentableReformat
 
-Out 'C style with no medial'
+Say 'C style with no medial'
 let g:CommentableBlockStyle = ['/*', '', '*/']
-InputCase 3
-$CommentableReformat
+UseCase 3
+Assertq $CommentableReformat
 
-Out 'C style with no medial or final'
+Say 'C style with no medial or final'
 let g:CommentableBlockStyle = ['/*', '', '']
-InputCase 3
-$CommentableReformat
+UseCase 3
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat a comment with only a final.                                     |
 "|===========================================================================|
-NextCase
-Out 'Reformat a comment with only a final'
+NextTest
+Say 'Reformat a comment with only a final'
 
-Out 'Normal C-style'
+Say 'Normal C-style'
 NormalStyle
-InputCase 4
-$CommentableReformat
+UseCase 4
+Assertq $CommentableReformat
 
-Out 'C style with no final'
+Say 'C style with no final'
 let g:CommentableBlockStyle = ['/*', '*', '']
-InputCase 4
-$CommentableReformat
+UseCase 4
+Assertq $CommentableReformat
 
-Out 'C style with no medial'
+Say 'C style with no medial'
 let g:CommentableBlockStyle = ['/*', '', '*/']
-InputCase 4
-$CommentableReformat
+UseCase 4
+Assertq $CommentableReformat
 
-Out 'C style with no medial or final'
+Say 'C style with no medial or final'
 let g:CommentableBlockStyle = ['/*', '', '']
-InputCase 4
-$CommentableReformat
+UseCase 4
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat a multiline comment down to one line.                            |
 "|===========================================================================|
-NextCase
-Out 'Reformat a multiline comment down to one line'
+NextTest
+Say 'Reformat a multiline comment down to one line'
 NormalStyle
-InputCase 5
-$CommentableReformat
+UseCase 5
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat a multiline at various points.                                   |
 "|===========================================================================|
-NextCase
-Out 'Reformat multiline at various points'
+NextTest
+Say 'Reformat multiline at various points'
 
-Out 'Reformat from the end line'
+Say 'Reformat from the end line'
 NormalStyle
-InputCase 6
-$CommentableReformat
+UseCase 6
+Assertq $CommentableReformat
 
-Out 'Reformat from a medial line'
+Say 'Reformat from a medial line'
 NormalStyle
-InputCase 6
-execute ((b:case_lastline - 1) . 'CommentableReformat')
+UseCase 6
+Assert (b:case_lastline - 1) . 'CommentableReformat'
 
-Out 'Reformat from the opening line'
+Say 'Reformat from the opening line'
 NormalStyle
-InputCase 6
-execute b:case_firstline . 'CommentableReformat'
+UseCase 6
+Assert b:case_firstline . 'CommentableReformat'
 
 EndTest

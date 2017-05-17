@@ -8,16 +8,12 @@ function s:RunCases()
 	 \   ['width', 'g:CommentableBlockWidth'],
 	 \   ['column', 'g:CommentableBlockColumn'],
 	 \ ]
-		NextCase
-		Out 'Create block with ' . l:text . ' set too short'
+		NextTest
+		Say 'Create block with ' . l:text . ' set too short'
 		NormalStyle
-		InputCase 1
-		execute 'let ' . l:var . ' = 10'
-		try
-			$CommentableCreate
-		catch
-			OutException
-		endtry
+		UseCase 1
+		execute 'let' l:var '=' 10
+		Assertq $CommentableCreate
 	endfor
 endfunction
 

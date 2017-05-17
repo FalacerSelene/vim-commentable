@@ -3,33 +3,23 @@ StartTest reformat_mapping short_comment
 "|===========================================================================|
 "| Reformat a comment using the mapping.                                     |
 "|===========================================================================|
-NextCase
-Out 'Reformat a comment using a mapping'
+NextTest
+Say 'Reformat a comment using a mapping'
 NormalStyle
-InputCase 1
+UseCase 1
 nmap (testmap) <Plug>(CommentableReformat)
-
-try
-	call cursor(line('$'), '1')
-	normal (testmap)
-catch
-	OutException
-endtry
+call cursor('$', '1')
+Assertq normal (testmap)
 
 "|===========================================================================|
 "| Reformat a comment using the default mapping.                             |
 "|===========================================================================|
-NextCase
-Out 'Reformat a comment using the default mapping'
+NextTest
+Say 'Reformat a comment using the default mapping'
 NormalStyle
-InputCase 1
+UseCase 1
 CommentableSetDefaultBindings
-
-try
-	call cursor(line('$'), '1')
-	normal gcq
-catch
-	OutException
-endtry
+call cursor(line('$'), '1')
+Assertq normal gcq
 
 EndTest

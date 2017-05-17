@@ -4,15 +4,11 @@ StartTest create_block_indented create_indented_comment
 "| Create a comment from each case - check it works                          |
 "|===========================================================================|
 function s:RunCase(case)
-	NextCase
-	Out 'Comment from case: ' . a:case
+	NextTest
+	Say 'Comment from case: ' . a:case
 	NormalStyle
-	InputCase a:case
-	try
-		$CommentableCreate
-	catch
-		OutException
-	endtry
+	UseCase a:case
+	Assertq $CommentableCreate
 endfunction
 
 for s:case in range(1, 4)

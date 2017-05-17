@@ -4,8 +4,8 @@ StartTest reformat_indented_column reformat_indented_comment
 "| Reformat the comment from each case and check the column applies          |
 "|===========================================================================|
 function s:RunCase(case, setting)
-	NextCase
-	Out 'Comment case ' . a:case
+	NextTest
+	Say 'Comment case ' . a:case
 	NormalStyle
 	let g:CommentableBlockColumn = 50
 	let g:CommentableSubColumn = 60
@@ -15,15 +15,11 @@ function s:RunCase(case, setting)
 		let g:CommentableSubColumn = 30
 	endif
 
-	Out ('Setting ' . a:setting .
+	Say ('Setting ' . a:setting .
 	 \   ', block column ' . g:CommentableBlockColumn .
 	 \   ', sub column ' . g:CommentableSubColumn)
-	InputCase a:case
-	try
-		execute ((b:case_lastline - 1) . 'CommentableReformat')
-	catch
-		OutException
-	endtry
+	UseCase a:case
+	Assert (b:case_lastline - 1) . 'CommentableReformat'
 endfunction
 
 for s:i in range(1, 4)

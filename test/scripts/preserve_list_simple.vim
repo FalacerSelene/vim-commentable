@@ -3,55 +3,55 @@ StartTest preserve_list_simple comment_list
 "|===========================================================================|
 "| Reformat without having set the intro text.                               |
 "|===========================================================================|
-NextCase
-Out 'Reformat with ParagraphIntro unset'
+NextTest
+Say 'Reformat with ParagraphIntro unset'
 NormalStyle
-InputCase 1
+UseCase 1
 let g:CommentableBlockWidth = 80
-$CommentableReformat
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat with the intro text.                                             |
 "|===========================================================================|
-NextCase
-Out 'Reformat with ParagraphIntro set to match ''\d: '''
+NextTest
+Say 'Reformat with ParagraphIntro set to match ''\d: '''
 NormalStyle
-InputCase 1
+UseCase 1
 let g:CommentableBlockWidth = 80
 let g:CommentableParagraphIntro = ['\d: ']
-$CommentableReformat
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat with the intro text.                                             |
 "|===========================================================================|
-NextCase
-Out 'Reformat with ParagraphIntro set to match ''well '''
+NextTest
+Say 'Reformat with ParagraphIntro set to match ''well '''
 NormalStyle
-InputCase 1
+UseCase 1
 let g:CommentableBlockWidth = 80
 let g:CommentableParagraphIntro = ['well ']
-$CommentableReformat
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Match a sublist.                                                          |
 "|===========================================================================|
-NextCase
-Out 'Match a nested list'
+NextTest
+Say 'Match a nested list'
 NormalStyle
-InputCase 2
+UseCase 2
 let g:CommentableBlockWidth = 80
 let g:CommentableParagraphIntro = ['\d: ']
-$CommentableReformat
+Assertq $CommentableReformat
 
 "|===========================================================================|
 "| Reformat with intro explicitly empty.                                     |
 "|===========================================================================|
-NextCase
-Out 'Reformat with ParagraphIntro explicitly set empty'
+NextTest
+Say 'Reformat with ParagraphIntro explicitly set empty'
 NormalStyle
-InputCase 1
+UseCase 1
 let g:CommentableBlockWidth = 80
 let g:CommentableParagraphIntro = []
-$CommentableReformat
+Assertq $CommentableReformat
 
 EndTest
