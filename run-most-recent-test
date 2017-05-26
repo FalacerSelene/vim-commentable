@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+find test/scripts/                \
+    -name '*.vim'                 \
+    -printf '%f\t%T@\n'           |
+sort --key=2gr                    |
+head --lines=1                    |
+cut --fields=1                    |
+sed --expression='s/\.vim$//'     |
+./test/regressions.lua            \
+    --quiet                       \
+    --testdir   ./test            \
+    --vimrc     ./test/vimrc.vim  \
+    --suitefile ./test/suites.cfg \
+    --fromfile  '-'               ;
+
