@@ -169,8 +169,8 @@ function! s:LineMatches(linenum) abort dict
 		\ ]
 
 	if type(l:self.initialmatch) ==# s:t_number
-		let [l:str, l:start, l:end] = matchstrpos(l:text, l:initmatch)
-		if l:start == 0
+		let l:str = matchstr(l:text, '\v^' . l:initmatch)
+		if l:str !=# ''
 			let l:self.initialmatch = l:str
 			let l:iscomment = g:commentable#block#lmat_int
 		elseif ((l:final !=# '')                       &&
