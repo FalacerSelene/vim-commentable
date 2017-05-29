@@ -1,19 +1,21 @@
 StartTest create_block_style_errs create_single_comment
 
 function! s:DoCase(text, style, expect_fail)
-	NextCase
-	Out a:text
+	NextTest
+	Say a:text
 	let g:CommentableBlockStyle = a:style
-	InputCase 1
-	try
-		$CommentableCreate
-		if a:expect_fail
-			Out 'Did not catch expected exception!'
-		endif
-	catch
-		call Out('Caught ' . (a:expect_fail ? 'expected ' : '') . 'exception!')
-		call Out(v:exception)
-	endtry
+	UseCase 1
+	if !a:expect_fail
+		Assertq $CommentableCreate
+	else
+		try
+			$CommentableCreate
+			Say 'Did not catch expected exception!'
+		catch
+			Say 'Caught expected exception!'
+			Say v:exception
+		endtry
+	endif
 endfunction
 
 call <SID>DoCase('Case 1 - default',

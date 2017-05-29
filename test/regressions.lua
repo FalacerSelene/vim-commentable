@@ -7,14 +7,16 @@
 --[========================================================================]--
 
 local escape = string.char(27)
-local ansi_red   = escape .. '[31m' .. escape .. '[1m'
-local ansi_green = escape .. '[32m' .. escape .. '[1m'
-local ansi_blue  = escape .. '[34m' .. escape .. '[1m'
-local ansi_end   = escape .. '[m'
+local ansi_red    = escape .. '[31m' .. escape .. '[1m'
+local ansi_green  = escape .. '[32m' .. escape .. '[1m'
+local ansi_yellow = escape .. '[33m' .. escape .. '[1m'
+local ansi_blue   = escape .. '[34m' .. escape .. '[1m'
+local ansi_end    = escape .. '[m'
 
 local function remove_colours ()
 	ansi_red = ''
 	ansi_green = ''
+	ansi_yellow = ''
 	ansi_blue = ''
 	ansi_end = ''
 end
@@ -36,13 +38,17 @@ local function req (modname)
 	return mod
 end
 
-local lfs = req('lfs')
+local lfs
 
-if not lfs then
-	print('Warning - running without lfs.')
-	print('Will fall back to shell.')
-	print('Tests may be slightly slower.')
+local function initlfs (quiet)
+	lfs = req('lfs')
+	if not lfs and not quiet then
+		print('Warning - running without lfs.')
+		print('Will fall back to shell.')
+		print('Tests may be slightly slower.')
+	end
 end
+
 --[========================================================================]--
 --[ }}}                                                                    ]--
 --[========================================================================]--
@@ -132,18 +138,22 @@ local function parseargs (args)
 		end
 	end
 
-	local STATE_NORM    = 0
-	local STATE_SUITE   = 1
-	local STATE_TESTDIR = 2
-	local STATE_VIMRC   = 3
-	local STATE_SUITES  = 4
-	local state         = STATE_NORM
+	local STATE_LOCK     = -1
+	local STATE_NORM     = 0
+	local STATE_SUITE    = 1
+	local STATE_TESTDIR  = 2
+	local STATE_VIMRC    = 3
+	local STATE_SUITES   = 4
+	local STATE_READFILE = 5
+	local state          = STATE_NORM
 
 	local lastarg = nil
 
 	for _, arg in ipairs(args) do
 		lastarg = arg
-		if     state == STATE_NORM    then
+		if     state == STATE_LOCK      then
+			addarg('tests', arg)
+		elseif state == STATE_NORM      then
 			if     arg == '-s' or arg == '--suite'     then
 				state = STATE_SUITE
 			elseif arg == '-d' or arg == '--testdir'   then
@@ -152,22 +162,33 @@ local function parseargs (args)
 				state = STATE_VIMRC
 			elseif arg == '-f' or arg == '--suitefile' then
 				state = STATE_SUITES
-			elseif arg == '-c' or arg == '--colours' then
+			elseif                arg == '--fromfile'  then
+				state = STATE_READFILE
+			elseif arg == '-r' or arg == '--resolve'   then
+				addarg('resolve_only', true, true)
+			elseif arg == '-c' or arg == '--colours'   then
 				addarg('use_colours', true, true)
+			elseif arg == '-q' or arg == '--quiet'     then
+				addarg('quiet', true, true)
+			elseif arg == '--'                         then
+				state = STATE_LOCK
 			else
 				addarg('tests', arg)
 			end
-		elseif state == STATE_SUITE   then
+		elseif state == STATE_SUITE     then
 			addarg('suites', arg)
 			state = STATE_NORM
-		elseif state == STATE_TESTDIR then
+		elseif state == STATE_TESTDIR   then
 			addarg('testdir', arg, true)
 			state = STATE_NORM
-		elseif state == STATE_VIMRC   then
+		elseif state == STATE_VIMRC     then
 			addarg('vimrc', arg, true)
 			state = STATE_NORM
-		elseif state == STATE_SUITES  then
+		elseif state == STATE_SUITES    then
 			addarg('suitefile', arg, true)
+			state = STATE_NORM
+		elseif state == STATE_READFILE  then
+			addarg('readfile', arg, true)
 			state = STATE_NORM
 		else
 			error("Programming error in parseargs()")
@@ -177,7 +198,7 @@ local function parseargs (args)
 	if state ~= STATE_NORM then
 		error("Missing mandatory argument to arg: " .. lastarg)
 	elseif not parsed.testdir then
-		error("Missing mandatory arg --testdir")
+		parsed.testdir = os.getenv("PWD")
 	elseif parsed.suites and not parsed.suitefile then
 		error("Option --suites requires a --suitefile")
 	end
@@ -218,6 +239,10 @@ local function assertfilesexist (args)
 	elseif args.suitefile and
 	       not isfile(args.suitefile) then
 		error("Could not find file: " .. args.suitefile)
+	elseif args.readfile and
+	       args.readfile ~= '-' and
+	       not isfile(args.readfile) then
+		error("Could not find file: " .. args.readfile)
 	end
 	return(args)
 end
@@ -429,9 +454,40 @@ end
 local function main (args)
 	local args = assertfilesexist(parseargs(args))
 
+	initlfs(args.quiet or args.resolve_only)
+
+	if args.readfile then
+		if args.readfile == '-' then
+			args.readfile = '/dev/stdin'
+		end
+
+		for line in io.lines(args.readfile) do
+			if line:sub(1, 1) == '@' then
+				args.suites[#args.suites+1] = line:sub(2)
+			else
+				args.tests[#args.tests+1] = line
+			end
+		end
+	end
+
+	local mprint = function (toprint)
+		if not args.quiet then
+			print(toprint)
+		end
+	end
+
 	if not args.use_colours then
 		remove_colours()
 	end
+
+	if args.resolve_only then
+		for _, test in ipairs(testlistfromargs(args)) do
+			print(test)
+		end
+		return 0
+	end
+
+	mprint(ansi_yellow .. "===== START OF TESTS =====" .. ansi_end)
 
 	local successcount = 0
 	local failurecount = 0
@@ -457,17 +513,17 @@ local function main (args)
 		end
 	end
 
-	print(ansi_blue .. "TOTAL" .. ansi_end .. ":\t" .. (successcount + failurecount))
-	print(ansi_blue .. "SUCCESSES" .. ansi_end .. ":\t" .. successcount)
+	mprint(ansi_yellow .. "===== END OF TESTS =====" .. ansi_end)
 
-	if failurecount == 0 then
-		print(ansi_green .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
-	else
-		print(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
+	mprint(ansi_blue .. "TOTAL" .. ansi_end .. ":\t" .. (successcount + failurecount))
+	mprint(ansi_blue .. "SUCCESSES" .. ansi_end .. ":\t" .. successcount)
+
+	if failurecount ~= 0 then
+		mprint(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
 	end
 
-	if notfoundcount > 0 then
-		print(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
+	if notfoundcount ~= 0 then
+		mprint(ansi_red .. "NOTFOUND" .. ansi_end .. ":\t" .. notfoundcount)
 	end
 
 	if failurecount == 0 and notfoundcount == 0 then
@@ -484,6 +540,6 @@ local success, rc = pcall(main, arg)
 if success then
 	os.exit(rc)
 else
-	print(rc)
+	print("Error: " .. rc)
 	os.exit(1)
 end

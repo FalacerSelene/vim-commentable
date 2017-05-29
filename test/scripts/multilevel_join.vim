@@ -3,27 +3,19 @@ StartTest multilevel_join multilevel_comment
 "|===========================================================================|
 "| Use Create to join blocks together                                        |
 "|===========================================================================|
-NextCase
+NextTest
 NormalStyle
-InputCase 1
-try
-	execute b:case_firstline . ',' . b:case_lastline . 'CommentableCreate'
-catch
-	OutException
-endtry
+UseCase 1
+Assert b:case_firstline . ',' . b:case_lastline . 'CommentableCreate'
 
 "|===========================================================================|
 "| Check that joining from medial lines works the same                       |
 "|===========================================================================|
-NextCase
+NextTest
 NormalStyle
-InputCase 1
-try
-	let s:first = b:case_firstline + 1
-	let s:last = b:case_firstline + 6
-	execute s:first . ',' . s:last . 'CommentableCreate'
-catch
-	OutException
-endtry
+UseCase 1
+let b:first = b:case_firstline + 1
+let b:last = b:case_firstline + 6
+Assert b:first . ',' . b:last . 'CommentableCreate'
 
 EndTest

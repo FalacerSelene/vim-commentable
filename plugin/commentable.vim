@@ -25,6 +25,7 @@ endif
 
 let g:loaded_commentable = 1
 let g:commentable_version = '0.2.0'
+lockvar g:commentable_version
 
 "|===========================================================================|
 "|                             USER INTERFACE                                |

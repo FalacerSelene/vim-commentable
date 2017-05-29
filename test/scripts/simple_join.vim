@@ -1,18 +1,10 @@
 StartTest simple_join many_comments
 
-function s:RunCase(case)
-	NextCase
+for b:case in range(1, 2)
+	NextTest
 	NormalStyle
-	InputCase a:case
-	try
-		execute b:case_firstline . ',' . b:case_lastline . 'CommentableCreate'
-	catch
-		OutException
-	endtry
-endfunction
-
-for s:i in range(1, 2)
-	call <SID>RunCase(s:i)
+	UseCase b:case
+	Assert b:case_firstline . ',' . b:case_lastline . 'CommentableCreate'
 endfor
 
 EndTest

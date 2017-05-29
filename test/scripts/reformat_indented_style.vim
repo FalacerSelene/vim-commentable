@@ -14,19 +14,15 @@ function s:RunCases()
 		 \ [l:p, l:c],
 		 \ [l:p, l:p],
 		 \ ]
-			NextCase
-			Out 'Comment from case: ' . l:case
+			NextTest
+			Say 'Comment from case: ' . l:case
 			let g:CommentableBlockStyle = l:block
 			let g:CommentableSubStyle = l:sub
-			Out 'BlockStyle: ' . string(g:CommentableBlockStyle)
-			Out 'SubStyle: ' . string(g:CommentableSubStyle)
+			Say 'BlockStyle: ' . string(g:CommentableBlockStyle)
+			Say 'SubStyle: ' . string(g:CommentableSubStyle)
 
-			InputCase l:case
-			try
-				$CommentableReformat
-			catch
-				OutException
-			endtry
+			UseCase l:case
+			Assertq $CommentableReformat
 		endfor
 	endfor
 endfunction
