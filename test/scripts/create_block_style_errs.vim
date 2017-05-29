@@ -46,4 +46,12 @@ call <SID>DoCase('Case 7 - set textlead',
  \               ['/*', '*', '*/', '-'],
  \               0)
 
+call <SID>DoCase('Case 8 - empty regex part',
+ \               [['/*', ''], '*', '*/'],
+ \               0)
+
+call <SID>DoCase('Case 9 - no regex part',
+ \               [['/*'], '*', '*/'],
+ \               0)
+
 EndTest

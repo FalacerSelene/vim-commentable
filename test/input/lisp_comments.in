@@ -1,0 +1,14 @@
+-- Start of Input --
+==============================================================================
+-- CASE 1 --
+; One comment line
+-- CASE 2 --
+;; Two comment line
+-- CASE 3 --
+;;; Three comment line
+-- CASE 4 --
+;;;; Four comment line
+-- CASE 5 --
+;; ;; Confusing!
+==============================================================================
+-- End of Input --

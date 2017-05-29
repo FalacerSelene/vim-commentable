@@ -35,4 +35,14 @@ Case 7 - set textlead
 /*-This will be a comment                                                    -*/
 /******************************************************************************/
 ==============================================================================
+Case 8 - empty regex part
+This will be a comment
+Caught exception!
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
+==============================================================================
+Case 9 - no regex part
+This will be a comment
+Caught exception!
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
+==============================================================================
 -- End of Test --

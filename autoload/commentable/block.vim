@@ -41,6 +41,7 @@ function! commentable#block#New(indentamount) abort
 	 \ 'LineMatches': function('<SID>LineMatches'),
 	 \ 'GetFormat': function('<SID>GetFormat'),
 	 \ '_GetRange': function('<SID>GetRange'),
+	 \ 'initialmatch': 1,
 	 \ }
 	call l:block.style.SetIndented(a:indentamount)
 	return l:block
@@ -85,21 +86,16 @@ endfunction
 function! s:AddExisting(linenum) abort dict
 	let [l:firstline, l:lastline] = l:self._GetRange(a:linenum)
 
-	let [l:initial, l:initmatch, l:medial, l:final, l:spacer] = [
-		\ l:self.style.GetInitial(),
+	let [l:initmatch, l:medial, l:final, l:spacer] = [
 		\ l:self.style.GetInitMatch(),
 		\ l:self.style.GetMedial(),
 		\ l:self.style.GetFinal(),
 		\ l:self.style.GetSpacer(),
 		\ ]
 
-	"|===============================================|
-	"| TODO #1: Use l:initmatch                      |
-	"|===============================================|
-
 	let l:lines = getline(l:firstline, l:lastline)
 	call map(l:lines, 'commentable#util#StripSpaces(v:val)')
-	call map(l:lines, 'substitute(v:val, ''\V\^' . l:initial . ''', "", "")')
+	call map(l:lines, 'substitute(v:val, ''\V\^' . l:initmatch . ''', "", "")')
 	call map(l:lines, 'substitute(v:val, ''\V' . l:final . '\$'', "", "")')
 
 	if match(l:lines[0], '\V\^' . l:medial . '\*\$') == 0
@@ -172,20 +168,32 @@ function! s:LineMatches(linenum) abort dict
 		\ l:self.style.GetFinal(),
 		\ ]
 
-	"|===============================================|
-	"| TODO #1: Use l:initmatch                      |
-	"|===============================================|
-
-	if (match(l:text, '\V' . l:initial) == 0)    ||
-	 \ ((l:final !=# '')                       &&
-	 \  (strlen(l:text) >= strlen(l:final))    &&
-	 \  (match(l:text, '\V' . l:final)
-	 \   == strlen(l:text) - strlen(l:final)))   ||
-	 \ ((l:medial !=# '')                      &&
-	 \  (a:linenum > 1)                        &&
-	 \  (strlen(l:text) >= strlen(l:medial))   &&
-	 \  (match(l:text, '\V' . l:medial) == 0)  &&
-	 \  (l:self.LineMatches(a:linenum - 1)))
+	if type(l:self.initialmatch) ==# s:t_number
+		let [l:str, l:start, l:end] = matchstrpos(l:text, l:initmatch)
+		if l:start == 0
+			let l:self.initialmatch = l:str
+			let l:iscomment = g:commentable#block#lmat_int
+		elseif ((l:final !=# '')                       &&
+		 \      (strlen(l:text) >= strlen(l:final))    &&
+		 \      (match(l:text, '\V' . l:final)
+		 \       == strlen(l:text) - strlen(l:final)))   ||
+		 \     ((l:medial !=# '')                      &&
+		 \      (a:linenum > 1)                        &&
+		 \      (strlen(l:text) >= strlen(l:medial))   &&
+		 \      (match(l:text, '\V' . l:medial) == 0)  &&
+		 \      (l:self.LineMatches(a:linenum - 1)))
+			let l:iscomment = g:commentable#block#lmat_int
+		endif
+	elseif (match(l:text, '\V' . l:self.initialmatch) == 0)    ||
+	 \     ((l:final !=# '')                                 &&
+	 \      (strlen(l:text) >= strlen(l:final))              &&
+	 \      (match(l:text, '\V' . l:final)
+	 \       == strlen(l:text) - strlen(l:final)))             ||
+	 \     ((l:medial !=# '')                                &&
+	 \      (a:linenum > 1)                                  &&
+	 \      (strlen(l:text) >= strlen(l:medial))             &&
+	 \      (match(l:text, '\V' . l:medial) == 0)            &&
+	 \      (l:self.LineMatches(a:linenum - 1)))
 		let l:iscomment = g:commentable#block#lmat_int
 	endif
 
@@ -196,7 +204,17 @@ function! s:LineMatches(linenum) abort dict
 	 \ match(l:text, '\V\^' . l:initial
 	 \                      . l:medial  . '\*'
 	 \                      . l:final   . '\$') == 0
-		let l:iscomment = g:commentable#block#lmat_wall
+		if type(l:self.initialmatch) ==# s:t_number
+			if match(l:text, '\V\^' . l:initmatch
+			 \                      . l:medial  . '\*'
+			 \                      . l:final   . '\$') == 0
+				let l:iscomment = g:commentable#block#lmat_wall
+			endif
+		elseif match(l:text, '\V\^' . l:self.initialmatch
+		 \                          . l:medial  . '\*'
+		 \                          . l:final   . '\$') == 0
+			let l:iscomment = g:commentable#block#lmat_wall
+		endif
 	endif
 
 	return l:iscomment
@@ -214,17 +232,20 @@ endfunction
 "| Returns a list of lines of the requested length comprising the block.     |
 "|===========================================================================|
 function! s:GetFormat(width) abort dict
-	let [l:initial, l:initmatch, l:medial, l:final, l:spacer] = [
+	let [l:initial, l:medial, l:final, l:spacer] = [
 		\ l:self.style.GetInitial(),
-		\ l:self.style.GetInitMatch(),
 		\ l:self.style.GetMedial(),
 		\ l:self.style.GetFinal(),
 		\ l:self.style.GetSpacer(),
 		\ ]
 
-	"|===============================================|
-	"| TODO #1: Use l:initmatch                      |
-	"|===============================================|
+	if type(l:self.initialmatch) != s:t_number
+		"|===============================================|
+		"| If we've set the initial match then use that  |
+		"| to recreate the comment.                      |
+		"|===============================================|
+		let l:initial = l:self.initialmatch
+	endif
 
 	let l:textlen = a:width
 	 \            - strlen(l:initial)

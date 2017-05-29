@@ -7,6 +7,7 @@ let s:cases = [
 	\ ['Case 4 - style with no final part', ['((', '-', '']],
 	\ ['Case 5 - style with no medial part', [';;', '', '']],
 	\ ['Case 6 - style with initial and medial only', [';;', '', ';;']],
+	\ ['Case 7 - style with two part initial', [['/*', '/*'], '*', '*/']],
 	\ ]
 
 for [b:text, b:style] in s:cases

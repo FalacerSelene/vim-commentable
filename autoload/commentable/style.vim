@@ -364,7 +364,7 @@ function! s:ReadStyle(style) abort
 	let l:ret = {}
 
 	let l:ret.initial       = a:style[0][0]
-	let l:ret.initial_regex = a:style[0][1]
+	let l:ret.initial_regex = '\V' . a:style[0][1]
 	let l:ret.medial        = a:style[1]
 	let l:ret.final         = a:style[2]
 	let l:ret.spacer        = a:style[3]
