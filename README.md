@@ -54,7 +54,7 @@ will be fine.
 Once you have a clone of this repo, copy the contents of each of the
 directories (excluding "test") in the repo into an identically named
 directory in your vim config directory: on GNU/Linux this is ~/.vim and on
-Windows this is C:/users/&lt;username&gt;/.vim/.
+Windows this is C:/Users/&lt;username&gt;/vimfiles/.
 
 ### 2.3\. Installing with Pathogen <!-- {{{2 -->
 <a name="install-pathogen"></a>
