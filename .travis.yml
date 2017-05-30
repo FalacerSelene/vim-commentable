@@ -12,6 +12,9 @@ addons:
 
 install: true
 
+before_script:
+  - vim --version
+
 script:
   - ./run-regressions --suite all
 
