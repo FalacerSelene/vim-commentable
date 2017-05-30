@@ -1,18 +1,4 @@
 "|===========================================================================|
-"| Assert that the plugin has loaded correctly                               |
-"|===========================================================================|
-function AssertPluginLoad() abort
-	NextCase
-	Say "Assert Plugin loaded"
-	if exists('g:loaded_commentable')
-		Say "Plugin loaded successfully"
-	else
-		Say "Failed to load plugin"
-		cquit!
-	endif
-endfunction
-
-"|===========================================================================|
 "| Output                                                                    |
 "|===========================================================================|
 function Say(...) abort

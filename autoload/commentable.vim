@@ -142,52 +142,6 @@ endfunction
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#GetVar(var_name) abort {{{                                    |
-"|                                                                           |
-"| Fetch a configuration variable.                                           |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   var_name) The config item to fetch.                                     |
-"|                                                                           |
-"| Returns a buffer local version of the variable, if one exists. Else,      |
-"| returns the global version. If neither is set, throws.                    |
-"|===========================================================================|
-function! commentable#GetVar(var_name) abort
-	for l:t in [b:, g:]
-		if has_key(l:t, a:var_name)
-			let l:d = l:t
-			break
-		endif
-	endfor
-
-	if !has_key(l:, 'd')
-		throw 'Commentable:NO VALUE:' . a:var_name
-	endif
-
-	return get(l:d, a:var_name)
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| commentable#StripSpaces(line) abort {{{                                   |
-"|                                                                           |
-"| Strip leading and trailing spaces from a line.                            |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   line) Line to strip.                                                    |
-"|                                                                           |
-"| Returns the stripped line.                                                |
-"|===========================================================================|
-function! commentable#StripSpaces(line) abort
-	return substitute(a:line, '\m^\s*\(.*[^[:space:]]\)\s*$', '\1', '')
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
 "|                            PRIVATE FUNCTIONS                              |
 "|===========================================================================|
 
@@ -349,7 +303,7 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 	"|===============================================|
 	if l:is_indented
 		try
-			let l:width = commentable#GetVar('CommentableSubWidth')
+			let l:width = commentable#util#GetVar('CommentableSubWidth')
 			let l:width_var = 'CommentableSubWidth'
 		catch /Commentable:NO VALUE:/
 		endtry
@@ -357,7 +311,7 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 
 	if ! exists('l:width')
 		try
-			let l:width = commentable#GetVar('CommentableBlockWidth')
+			let l:width = commentable#util#GetVar('CommentableBlockWidth')
 			let l:width_var = 'CommentableBlockWidth'
 		catch /Commentable:NO VALUE:/
 		endtry
@@ -368,7 +322,7 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 	"|===============================================|
 	if l:is_indented
 		try
-			let l:column = commentable#GetVar('CommentableSubColumn')
+			let l:column = commentable#util#GetVar('CommentableSubColumn')
 			let l:column_var = 'CommentableSubColumn'
 		catch /Commentable:NO VALUE:/
 		endtry
@@ -376,7 +330,7 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 
 	if ! exists('l:column')
 		try
-			let l:column = commentable#GetVar('CommentableBlockColumn')
+			let l:column = commentable#util#GetVar('CommentableBlockColumn')
 			let l:column_var = 'CommentableBlockColumn'
 		catch /Commentable:NO VALUE:/
 			let l:column = &textwidth > 0 ? &textwidth : 80

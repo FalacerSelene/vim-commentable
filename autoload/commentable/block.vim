@@ -33,15 +33,18 @@ let g:commentable#block#lmat_wall = 2 " Wall of a comment
 "| Returns the block object.                                                 |
 "|===========================================================================|
 function! commentable#block#New(indentamount) abort
-	return {
-	 \ 'style': <SID>GetCommentStyle(a:indentamount > 0 ? 1 : 0),
+	let l:block = {
+	 \ 'style': commentable#style#New(),
 	 \ 'paragraphs': [],
 	 \ 'AddParagraph': function('<SID>AddParagraph'),
 	 \ 'AddExisting': function('<SID>AddExisting'),
 	 \ 'LineMatches': function('<SID>LineMatches'),
 	 \ 'GetFormat': function('<SID>GetFormat'),
 	 \ '_GetRange': function('<SID>GetRange'),
+	 \ 'initialmatch': 1,
 	 \ }
+	call l:block.style.SetIndented(a:indentamount)
+	return l:block
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -83,28 +86,35 @@ endfunction
 function! s:AddExisting(linenum) abort dict
 	let [l:firstline, l:lastline] = l:self._GetRange(a:linenum)
 
-	let l:lines = getline(l:firstline, l:lastline)
-	call map(l:lines, 'commentable#StripSpaces(v:val)')
-	call map(l:lines, 'substitute(v:val, ''\V\^' . l:self.style[0] . ''', "", "")')
-	call map(l:lines, 'substitute(v:val, ''\V' . l:self.style[2] . '\$'', "", "")')
+	let [l:initmatch, l:medial, l:final, l:spacer] = [
+		\ l:self.style.GetInitMatch(),
+		\ l:self.style.GetMedial(),
+		\ l:self.style.GetFinal(),
+		\ l:self.style.GetSpacer(),
+		\ ]
 
-	if match(l:lines[0], '\V\^' . l:self.style[1] . '\*\$') == 0
+	let l:lines = getline(l:firstline, l:lastline)
+	call map(l:lines, 'commentable#util#StripSpaces(v:val)')
+	call map(l:lines, 'substitute(v:val, ''\V\^' . l:initmatch . ''', "", "")')
+	call map(l:lines, 'substitute(v:val, ''\V' . l:final . '\$'', "", "")')
+
+	if match(l:lines[0], '\V\^' . l:medial . '\*\$') == 0
 		call remove(l:lines, 0)
 	endif
 
-	if len(l:lines) > 0                                           &&
-	 \ match(l:lines[-1], '\V\^' . l:self.style[1] . '\*\$') == 0
+	if len(l:lines) > 0                                    &&
+	 \ match(l:lines[-1], '\V\^' . l:medial . '\*\$') == 0
 		call remove(l:lines, -1)
 	endif
 
 	call map(l:lines,
-	 \       'substitute(v:val, ''\V\^' . l:self.style[1] . ''', "", "")')
+	 \       'substitute(v:val, ''\V\^' . l:medial . ''', "", "")')
 
-	if l:self.style[3] !=# ''
+	if l:spacer !=# ''
 		call map(l:lines,
-		 \       'substitute(v:val, ''\V\^' . l:self.style[3] . ''', "", "")')
+		 \       'substitute(v:val, ''\V\^' . l:spacer . ''', "", "")')
 		call map(l:lines,
-		 \       'substitute(v:val, ''\V' . l:self.style[3] . '\$'', "", "")')
+		 \       'substitute(v:val, ''\V' . l:spacer . '\$'', "", "")')
 	endif
 
 	if len(l:lines) == 0
@@ -151,27 +161,60 @@ function! s:LineMatches(linenum) abort dict
 
 	let l:iscomment = g:commentable#block#lmat_none
 
-	if (match(l:text, '\V' . l:self.style[0]) == 0)      ||
-	 \ ((l:self.style[2] !=# '')                       &&
-	 \  (strlen(l:text) >= strlen(l:self.style[2]))    &&
-	 \  (match(l:text, '\V' . l:self.style[2])
-	 \   == strlen(l:text) - strlen(l:self.style[2])))   ||
-	 \ ((l:self.style[1] !=# '')                       &&
-	 \  (a:linenum > 1)                                &&
-	 \  (strlen(l:text) >= strlen(l:self.style[1]))    &&
-	 \  (match(l:text, '\V' . l:self.style[1]) == 0)   &&
-	 \  (l:self.LineMatches(a:linenum - 1)))
+	let [l:initial, l:initmatch, l:medial, l:final] = [
+		\ l:self.style.GetInitial(),
+		\ l:self.style.GetInitMatch(),
+		\ l:self.style.GetMedial(),
+		\ l:self.style.GetFinal(),
+		\ ]
+
+	if type(l:self.initialmatch) ==# s:t_number
+		let l:str = matchstr(l:text, '\v^' . l:initmatch)
+		if l:str !=# ''
+			let l:self.initialmatch = l:str
+			let l:iscomment = g:commentable#block#lmat_int
+		elseif ((l:final !=# '')                       &&
+		 \      (strlen(l:text) >= strlen(l:final))    &&
+		 \      (match(l:text, '\V' . l:final)
+		 \       == strlen(l:text) - strlen(l:final)))   ||
+		 \     ((l:medial !=# '')                      &&
+		 \      (a:linenum > 1)                        &&
+		 \      (strlen(l:text) >= strlen(l:medial))   &&
+		 \      (match(l:text, '\V' . l:medial) == 0)  &&
+		 \      (l:self.LineMatches(a:linenum - 1)))
+			let l:iscomment = g:commentable#block#lmat_int
+		endif
+	elseif (match(l:text, '\V' . l:self.initialmatch) == 0)    ||
+	 \     ((l:final !=# '')                                 &&
+	 \      (strlen(l:text) >= strlen(l:final))              &&
+	 \      (match(l:text, '\V' . l:final)
+	 \       == strlen(l:text) - strlen(l:final)))             ||
+	 \     ((l:medial !=# '')                                &&
+	 \      (a:linenum > 1)                                  &&
+	 \      (strlen(l:text) >= strlen(l:medial))             &&
+	 \      (match(l:text, '\V' . l:medial) == 0)            &&
+	 \      (l:self.LineMatches(a:linenum - 1)))
 		let l:iscomment = g:commentable#block#lmat_int
 	endif
 
 	"|===============================================|
 	"| We know this is a line, check if it's a wall. |
 	"|===============================================|
-	if l:iscomment == g:commentable#block#lmat_int         &&
-	 \ match(l:text, '\V\^' . l:self.style[0]
-	 \                      . l:self.style[1] . '\*'
-	 \                      . l:self.style[2] . '\$') == 0
-		let l:iscomment = g:commentable#block#lmat_wall
+	if l:iscomment == g:commentable#block#lmat_int   &&
+	 \ match(l:text, '\V\^' . l:initial
+	 \                      . l:medial  . '\*'
+	 \                      . l:final   . '\$') == 0
+		if type(l:self.initialmatch) ==# s:t_number
+			if match(l:text, '\V\^' . l:initmatch
+			 \                      . l:medial  . '\*'
+			 \                      . l:final   . '\$') == 0
+				let l:iscomment = g:commentable#block#lmat_wall
+			endif
+		elseif match(l:text, '\V\^' . l:self.initialmatch
+		 \                          . l:medial  . '\*'
+		 \                          . l:final   . '\$') == 0
+			let l:iscomment = g:commentable#block#lmat_wall
+		endif
 	endif
 
 	return l:iscomment
@@ -189,29 +232,44 @@ endfunction
 "| Returns a list of lines of the requested length comprising the block.     |
 "|===========================================================================|
 function! s:GetFormat(width) abort dict
+	let [l:initial, l:medial, l:final, l:spacer] = [
+		\ l:self.style.GetInitial(),
+		\ l:self.style.GetMedial(),
+		\ l:self.style.GetFinal(),
+		\ l:self.style.GetSpacer(),
+		\ ]
+
+	if type(l:self.initialmatch) != s:t_number
+		"|===============================================|
+		"| If we've set the initial match then use that  |
+		"| to recreate the comment.                      |
+		"|===============================================|
+		let l:initial = l:self.initialmatch
+	endif
+
 	let l:textlen = a:width
-	 \            - strlen(l:self.style[0])
-	 \            - strlen(l:self.style[2])
-	 \            - (2 * strlen(l:self.style[3]))
+	 \            - strlen(l:initial)
+	 \            - strlen(l:final)
+	 \            - (2 * strlen(l:spacer))
 
 	let l:lines = []
 	for l:para in l:self.paragraphs
 		call extend(l:lines, l:para.GetFormat(l:textlen))
 	endfor
 
-	if l:self.style[3] !=# ''
-		call map(l:lines, 'l:self.style[3] . v:val . l:self.style[3]')
+	if l:spacer !=# ''
+		call map(l:lines, 'l:spacer . v:val . l:spacer')
 	endif
 
-	call map(l:lines, 'l:self.style[0] . v:val . l:self.style[2]')
+	call map(l:lines, 'l:initial . v:val . l:final')
 
-	if l:self.style[1] !=# ''
-		let l:wall = l:self.style[0]
-		\         . strpart(repeat(l:self.style[1], a:width),
-		\                   0,
-		\                   a:width - strlen(l:self.style[0])
-		\                           - strlen(l:self.style[2]))
-		\         . l:self.style[2]
+	if l:medial !=# ''
+		let l:wall = l:initial
+		 \         . strpart(repeat(l:medial, a:width),
+		 \                   0,
+		 \                   a:width - strlen(l:initial)
+		 \                           - strlen(l:final))
+		 \         . l:final
 		call insert(l:lines, l:wall)
 		call add(l:lines, l:wall)
 	endif
@@ -220,6 +278,10 @@ function! s:GetFormat(width) abort dict
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
+"|===========================================================================|
+
+"|===========================================================================|
+"|                             PRIVATE METHODS                               |
 "|===========================================================================|
 
 "|===========================================================================|
@@ -354,111 +416,6 @@ endfunction
 "|===========================================================================|
 function! commentable#block#IsComment(lineno) abort
 	return commentable#block#New(indent(a:lineno)).LineMatches(a:lineno)
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"|                             PRIVATE FUNCTIONS                             |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:GetCommentStyle(isindented) abort {{{                                   |
-"|                                                                           |
-"| Get the current comment style, and ensure that it is valid. A valid style |
-"| must:                                                                     |
-"| - Be a list.                                                              |
-"| - Be 3 or 4 items long.                                                   |
-"| - Contain only strings.                                                   |
-"| - Have no leading whitespace in the initial item.                         |
-"| - Have no trailing whitespace in the third item.                          |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   isindented) If this is true, then will first check and attempt to       |
-"|               return the sub-style.                                       |
-"|                                                                           |
-"| Returns the configured style. Throws if the style is invalid.             |
-"|===========================================================================|
-function! s:GetCommentStyle(isindented) abort
-	"|===============================================|
-	"| Get the style. If we're indented, try the     |
-	"| substyle first.                               |
-	"|===============================================|
-	if a:isindented
-		try
-			let l:style = commentable#GetVar('CommentableSubStyle')
-			let l:using_var = 'CommentableSubStyle'
-		catch /Commentable:NO VALUE:/
-		endtry
-	endif
-
-	if !has_key(l:, 'style')
-		try
-			let l:style = commentable#GetVar('CommentableBlockStyle')
-			let l:using_var = 'CommentableBlockStyle'
-		catch /Commentable:NO VALUE:/
-		endtry
-	endif
-
-	if !has_key(l:, 'style')
-		let l:style = <SID>StyleFromCommentString()
-		let l:using_var = '&commentstring'
-	endif
-
-	"|===============================================|
-	"| Now we have a style - validate it.            |
-	"|===============================================|
-	if type(l:style) !=# s:t_list                   ||
-	 \ ( len(l:style) !=# 3 && len(l:style) !=# 4 ) ||
-	 \ l:style[0]    ==# ''
-		throw 'Commentable:INVALID SETTING:' . l:using_var
-	else
-		for l:elem in l:style
-			if type(l:elem) !=# s:t_string
-				throw 'Commentable:INVALID SETTING:' . l:using_var
-			endif
-		endfor
-
-		if l:style[0] =~# '\m^[[:space:]]' ||
-		 \ l:style[2] =~# '\m[[:space:]]$'
-			throw 'Commentable:INVALID SETTING:' . l:using_var
-		endif
-	endif
-
-	"|===============================================|
-	"| All valid. If there is no textlead, add as a  |
-	"| single space.                                 |
-	"|===============================================|
-	let l:retstyle = copy(l:style)
-	if len(l:retstyle) ==# 3
-		call add(l:retstyle, ' ')
-	endif
-
-	return l:retstyle
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:StyleFromCommentString() abort {{{                                      |
-"|                                                                           |
-"| Generate a style from the 'commentstring' setting.                        |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style. Throws if the 'commentstring' does not contain '%s'.   |
-"|===========================================================================|
-function! s:StyleFromCommentString() abort
-	let [l:fullmatch, l:start, l:end; l:_] =
-	 \  matchlist(&commentstring, '\v^(.*)\%s(.*)$')
-
-	if l:fullmatch ==# ''
-		throw 'Commentable:INVALID SETTING:&commentstring'
-	endif
-
-	return [l:start, '', l:end, '']
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

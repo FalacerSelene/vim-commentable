@@ -6,15 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
+### Added
+- CommentableBlock/SubStyle now accepts a 'regex' part of the matcher to
+  handle different comments within a single file.
+- ./run-most-recent-test script for faster testing in development.
 ### Changed
 - CommentableParagraphIntro now auto-inserts leading whitespace.
+### Fixed
 - CommentableParagraphIntro now correctly matches sub-lists.
 
 ## [0.2.0] - 2017-03-25
 ### Added
 - CommentableSetDefaultBindings adds some standard maps.
 - Pretty colours for test output.
-### Remove
+### Removed
 - No submodule dependencies.
 ### Changed
 - Better commenting througout.
