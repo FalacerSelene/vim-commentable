@@ -16,7 +16,7 @@ before_script:
   - vim --version
 
 script:
-  - ./run-regressions --suite all
+  - ./run-regressions --profiling --suite all
 
 after_failure:
   - ./test/print-diffs.sh

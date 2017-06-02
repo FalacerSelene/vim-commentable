@@ -39,6 +39,7 @@ local function req (modname)
 end
 
 local lfs
+local suites = require("suite_parser")
 
 local function initlfs (quiet)
 	lfs = req('lfs')
@@ -170,6 +171,8 @@ local function parseargs (args)
 				addarg('use_colours', true, true)
 			elseif arg == '-q' or arg == '--quiet'     then
 				addarg('quiet', true, true)
+			elseif arg == '-p' or arg == '--profiling' then
+				addarg('profiling', true, true)
 			elseif arg == '--'                         then
 				state = STATE_LOCK
 			else
@@ -251,137 +254,37 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ getsuiteresolver (filename) {{{                                        ]--
---[========================================================================]--
-local function getsuiteresolver (filename)
-	local TYPE_TEST = 0
-	local TYPE_SUITE = 1
-
-	-- extendtable (first, second) {{{
-	-- Utility function to extend a table
-	local function extendtable (first, second)
-		local e
-		for _,e in ipairs(second) do
-			first[#first+1] = e
-		end
-	end -- }}}
-
-	-- resolvesuites (unresolved) -- {{{
-	local function resolvesuites (unresolved)
-		resolved = {}
-		local resolving, entries
-		for resolving, entries in pairs(unresolved) do
-
-			-- Recursively reduce a suite down to a list of tests.
-			local function resolvesinglesuite(suitename)
-				if suitename == resolving then
-					error("Circular reference to suite: " .. suitename)
-				elseif resolved[suitename] then
-					return resolved[suitename]
-				elseif not unresolved[suitename] then
-					error("Reference to undefined suite: " .. suitename)
-				end
-
-				local single = {}
-				local _, entry
-				for _, entry in ipairs(unresolved[suitename]) do
-					if entry.type == TYPE_TEST then
-						single[#single+1] = entry.name
-					elseif entry.type == TYPE_SUITE then
-						extendtable(single, resolvesinglesuite(entry.name))
-					end
-				end
-				return single
-			end
-
-			resolved[resolving] = {}
-			local t = resolved[resolving]
-			local _, entry
-			for _,entry in ipairs(entries) do
-				if entry.type == TYPE_TEST then
-					t[#t+1] = entry.name
-				elseif entry.type == TYPE_SUITE then
-					extendtable(t, resolvesinglesuite(entry.name))
-				end
-			end
-		end
-		return resolved
-	end -- }}}
-
-	-- readlines (filename) {{{
-	local function readlines(filename)
-		local read = {}
-		local current, line
-		for line in io.lines(filename) do
-			if not string.match(line, "^[ \t]*#") and
-		      not string.match(line, "^[ \t]*$") then
-				local newsuite = line:match('^%[([a-zA-Z0-9_]*)%].*$')
-				local suiteref = line:match('^%.%[([a-zA-Z0-9_]*)%].*$')
-				local testname = line:match('^[ \t]*([a-zA-Z0-9_]*)[ \t]*$')
-				if not (newsuite or suiteref or testname) then
-					error("Invalid line in file " .. filename .. ":\n" ..
-				         "  " .. line)
-				elseif not (newsuite or current) then
-					error("Definition outside of suite in line:\n" ..
-				         "  " .. line)
-				elseif newsuite then
-					if read[newsuite] then
-						error("Multiple definitions of suite " .. newsuite)
-					else
-						read[newsuite] = {}
-						current = newsuite
-					end
-				elseif suiteref then
-					local s = read[current]
-					s[#s+1] = {
-						["type"] = TYPE_SUITE,
-						["name"] = suiteref,
-					}
-				elseif testname then
-					local s = read[current]
-					s[#s+1] = {
-						["type"] = TYPE_TEST,
-						["name"] = testname,
-					}
-				else
-					error("Unreadable line at line:\n" ..
-				         "  " .. line)
-				end
-			end
-		end
-		return read
-	end -- }}}
-
-	-- produceaccessor (filetable) {{{
-	local function produceaccessor (filetable)
-		return function (suitename)
-			return filetable[suitename] or error("No such suite: " .. suitename)
-		end
-	end -- }}}
-
-	return produceaccessor(resolvesuites(readlines(filename)))
-end
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
 --[ runsingletest (name, args) {{{                                         ]--
 --[========================================================================]--
 local function runsingletest (name, args)
+	local profilename = "output/" .. name .. ".profile"
+	local profilenameext = args.testdir .. "/" .. profilename
 	local vimcmd = "vim -E -n -N"
+
 	if args.vimrc then
 		local curdir = os.getenv("PWD")
 		vimcmd = vimcmd .. " -u '" .. curdir .. '/' .. args.vimrc .. "'"
 	end
 
-	vimcmd = vimcmd .. ' -c "silent source scripts/' .. name .. '.vim"'
-
-	os.execute("( cd " .. args.testdir .. " && " .. vimcmd .. " )")
+	if args.profiling then
+		local profscript = "profile start " .. profilename .. "\n"
+		profscript = profscript .. "profile! file */plugin/*.vim\n"
+		profscript = profscript .. "profile! file */autoload/*.vim\n"
+		profscript = profscript .. "silent source scripts/" .. name .. '.vim'
+		instructionfile = "prof-instruction.vim"
+		proffile = io.open(args.testdir .. "/" .. instructionfile, 'w')
+		proffile:write(profscript)
+		proffile:close()
+		vimcmd = vimcmd .. ' -c "silent source ' .. instructionfile .. '"'
+	else
+		vimcmd = vimcmd .. ' -c "silent source scripts/' .. name .. '.vim"'
+	end
 
 	local mstfilename = args.testdir .. "/output/" .. name .. ".mst"
 	local outfilename = args.testdir .. "/output/" .. name .. ".out"
 	local diffilename = args.testdir .. "/output/" .. name .. ".diff"
+
+	os.execute("( cd " .. args.testdir .. " && " .. vimcmd .. " )")
 
 	local passed
 	if isfile(mstfilename) and isfile(outfilename) then
@@ -399,6 +302,11 @@ local function runsingletest (name, args)
 
 	if passed then
 		os.execute("rm -rf '" .. diffilename .. "' &>/dev/null")
+	end
+
+	if args.profiling then
+		os.execute("rm '" .. args.testdir .. "/"
+		                  .. instructionfile .. "' &>/dev/null")
 	end
 
 	return passed
@@ -433,7 +341,7 @@ local function testlistfromargs (args)
 	end
 	for _, suite in ipairs(args.suites) do
 		if not suiteresolver then
-			suiteresolver = getsuiteresolver(args.suitefile)
+			suiteresolver = suites.getsuiteresolver(args.suitefile)
 		end
 		for _, test in ipairs(suiteresolver(suite)) do
 			if not testset[test] then
