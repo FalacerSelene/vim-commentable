@@ -274,7 +274,7 @@ local function runsingletest (name, args)
 
 		-- for some reason travis doesn't like it if we don't give each one a
 		-- new name.
-		instructionfile = "prof-instruction- " .. name .. ".vim"
+		instructionfile = "prof-instruction-" .. name .. ".vim"
 
 		proffile = io.open(args.testdir .. "/" .. instructionfile, 'w')
 		proffile:write(profscript)
