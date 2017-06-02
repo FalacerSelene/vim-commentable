@@ -1,20 +1,13 @@
 local M = {}
 
+local utils = require("utils")
+
 --[========================================================================]--
 --[ getsuiteresolver (filename) {{{                                        ]--
 --[========================================================================]--
 M.getsuiteresolver = function (filename)
 	local TYPE_TEST = 0
 	local TYPE_SUITE = 1
-
-	-- extendtable (first, second) {{{
-	-- Utility function to extend a table
-	local function extendtable (first, second)
-		local e
-		for _,e in ipairs(second) do
-			first[#first+1] = e
-		end
-	end -- }}}
 
 	-- resolvesuites (unresolved) -- {{{
 	local function resolvesuites (unresolved)
@@ -38,7 +31,7 @@ M.getsuiteresolver = function (filename)
 					if entry.type == TYPE_TEST then
 						single[#single+1] = entry.name
 					elseif entry.type == TYPE_SUITE then
-						extendtable(single, resolvesinglesuite(entry.name))
+						utils.extendtable(single, resolvesinglesuite(entry.name))
 					end
 				end
 				return single
@@ -51,7 +44,7 @@ M.getsuiteresolver = function (filename)
 				if entry.type == TYPE_TEST then
 					t[#t+1] = entry.name
 				elseif entry.type == TYPE_SUITE then
-					extendtable(t, resolvesinglesuite(entry.name))
+					utils.extendtable(t, resolvesinglesuite(entry.name))
 				end
 			end
 		end
@@ -64,16 +57,16 @@ M.getsuiteresolver = function (filename)
 		local current, line
 		for line in io.lines(filename) do
 			if not string.match(line, "^[ \t]*#") and
-		      not string.match(line, "^[ \t]*$") then
+			   not string.match(line, "^[ \t]*$") then
 				local newsuite = line:match('^%[([a-zA-Z0-9_]*)%].*$')
 				local suiteref = line:match('^%.%[([a-zA-Z0-9_]*)%].*$')
 				local testname = line:match('^[ \t]*([a-zA-Z0-9_]*)[ \t]*$')
 				if not (newsuite or suiteref or testname) then
 					error("Invalid line in file " .. filename .. ":\n" ..
-				         "  " .. line)
+					      "  " .. line)
 				elseif not (newsuite or current) then
 					error("Definition outside of suite in line:\n" ..
-				         "  " .. line)
+					      "  " .. line)
 				elseif newsuite then
 					if read[newsuite] then
 						error("Multiple definitions of suite " .. newsuite)
@@ -95,7 +88,7 @@ M.getsuiteresolver = function (filename)
 					}
 				else
 					error("Unreadable line at line:\n" ..
-				         "  " .. line)
+					      "  " .. line)
 				end
 			end
 		end

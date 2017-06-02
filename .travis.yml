@@ -17,6 +17,7 @@ before_script:
 
 script:
   - ./run-regressions --profiling --suite all
+  - LUA_PATH='./test/lua-modules/?.lua' ./test/combine-profiles.lua ./test/output/*.profile
 
 after_failure:
   - ./test/print-diffs.sh

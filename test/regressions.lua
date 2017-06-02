@@ -1,5 +1,8 @@
 #! /usr/bin/env lua
 
+local suites = require("suite-parser")
+local utils = require("utils")
+
 --[========================================================================]--
 --[ Colours {{{                                                            ]--
 --[                                                                        ]--
@@ -19,97 +22,6 @@ local function remove_colours ()
 	ansi_yellow = ''
 	ansi_blue = ''
 	ansi_end = ''
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ Modules {{{                                                            ]--
---[                                                                        ]--
---[ I use LFS later on to check that tests and directories exist before    ]--
---[ trying to run/open them. However, I can still shell out instead, so    ]--
---[ LFS isn't mandatory.                                                   ]--
---[========================================================================]--
-local function req (modname)
-	local mod = nil
-	pcall(function () mod = require(modname) end)
-	return mod
-end
-
-local lfs
-local suites = require("suite-parser")
-
-local function initlfs (quiet)
-	lfs = req('lfs')
-	if not lfs and not quiet then
-		print('Warning - running without lfs.')
-		print('Will fall back to shell.')
-		print('Tests may be slightly slower.')
-	end
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ isdir (dirname) {{{                                                    ]--
---[                                                                        ]--
---[ Description:                                                           ]--
---[   Does the specified directory exist, and is it a directory?           ]--
---[                                                                        ]--
---[ Params:                                                                ]--
---[   1) dirname - dir to check                                            ]--
---[                                                                        ]--
---[ Returns:                                                               ]--
---[   1) true/false                                                        ]--
---[========================================================================]--
-
-local function isdir (dirname)
-	local isdir = false
-	local diratts
-
-	if lfs then
-		diratts = lfs.attributes(dirname)
-		isdir = diratts and diratts.mode == 'directory'
-	elseif os.execute('[ -d "' .. dirname .. '" ]') then
-		isdir = true
-	end
-
-	return isdir
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ isfile (filename) {{{                                                  ]--
---[                                                                        ]--
---[ Description:                                                           ]--
---[   Does the specified file exist, and is it a normal file?              ]--
---[                                                                        ]--
---[ Params:                                                                ]--
---[   1) filename - file to check                                          ]--
---[                                                                        ]--
---[ Returns:                                                               ]--
---[   1) true/false                                                        ]--
---[========================================================================]--
-
-local function isfile (filename)
-	local isfile = false
-	local fileatts
-
-	if lfs then
-		fileatts = lfs.attributes(filename)
-		isfile = fileatts and fileatts.mode == 'file'
-	elseif os.execute('[ -f "' .. filename .. '" ]') then
-		isfile = true
-	end
-
-	return isfile
 end
 
 --[========================================================================]--
@@ -198,7 +110,7 @@ local function parseargs (args)
 		end
 	end
 
-	if state ~= STATE_NORM then
+	if state ~= STATE_NORM and state ~= STATE_LOCK then
 		error("Missing mandatory argument to arg: " .. lastarg)
 	elseif not parsed.testdir then
 		parsed.testdir = os.getenv("PWD")
@@ -234,17 +146,17 @@ end
 --[      files do not exist.                                               ]--
 --[========================================================================]--
 local function assertfilesexist (args)
-	if not isdir(args.testdir) then
+	if not utils.isdir(args.testdir) then
 		error("Could not find directory: " .. args.testdir)
 	elseif args.vimrc and
-	       not isfile(args.vimrc) then
+	       not utils.isfile(args.vimrc) then
 		error("Could not find file: " .. args.vimrc)
 	elseif args.suitefile and
-	       not isfile(args.suitefile) then
+	       not utils.isfile(args.suitefile) then
 		error("Could not find file: " .. args.suitefile)
 	elseif args.readfile and
 	       args.readfile ~= '-' and
-	       not isfile(args.readfile) then
+	       not utils.isfile(args.readfile) then
 		error("Could not find file: " .. args.readfile)
 	end
 	return(args)
@@ -291,7 +203,7 @@ local function runsingletest (name, args)
 	os.execute("( cd " .. args.testdir .. " && " .. vimcmd .. " )")
 
 	local passed
-	if isfile(mstfilename) and isfile(outfilename) then
+	if utils.isfile(mstfilename) and utils.isfile(outfilename) then
 		passed = os.execute("diff " .. outfilename .. " " .. mstfilename ..
 		                    " >" .. diffilename .. " 2>/dev/null")
 	else
@@ -366,8 +278,6 @@ end
 local function main (args)
 	local args = assertfilesexist(parseargs(args))
 
-	initlfs(args.quiet or args.resolve_only)
-
 	if args.readfile then
 		if args.readfile == '-' then
 			args.readfile = '/dev/stdin'
@@ -408,7 +318,7 @@ local function main (args)
 	local notfound = {}
 	local _, test
 	for _, test in ipairs(testlistfromargs(args)) do
-		if not isfile(args.testdir .. "/scripts/" .. test .. ".vim") then
+		if not utils.isfile(args.testdir .. "/scripts/" .. test .. ".vim") then
 			print(test .. "... " .. ansi_red .. "NOTFOUND" .. ansi_end)
 			notfoundcount = notfoundcount + 1
 			notfound[#notfound+1] = test
