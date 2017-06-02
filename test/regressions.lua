@@ -39,7 +39,7 @@ local function req (modname)
 end
 
 local lfs
-local suites = require("suite_parser")
+local suites = require("suite-parser")
 
 local function initlfs (quiet)
 	lfs = req('lfs')

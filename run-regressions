@@ -8,9 +8,10 @@ if [[ -t 1 ]] ; then
 	declare colours='--colours'
 fi
 
-./test/regressions.lua            \
-    ${colours}                    \
-    --testdir   ./test            \
-    --vimrc     ./test/vimrc.vim  \
-    --suitefile ./test/suites.cfg \
-    "$@"                          ;
+LUA_PATH='./test/lua-modules/?.lua' \
+./test/regressions.lua              \
+    ${colours}                      \
+    --testdir   ./test              \
+    --vimrc     ./test/vimrc.vim    \
+    --suitefile ./test/suites.cfg   \
+    "$@"                            ;
