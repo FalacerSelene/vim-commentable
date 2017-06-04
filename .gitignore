@@ -3,6 +3,7 @@ test/output/*.out
 test/output/*.diff
 test/output/*.profile
 test/message
+test/total.profile
 doc/tags
 tags
 GTAGS
