@@ -77,10 +77,18 @@ local function printprofile (profile, tofile)
 	local out
 	if tofile then
 		out = io.open(tofile, 'w')
-		out:write("nothing\n")
-		out:close()
 	else
-		print("nothing")
+		out = io.output()
+	end
+
+	for k, v in pairs(profile.scripts) do
+		for m, n in ipairs(v.lines) do
+			out:write((n.callcount or -1) .. ": " .. n.text .. "\n")
+		end
+	end
+
+	if tofile then
+		out:close()
 	end
 end
 --[========================================================================]--
@@ -130,7 +138,11 @@ local function readprofile (profilefile)
 
 		local baseline = line:sub(REAL_LINE_START)
 		if baseline:match("^%s*$") or baseline:match("^%s*\".*$") then
-			-- line is a comment, don't add
+			-- line is a comment
+			script.lines[#script.lines+1] = {
+				["callcount"] = nil,
+				["text"] = baseline,
+			}
 		else
 			local joinmatch = baseline:match("^%s*\\(.*)$")
 			if joinmatch then
@@ -140,7 +152,7 @@ local function readprofile (profilefile)
 					["callcount"] = prevline.callcount,
 					["text"] = prevline.text .. joinmatch,
 				}
-				script.lines[script.lines] = newline
+				script.lines[#script.lines] = newline
 			else
 				script.lines[#script.lines+1] = {
 					["callcount"] = callcount,
@@ -176,7 +188,11 @@ local function readprofile (profilefile)
 
 		local baseline = line:sub(REAL_LINE_START)
 		if baseline:match("^%s*$") or baseline:match("^%s*\".*$") then
-			-- line is a comment, don't add
+			-- line is a comment
+			func.lines[#func.lines+1] = {
+				["callcount"] = nil,
+				["text"] = baseline,
+			}
 		else
 			local joinmatch = baseline:match("^%s*\\(.*)$")
 			if joinmatch then
@@ -186,7 +202,7 @@ local function readprofile (profilefile)
 					["callcount"] = prevline.callcount,
 					["text"] = prevline.text .. joinmatch,
 				}
-				func.lines[func.lines] = newline
+				func.lines[#func.lines] = newline
 			else
 				func.lines[#func.lines+1] = {
 					["callcount"] = callcount,
@@ -280,7 +296,35 @@ end
 --[ consprofile (profiles, newprofile) {{{                                 ]--
 --[========================================================================]--
 local function consprofile (profiles, newprofile)
-	local newprofile = {}
+
+	local newscripts = newprofile.scripts or {}
+	local newfuncs = newprofile.funcs or {}
+
+	local k, v
+
+	for k, v in pairs(newscripts) do
+		if profiles.scripts[k] then
+			-- Sum the callcounts throughout the script
+			local olines = v.lines
+			local lines = profiles.scripts[k].lines
+			local count = #olines
+			for lnum = 1, count do
+				local line = lines[lnum]
+				local oline = olines[lnum]
+				if line.callcount then
+					line.callcount = oline.callcount + line.callcount
+				else
+					line.callcount = oline.callcount
+				end
+			end
+		else
+			profiles.scripts[k] = v
+		end
+	end
+
+	for k, v in pairs(newfuncs) do
+	end
+
 	return profiles
 end
 --[========================================================================]--
@@ -292,7 +336,7 @@ end
 --[========================================================================]--
 local function main (args)
 	local args = parseargs(args)
-	local profiles = {}
+	local profiles = {["scripts"] = {}, ["funcs"] = {}}
 
 	for _, prof in ipairs(args.profiles) do
 		if not utils.isfile(prof) then
