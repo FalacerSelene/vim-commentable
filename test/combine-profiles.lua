@@ -85,7 +85,9 @@ local function printprofile (profile, tofile)
 		out = io.output()
 	end
 
+	local k, v, m, n
 	for k, v in pairs(profile.scripts) do
+		out:write("SCRIPT: " .. k .. "\n")
 		for m, n in ipairs(v.lines) do
 			out:write(string.format(
 				"%+e\t%+e\t%+e\t%s\n",
@@ -154,25 +156,12 @@ local function readprofile (profilefile)
 					["text"] = baseline,
 				}
 			else
-				local joinmatch = baseline:match("^%s*\\(.*)$")
-				if joinmatch then
-					-- Have to combine line joins
-					local prevline = this.lines[#this.lines]
-					local newline = {
-						["callcount"] = prevline.callcount,
-						["total"] = prevline.total,
-						["self"] = prevline.self,
-						["text"] = prevline.text .. joinmatch,
-					}
-					this.lines[#this.lines] = newline
-				else
-					this.lines[#this.lines+1] = {
-						["callcount"] = callcount,
-						["total"] = total,
-						["self"] = self,
-						["text"] = baseline,
-					}
-				end
+				this.lines[#this.lines+1] = {
+					["callcount"] = callcount,
+					["total"] = total,
+					["self"] = self,
+					["text"] = baseline,
+				}
 			end
 		end -- }}}
 
@@ -280,6 +269,93 @@ end
 --[ mungefunctions (profile) {{{                                           ]--
 --[========================================================================]--
 local function mungefunctions (profile)
+	local _
+
+	local funcs = {
+		["global"] = {},
+		["byscript"] = {},
+	}
+
+	local funcname, func
+	for funcname, func in pairs(profile.funcs) do
+		local m, n
+		_, _, m, n = funcname:find("^<SNR>(%d*)_(%S*)%(.*$")
+		if m then
+			-- A byscript function linked to script `m`
+			if funcs.byscript[m] then
+				funcs.byscript[m][#funcs.byscript[m]] = n
+			else
+				funcs.byscript[m] = {n}
+			end
+		else
+			-- Not a byscript function
+			funcs.global[funcname] = func
+		end
+	end
+
+	-- We know which functions are global and which are per script. Now we have
+	-- to deduce which functions are defined in which script.
+	local k, script
+	local scriptsbydefines = {}
+	for k, script in pairs(profile.scripts) do
+		local idefine = {}
+		local line
+		for _, line in ipairs(script.lines) do
+			local smatch = line.text:match("^%s*function!? s:(%S*)%(.*$")
+			if not smatch then
+				smatch = line.text:match("^%s*fu!? s:(%S*)%(.*$")
+			end
+
+			local fmatch = line.text:match("^%s*function!? (%S*)%(.*$")
+			if not fmatch then
+				fmatch = line.text:match("^%s*fu!? (%S*)%(.*$")
+			end
+
+			if smatch then
+				-- This script defines this function
+				idefine[smatch] = true
+			elseif fmatch then
+				scriptsbydefines[fmatch] = script
+			end
+		end
+
+		local scriptnum, scriptfuncs
+		for scriptnum, scriptfuncs in pairs(funcs.byscript) do
+			local allmatch = true
+			for _, fname in ipairs(scriptfuncs) do
+				if not idefine[fname] then
+					allmatch = false
+					break
+				end
+			end
+
+			if allmatch then
+				script.number = scriptnum
+				break
+			end
+		end
+
+		if not script.number then
+			script.number = -1
+		end
+	end
+
+	local scriptsbynumber = {}
+	for _, script in pairs(profile.scripts) do
+		scriptsbynumber[script.number] = script
+	end
+	scriptsbynumber[-1] = nil
+
+	-- All scripts now have a `number`. We now perform the unpleasant operation
+	-- of "function unfolding", where we remove the '\' interpretation of vim's
+	-- profiling evaluator.
+
+	-- TODO Implement me!
+
+	for funcname, func in pairs(funcs.global) do
+		-- Unfold global func
+	end
+
 	return profile
 end
 --[========================================================================]--
