@@ -30,7 +30,7 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "|===========================================================================|
 function! commentable#paragraph#New(line) abort
 	let [l:indent, l:intro] = <SID>GetLineIntro(a:line)
-	let l:restofline = a:line[(l:indent + strlen(l:intro)):]
+	let l:restofline = a:line[(l:indent + strwidth(l:intro)):]
 	let l:self = {
 	 \ 'indent': l:indent,
 	 \ 'intro': l:intro,
@@ -63,7 +63,7 @@ endfunction
 "| Returns a list of lines of the requested length comprising the paragraph. |
 "|===========================================================================|
 function! s:GetFormat(width) abort dict
-	let l:introlength = strlen(l:self.intro)
+	let l:introlength = strwidth(l:self.intro)
 	let l:reqlength = a:width - l:introlength - l:self.indent
 
 	"|===============================================|
@@ -143,7 +143,7 @@ function! s:IsInParagraph(line) abort dict
 		return 0
 	endif
 
-	let l:expectedindent = l:self.indent + strlen(l:self.intro)
+	let l:expectedindent = l:self.indent + strwidth(l:self.intro)
 	if l:expectedindent == l:nindent
 		return 1
 	else
@@ -171,8 +171,8 @@ endfunction
 "| Returns the padded text.                                                  |
 "|===========================================================================|
 function! s:PadRight(text, reqlength, padding) abort
-	let l:textlength = strlen(a:text)
-	let l:fillerlength = strlen(a:padding)
+	let l:textlength = strwidth(a:text)
+	let l:fillerlength = strwidth(a:padding)
 
 	if l:fillerlength == 0 || l:textlength >= a:reqlength
 		return a:text
@@ -184,7 +184,7 @@ function! s:PadRight(text, reqlength, padding) abort
 		let l:textlength += l:fillerlength
 	endwhile
 
-	return l:text[:(a:reqlength - 1)]
+	return l:text
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
@@ -209,7 +209,7 @@ function! s:BreakIntoLines(text, reqlen) abort
 	if type(l:text) == s:t_list
 		let l:text = join(l:text)
 	endif
-	let l:textlen = strlen(l:text)
+	let l:textlen = strwidth(l:text)
 	let l:outlist = []
 
 	while l:textlen > 0
@@ -277,7 +277,7 @@ function! s:BreakIntoLines(text, reqlen) abort
 		"|===============================================|
 		"| Set textlen and loop                          |
 		"|===============================================|
-		let l:textlen = strlen(l:text)
+		let l:textlen = strwidth(l:text)
 	endwhile
 
 	if len(l:outlist) == 0
@@ -356,7 +356,7 @@ function! s:GetLineIntro(line) abort
 		"|===============================================|
 		"| No intro, just indent                         |
 		"|===============================================|
-		let l:retsize = strlen(substitute(a:line, '\m^\(\s*\).*', '\1', ''))
+		let l:retsize = strwidth(substitute(a:line, '\m^\(\s*\).*', '\1', ''))
 	endif
 
 	return [l:retsize, l:retstr]
