@@ -4,6 +4,10 @@ local utils = require("utils")
 
 -- Constants relating to vim's profile output
 local COUNT_INDICATION = 5
+local TOTAL_START = 9
+local TOTAL_END = 16
+local SELF_START = 20
+local SELF_END = 27
 local REAL_LINE_START = 29
 
 --[========================================================================]--
@@ -83,7 +87,12 @@ local function printprofile (profile, tofile)
 
 	for k, v in pairs(profile.scripts) do
 		for m, n in ipairs(v.lines) do
-			out:write((n.callcount or -1) .. ": " .. n.text .. "\n")
+			out:write(string.format(
+				"%+e\t%+e\t%+e\t%s\n",
+				(n.callcount or -1),
+				(n.total or -1),
+				(n.self or -1),
+				n.text))
 		end
 	end
 
@@ -99,10 +108,6 @@ end
 --[ readprofile (profilefile) {{{                                          ]--
 --[========================================================================]--
 local function readprofile (profilefile)
-	local file, profile
-
-	profile = {}
-
 	local STATE_NONE           = 0
 	local STATE_SCRIPTHEADER   = 1
 	local STATE_SCRIPTBODY     = 2
@@ -113,179 +118,168 @@ local function readprofile (profilefile)
 	local state = STATE_NONE
 
 	local scripts = {}
-	local script = nil
-
-	local function newscript (name)
-		if script then
-			scripts[script.name] = script
-		elseif func then
-			funcs[func.name] = func
-		end
-		func = nil
-		script = {
-			["name"] = name,
-			["lines"] = {},
-		}
-	end
-
-	local function scriptaddline (line)
-		local callcount = 0
-		if line:sub(COUNT_INDICATION, COUNT_INDICATION) ~= " " then
-			-- there is a call count
-			local cc = line:match('^%s*(%d+)')
-			callcount = tonumber(cc)
-		end
-
-		local baseline = line:sub(REAL_LINE_START)
-		if baseline:match("^%s*$") or baseline:match("^%s*\".*$") then
-			-- line is a comment
-			script.lines[#script.lines+1] = {
-				["callcount"] = nil,
-				["text"] = baseline,
-			}
-		else
-			local joinmatch = baseline:match("^%s*\\(.*)$")
-			if joinmatch then
-				-- Have to combine line joins
-				local prevline = script.lines[#script.lines]
-				local newline = {
-					["callcount"] = prevline.callcount,
-					["text"] = prevline.text .. joinmatch,
-				}
-				script.lines[#script.lines] = newline
-			else
-				script.lines[#script.lines+1] = {
-					["callcount"] = callcount,
-					["text"] = baseline,
-				}
-			end
-		end
-	end
-
 	local funcs = {}
-	local func = nil
 
-	local function newfunc (name)
-		if script then
-			scripts[script.name] = script
-		elseif func then
-			funcs[func.name] = func
-		end
-		script = nil
-		func = {
-			["name"] = name,
-			["lines"] = {},
-		}
-	end
+	local function newthing (name, thingtype) -- {{{
 
-	local function funcaddline (line)
-		local callcount = 0
-		if line:sub(COUNT_INDICATION, COUNT_INDICATION) ~= " " then
-			-- there is a call count
-			local cc = line:match('^%s*(%d+)')
-			callcount = tonumber(cc)
-		end
+		local function thingaddline (this, line) -- {{{
+			local callcount = 0
+			local total = 0.0
+			local self = 0.0
 
-		local baseline = line:sub(REAL_LINE_START)
-		if baseline:match("^%s*$") or baseline:match("^%s*\".*$") then
-			-- line is a comment
-			func.lines[#func.lines+1] = {
-				["callcount"] = nil,
-				["text"] = baseline,
-			}
-		else
-			local joinmatch = baseline:match("^%s*\\(.*)$")
-			if joinmatch then
-				-- Have to combine line joins
-				local prevline = func.lines[#func.lines]
-				local newline = {
-					["callcount"] = prevline.callcount,
-					["text"] = prevline.text .. joinmatch,
-				}
-				func.lines[#func.lines] = newline
-			else
-				func.lines[#func.lines+1] = {
-					["callcount"] = callcount,
+			if line:sub(COUNT_INDICATION, COUNT_INDICATION) ~= " " then
+				-- there is a call count
+				local cc = line:match('^%s*(%d+)')
+				callcount = tonumber(cc)
+			end
+
+			if line:sub(TOTAL_START, TOTAL_START) ~= " " then
+				local cc = line:sub(TOTAL_START, TOTAL_END)
+				total = tonumber(cc)
+			end
+
+			if line:sub(SELF_START, SELF_START) ~= " " then
+				local cc = line:sub(SELF_START, SELF_END)
+				self = tonumber(cc)
+			end
+
+			local baseline = line:sub(REAL_LINE_START)
+			if baseline:match("^%s*$") or baseline:match("^%s*\".*$") or
+		   	baseline:match("^%s*end") then
+				-- line is a comment
+				this.lines[#this.lines+1] = {
+					["callcount"] = nil,
+					["total"] = nil,
+					["self"] = nil,
 					["text"] = baseline,
 				}
+			else
+				local joinmatch = baseline:match("^%s*\\(.*)$")
+				if joinmatch then
+					-- Have to combine line joins
+					local prevline = this.lines[#this.lines]
+					local newline = {
+						["callcount"] = prevline.callcount,
+						["total"] = prevline.total,
+						["self"] = prevline.self,
+						["text"] = prevline.text .. joinmatch,
+					}
+					this.lines[#this.lines] = newline
+				else
+					this.lines[#this.lines+1] = {
+						["callcount"] = callcount,
+						["total"] = total,
+						["self"] = self,
+						["text"] = baseline,
+					}
+				end
 			end
-		end
-	end
+		end -- }}}
 
-	local function nomorefuncs ()
-		if script then
-			scripts[script.name] = script
-		elseif func then
-			funcs[func.name] = func
-		end
-		script = nil
-		func = nil
-	end
+		local function thingclose (this) -- {{{
+			if thingtype == 'script' then
+				scripts[name] = this
+			elseif thingtype == 'func' then
+				funcs[name] = this
+			end
+		end -- }}}
 
-	local function statechange (to)
+		return {
+			["name"] = name,
+			["lines"] = {},
+			["addline"] = thingaddline,
+			["close"] = thingclose,
+		}
+	end -- }}}
+
+	local function statechange (to) -- {{{
 		state = to
-	end
+	end -- }}}
+
+	-- A 'thing' is either a script or a function that we're currently
+	-- processing.
+	local thing = newthing('fake', 'nothing')
 
 	for line in io.lines(profilefile) do
 		if state == STATE_NONE then
 			local scriptname = line:match("^SCRIPT%s+(.*)$")
 			if scriptname then
 				statechange(STATE_SCRIPTHEADER)
-				newscript(scriptname)
+				thing:close()
+				thing = newthing(scriptname, 'script')
 			elseif line:match("^%s*$") then
 				-- blank line, skip
 			else
 				error("Unexpected line :" .. line)
 			end
 		elseif state == STATE_SCRIPTHEADER then
+			-- STATE: SCRIPTHEADER
 			if line == "count  total (s)   self (s)" then
 				statechange(STATE_SCRIPTBODY)
 			end
 		elseif state == STATE_SCRIPTBODY then
+			-- STATE: SCRIPTBODY
 			local scriptname = line:match("^SCRIPT%s+(.*)$")
 			local funcname = line:match("^FUNCTION%s+(.*)$")
 			if scriptname then
 				statechange(STATE_SCRIPTHEADER)
-				newscript(scriptname)
+				thing:close()
+				thing = newthing(scriptname, 'script')
 			elseif funcname then
 				statechange(STATE_FUNCTIONHEADER)
-				newfunc(funcname)
+				thing:close()
+				thing = newthing(funcname, 'func')
 			elseif line == "FUNCTIONS SORTED ON TOTAL TIME" then
 				statechange(STATE_TOTALFUNCTIONS)
-				nomorefuncs()
+				thing:close()
 			else
-				scriptaddline(line)
+				thing:addline(line)
 			end
 		elseif state == STATE_FUNCTIONHEADER then
+			-- STATE: FUNCTIONHEADER
 			if line == "count  total (s)   self (s)" then
 				statechange(STATE_FUNCTIONBODY)
 			end
 		elseif state == STATE_FUNCTIONBODY then
+			-- STATE: FUNCTIONBODY
 			local funcname = line:match("^FUNCTION%s+(.*)$")
 			if funcname then
 				statechange(STATE_FUNCTIONHEADER)
-				newfunc(funcname)
+				thing:close()
+				thing = newthing(funcname, 'func')
 			elseif line == "FUNCTIONS SORTED ON TOTAL TIME" then
 				statechange(STATE_TOTALFUNCTIONS)
-				func = nil
+				thing:close()
 			else
-				funcaddline(line)
+				thing:addline(line)
 			end
 		elseif state == STATE_TOTALFUNCTIONS then
+			-- STATE: TOTALFUNCTIONS
 			if line == "FUNCTIONS SORTED ON SELF TIME" then
 				-- TODO use total functions
 				statechange(STATE_SELFFUNCTIONS)
 			end
 		elseif state == STATE_SELFFUNCTIONS then
+			-- STATE: SELFFUNCTIONS
 			-- TODO use self functions
 		else
 			error("Programming error, state: " .. state)
 		end
 	end
 
-	profile.scripts = scripts
-	profile.funcs = funcs
+	return {
+		["scripts"] = scripts,
+		["funcs"] = funcs,
+	}
+end
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
 
+--[========================================================================]--
+--[ mungefunctions (profile) {{{                                           ]--
+--[========================================================================]--
+local function mungefunctions (profile)
 	return profile
 end
 --[========================================================================]--
@@ -316,6 +310,14 @@ local function consprofile (profiles, newprofile)
 				else
 					line.callcount = oline.callcount
 				end
+
+				if line.total then
+					line.total = line.total + oline.total
+				end
+
+				if line.self then
+					line.self = line.self + oline.self
+				end
 			end
 		else
 			profiles.scripts[k] = v
@@ -342,7 +344,7 @@ local function main (args)
 		if not utils.isfile(prof) then
 			error("Cannot read profile " .. prof)
 		else
-			profiles = consprofile(profiles, readprofile(prof))
+			profiles = consprofile(profiles, mungefunctions(readprofile(prof)))
 		end
 	end
 
