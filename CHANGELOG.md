@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - CommentableParagraphIntro now auto-inserts leading whitespace.
 ### Fixed
 - CommentableParagraphIntro now correctly matches sub-lists.
+- Now handles unicode text in comments
 
 ## [0.2.0] - 2017-03-25
 ### Added

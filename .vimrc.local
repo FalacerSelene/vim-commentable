@@ -1,0 +1,11 @@
+let b:project_dir = resolve(expand('<sfile>:h'))
+
+let &makeprg = printf("( cd %s && ./run-regressions )", b:project_dir)
+
+nnoremap <localleader>m :make<CR>
+
+augroup LOCAL
+	autocmd Filetype vim let b:CommentableBlockStyle = ['"|', '=', '|']
+	autocmd Filetype vim let b:CommentableSubWidth = 50
+	autocmd Filetype vim unlet! b:CommentableSubStyle
+augroup END

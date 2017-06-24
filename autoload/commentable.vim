@@ -426,7 +426,7 @@ function! s:RemoveIndent(size, line) abort
 	let l:sizeleft = a:size
 	let l:line = a:line
 	while l:sizeleft > 0                            &&
-	 \    (strlen(l:line) > 0                       &&
+	 \    (strwidth(l:line) > 0                     &&
 	 \     (l:line[0] ==# ' ' || l:line[0] ==# "\t")  )
 		if l:line[0] ==# ' '
 			let l:sizeleft -= 1

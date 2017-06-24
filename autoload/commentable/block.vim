@@ -173,26 +173,26 @@ function! s:LineMatches(linenum) abort dict
 		if l:str !=# ''
 			let l:self.initialmatch = l:str
 			let l:iscomment = g:commentable#block#lmat_int
-		elseif ((l:final !=# '')                       &&
-		 \      (strlen(l:text) >= strlen(l:final))    &&
+		elseif ((l:final !=# '')                           &&
+		 \      (strwidth(l:text) >= strwidth(l:final))    &&
 		 \      (match(l:text, '\V' . l:final)
-		 \       == strlen(l:text) - strlen(l:final)))   ||
-		 \     ((l:medial !=# '')                      &&
-		 \      (a:linenum > 1)                        &&
-		 \      (strlen(l:text) >= strlen(l:medial))   &&
-		 \      (match(l:text, '\V' . l:medial) == 0)  &&
+		 \       == strwidth(l:text) - strwidth(l:final)))   ||
+		 \     ((l:medial !=# '')                          &&
+		 \      (a:linenum > 1)                            &&
+		 \      (strwidth(l:text) >= strwidth(l:medial))   &&
+		 \      (match(l:text, '\V' . l:medial) == 0)      &&
 		 \      (l:self.LineMatches(a:linenum - 1)))
 			let l:iscomment = g:commentable#block#lmat_int
 		endif
-	elseif (match(l:text, '\V' . l:self.initialmatch) == 0)    ||
-	 \     ((l:final !=# '')                                 &&
-	 \      (strlen(l:text) >= strlen(l:final))              &&
+	elseif (match(l:text, '\V' . l:self.initialmatch) == 0)   ||
+	 \     ((l:final !=# '')                                &&
+	 \      (strwidth(l:text) >= strwidth(l:final))         &&
 	 \      (match(l:text, '\V' . l:final)
-	 \       == strlen(l:text) - strlen(l:final)))             ||
-	 \     ((l:medial !=# '')                                &&
-	 \      (a:linenum > 1)                                  &&
-	 \      (strlen(l:text) >= strlen(l:medial))             &&
-	 \      (match(l:text, '\V' . l:medial) == 0)            &&
+	 \       == strwidth(l:text) - strwidth(l:final)))        ||
+	 \     ((l:medial !=# '')                               &&
+	 \      (a:linenum > 1)                                 &&
+	 \      (strwidth(l:text) >= strwidth(l:medial))        &&
+	 \      (match(l:text, '\V' . l:medial) == 0)           &&
 	 \      (l:self.LineMatches(a:linenum - 1)))
 		let l:iscomment = g:commentable#block#lmat_int
 	endif
@@ -248,9 +248,9 @@ function! s:GetFormat(width) abort dict
 	endif
 
 	let l:textlen = a:width
-	 \            - strlen(l:initial)
-	 \            - strlen(l:final)
-	 \            - (2 * strlen(l:spacer))
+	 \            - strwidth(l:initial)
+	 \            - strwidth(l:final)
+	 \            - (2 * strwidth(l:spacer))
 
 	let l:lines = []
 	for l:para in l:self.paragraphs
@@ -267,8 +267,8 @@ function! s:GetFormat(width) abort dict
 		let l:wall = l:initial
 		 \         . strpart(repeat(l:medial, a:width),
 		 \                   0,
-		 \                   a:width - strlen(l:initial)
-		 \                           - strlen(l:final))
+		 \                   a:width - strwidth(l:initial)
+		 \                           - strwidth(l:final))
 		 \         . l:final
 		call insert(l:lines, l:wall)
 		call add(l:lines, l:wall)
