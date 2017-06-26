@@ -85,7 +85,6 @@ local function printprofile (profile, tofile)
 		out = io.output()
 	end
 
-	local k, v, m, n
 	for k, v in pairs(profile.scripts) do
 		out:write("SCRIPT: " .. k .. "\n")
 		for m, n in ipairs(v.lines) do
@@ -290,7 +289,6 @@ local function mungefunctions (profile)
 		["byscript"] = {},
 	}
 
-	local funcname, func
 	for funcname, func in pairs(profile.funcs) do
 		local m, n
 		_, _, m, n = funcname:find("^<SNR>(%d*)_(%S*)%(.*$")
@@ -312,11 +310,9 @@ local function mungefunctions (profile)
 
 	-- We know which functions are global and which are per script. Now we have
 	-- to deduce which functions are defined in which script.
-	local script
 	local scriptsbyglobaldefines = {}
 	for _, script in pairs(profile.scripts) do
 		local idefine = {}
-		local line
 		for _, line in ipairs(script.lines) do
 			local smatch = line.text:match("^%s*function!? s:(%S*)%(.*$")
 			if not smatch then
@@ -336,7 +332,6 @@ local function mungefunctions (profile)
 			end
 		end
 
-		local scriptnum, scriptfuncs
 		for scriptnum, scriptfuncs in pairs(funcs.byscript) do
 			local allmatch = true
 			local fentry
@@ -382,7 +377,6 @@ local function mungefunctions (profile)
 			local startl = 0
 			local endl = 0
 			local nesting = 0
-			local linenum, line
 			for linenum, line in ipairs(script.lines) do
 				if line.text:match("^%s*fu!?%s*" .. func.name) or
 				   line.text:match("^%s*function!?%s*" .. func.name) then
@@ -482,13 +476,10 @@ end
 local function consprofile (profiles, newprofile)
 
 	local newscripts = newprofile.scripts or {}
-	local newfuncs = newprofile.funcs or {}
-
-	local k, v
 
 	for k, v in pairs(newscripts) do
 		if profiles.scripts[k] then
-			-- Sum the callcounts throughout the script
+			-- Sum the callcounts etc. throughout the script
 			local olines = v.lines
 			local lines = profiles.scripts[k].lines
 			local count = #olines
@@ -512,9 +503,6 @@ local function consprofile (profiles, newprofile)
 		else
 			profiles.scripts[k] = v
 		end
-	end
-
-	for k, v in pairs(newfuncs) do
 	end
 
 	return profiles
