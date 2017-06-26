@@ -169,6 +169,9 @@ local function readprofile (profilefile)
 			if thingtype == 'script' then
 				scripts[name] = this
 			elseif thingtype == 'func' then
+				if not this.callcount then this.callcount = 0 end
+				if not this.self then this.self = 0.0 end
+				if not this.total then this.total = 0.0 end
 				funcs[name] = this
 			end
 		end -- }}}
@@ -228,6 +231,17 @@ local function readprofile (profilefile)
 			-- STATE: FUNCTIONHEADER
 			if line == "count  total (s)   self (s)" then
 				statechange(STATE_FUNCTIONBODY)
+			else
+				local cc = tonumber(line:match("^Called (.*) times$"))
+				local self = tonumber(line:match("^%s*Self time:%s*(.*)$"))
+				local total = tonumber(line:match("^%s*Total time:%s*(.*)$"))
+				if cc then
+					thing.callcount = cc
+				elseif self then
+					thing.self = self
+				elseif total then
+					thing.total = total
+				end
 			end
 		elseif state == STATE_FUNCTIONBODY then
 			-- STATE: FUNCTIONBODY
@@ -245,12 +259,12 @@ local function readprofile (profilefile)
 		elseif state == STATE_TOTALFUNCTIONS then
 			-- STATE: TOTALFUNCTIONS
 			if line == "FUNCTIONS SORTED ON SELF TIME" then
-				-- TODO use total functions
+				-- TODO use total functions?
 				statechange(STATE_SELFFUNCTIONS)
 			end
 		elseif state == STATE_SELFFUNCTIONS then
 			-- STATE: SELFFUNCTIONS
-			-- TODO use self functions
+			-- TODO use self functions?
 		else
 			error("Programming error, state: " .. state)
 		end
@@ -282,22 +296,25 @@ local function mungefunctions (profile)
 		_, _, m, n = funcname:find("^<SNR>(%d*)_(%S*)%(.*$")
 		if m then
 			-- A byscript function linked to script `m`
+			func.name = n
+			local entry = { ["name"] = n, ["func"] = func }
 			if funcs.byscript[m] then
-				funcs.byscript[m][#funcs.byscript[m]] = n
+				funcs.byscript[m][#funcs.byscript[m] + 1] = entry
 			else
-				funcs.byscript[m] = {n}
+				funcs.byscript[m] = { entry }
 			end
 		else
 			-- Not a byscript function
-			funcs.global[funcname] = func
+			func.name = funcname:match("^(.*)%(.*$")
+			funcs.global[func.name] = func
 		end
 	end
 
 	-- We know which functions are global and which are per script. Now we have
 	-- to deduce which functions are defined in which script.
-	local k, script
-	local scriptsbydefines = {}
-	for k, script in pairs(profile.scripts) do
+	local script
+	local scriptsbyglobaldefines = {}
+	for _, script in pairs(profile.scripts) do
 		local idefine = {}
 		local line
 		for _, line in ipairs(script.lines) do
@@ -315,15 +332,16 @@ local function mungefunctions (profile)
 				-- This script defines this function
 				idefine[smatch] = true
 			elseif fmatch then
-				scriptsbydefines[fmatch] = script
+				scriptsbyglobaldefines[fmatch] = script
 			end
 		end
 
 		local scriptnum, scriptfuncs
 		for scriptnum, scriptfuncs in pairs(funcs.byscript) do
 			local allmatch = true
-			for _, fname in ipairs(scriptfuncs) do
-				if not idefine[fname] then
+			local fentry
+			for _, fentry in ipairs(scriptfuncs) do
+				if not idefine[fentry.name] then
 					allmatch = false
 					break
 				end
@@ -340,20 +358,116 @@ local function mungefunctions (profile)
 		end
 	end
 
-	local scriptsbynumber = {}
-	for _, script in pairs(profile.scripts) do
-		scriptsbynumber[script.number] = script
-	end
-	scriptsbynumber[-1] = nil
-
 	-- All scripts now have a `number`. We now perform the unpleasant operation
 	-- of "function unfolding", where we remove the '\' interpretation of vim's
 	-- profiling evaluator.
 
-	-- TODO Implement me!
+	for _, script in pairs(profile.scripts) do
+		-- Make a list of all functions defined in this script
+		local globalshere = {}
+		local scriptfshere = {}
 
-	for funcname, func in pairs(funcs.global) do
-		-- Unfold global func
+		for k, v in pairs(scriptsbyglobaldefines) do
+			if v.name == script.name then
+				globalshere[#globalshere + 1] = funcs.global[k]
+			end
+		end
+
+		for _, v in ipairs(funcs.byscript[script.number] or {}) do
+			scriptfshere[#scriptfshere + 1] = v
+		end
+
+		local function findstartandend(func) -- {{{
+			local linecount = #script.lines
+			local startl = 0
+			local endl = 0
+			local nesting = 0
+			local linenum, line
+			for linenum, line in ipairs(script.lines) do
+				if line.text:match("^%s*fu!?%s*" .. func.name) or
+				   line.text:match("^%s*function!?%s*" .. func.name) then
+					-- finding start
+					if startl == 0 then
+						startl = linenum
+					else
+						nesting = nesting + 1
+					end
+				elseif startl ~= 0 and (line.text:match("^%s*endf%s*$") or
+				                        line.text:match("^%s*endfunction")) then
+					-- finding end
+					if nesting == 0 then
+						endl = linenum
+					else
+						nesting = nesting - 1
+					end
+				end
+
+				if endl ~= 0 then
+					break
+				end
+			end
+
+			return startl, endl
+		end -- }}}
+
+		local function unfold (func) -- {{{
+			local sl, el = findstartandend(func)
+
+			script.lines[sl].callcount = func.callcount
+			script.lines[sl].self = func.self
+			script.lines[sl].total = func.total
+
+			local curlinescript = sl + 1
+			local curlinefunc = 1
+
+			while true do
+				if curlinescript >= el then break end
+				local scriptl = script.lines[curlinescript]
+				local funcl = func.lines[curlinefunc]
+
+				if scriptl.text == funcl.text then
+					scriptl.callcount = funcl.callcount
+					scriptl.self = funcl.self
+					scriptl.total = funcl.total
+					curlinescript = curlinescript + 1
+					curlinefunc = curlinefunc + 1
+				elseif funcl.text:match("^" .. utils.patternescape(scriptl.text)) then
+					scriptl.callcount = funcl.callcount
+					scriptl.self = funcl.self
+					scriptl.total = funcl.total
+
+					local function abortwhen ()
+						local tomatch = scriptl.text:match("^%s*\\%s*(.*)$")
+						local fullmatch = utils.patternescape(tomatch) .. "$"
+						return funcl.text:match(fullmatch)
+					end
+
+					repeat
+						curlinescript = curlinescript + 1
+						scriptl = script.lines[curlinescript]
+						scriptl.callcount = nil
+						scriptl.self = nil
+						scriptl.total = nil
+					until abortwhen()
+					curlinescript = curlinescript + 1
+					curlinefunc = curlinefunc + 1
+				else
+					error("Don't know how to react: " ..
+					      "<<" .. curlinefunc .. ":" .. funcl.text .. ">> " ..
+					      "<<" .. curlinescript .. ":" .. scriptl.text .. ">>")
+				end
+			end
+		end -- }}}
+
+		-- CC
+		for _, v in ipairs(scriptfshere) do
+			v.func.name = "s:" .. v.func.name
+			unfold(v.func)
+		end
+
+		for _, v in ipairs(globalshere) do
+			unfold(v)
+		end
 	end
 
 	return profile
