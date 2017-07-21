@@ -1,8 +1,8 @@
 {
   "name": "vim-commentable",
   "version": "0.2.0",
-  "author": "@FalacerSelene <git@adamselene.net>",
-  "maintainer": "@FalacerSelene <git@adamselene.net>",
+  "author": "@FalacerSelene <git@falacer-selene.net>",
+  "maintainer": "@FalacerSelene <git@falacer-selene.net>",
   "repository": {
     "type": "git",
     "url": "git://github.com/FalacerSelene/vim-commentable.git"
