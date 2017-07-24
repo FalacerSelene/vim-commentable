@@ -33,10 +33,11 @@ local function parseargs (args)
 		end
 	end
 
-	local STATE_LOCK   = -1
-	local STATE_NORM   = 0
-	local STATE_OUTPUT = 1
-	local state        = STATE_NORM
+	local STATE_LOCK     = -1
+	local STATE_NORM     = 0
+	local STATE_OUTPUT   = 1
+	local STATE_COVERAGE = 2
+	local state          = STATE_NORM
 
 	local lastarg = nil
 
@@ -49,11 +50,16 @@ local function parseargs (args)
 				state = STATE_LOCK
 			elseif arg == '-o' or arg == '--output' then
 				state = STATE_OUTPUT
+			elseif arg == '-c' or arg == '--coverage' then
+				state = STATE_COVERAGE
 			else
 				addarg('profiles', arg)
 			end
 		elseif state == STATE_OUTPUT then
 			addarg('output', arg, true)
+			state = STATE_NORM
+		elseif state == STATE_COVERAGE then
+			addarg('coverage', arg, true)
 			state = STATE_NORM
 		else
 			error("Programming error in parseargs()")
@@ -96,6 +102,110 @@ local function printprofile (profile, tofile)
 				n.text))
 		end
 	end
+
+	if tofile then
+		out:close()
+	end
+end
+--[========================================================================]--
+--[ }}}                                                                    ]--
+--[========================================================================]--
+
+--[========================================================================]--
+--[ printcoverage (profile, tofile) {{{                                    ]--
+--[========================================================================]--
+local function printcoverage (profile, tofile)
+	local out, cls
+	if tofile then
+		out = io.open(tofile, 'w')
+	else
+		out = io.output()
+	end
+
+	-- Print header and style
+	out:write("<html><head><style>\n")
+
+	out:write([[
+	body {
+		background-color: beige;
+	}
+	h1 {
+		font-size: 20px;
+	}
+	p {
+		font-size: 12px;
+	}
+	pre {
+		line-height: 12px;
+	}
+	.miss {
+		background-color: red;
+	}
+	.hit {
+		background-color: lightblue;
+	}
+	]])
+
+	-- Start body
+	out:write("</style></head><body>\n")
+
+	-- List out the files we're going to use
+	out:write("<ul>\n")
+	for k, v in pairs(profile.scripts) do
+		-- calculate total coverage
+		local total = 0
+		local covered = 0
+		for m, n in ipairs(v.lines) do
+			if n.callcount then
+				total = total + 1
+				if n.callcount > 0.1 then
+					covered = covered + 1
+				end
+			end
+		end
+		local percentage = (covered / total) * 100
+		v.total = total
+		v.covered = covered
+		v.percent = percentage
+
+		out:write(string.format(
+			"<li><a href=\"#%s\">%s</a> %d/%d (%.2f%%)</li>\n",
+			k,
+			k,
+			v.covered,
+			v.total,
+			v.percent))
+	end
+	out:write("</ul>\n")
+
+	-- Write out each file
+	for k, v in pairs(profile.scripts) do
+		out:write("<h1><a name=\"" .. k .. "\">" .. k .. "</a></h1>\n")
+		out:write(string.format(
+			"<p>%d/%d (%.2f%%)</p>\n",
+			v.covered,
+			v.total,
+			v.percent))
+		out:write("<p>\n")
+		for m, n in ipairs(v.lines) do
+			if not n.callcount then
+				cls = "clear"
+			elseif n.callcount < 0.1 then
+				cls = "miss"
+			else
+				cls = "hit"
+			end
+			out:write(string.format(
+				"<pre class=\"%s\">%4d %s</pre>\n",
+				cls,
+				m,
+				n.text:gsub("<", "&lt;"):gsub(">", "&gt;"):gsub("&", "&amp;")))
+		end
+		out:write("</p>\n")
+	end
+
+	-- Close
+	out:write("</body></html>\n")
 
 	if tofile then
 		out:close()
@@ -527,6 +637,10 @@ local function main (args)
 	end
 
 	printprofile(profiles, args.output)
+
+	if args.coverage then
+		printcoverage(profiles, args.coverage)
+	end
 
 	return 0
 end

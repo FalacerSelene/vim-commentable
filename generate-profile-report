@@ -8,5 +8,6 @@ fi
 LUA_PATH='./test/lua-modules/?.lua' \
 ./test/combine-profiles.lua         \
     --output ./test/total.profile   \
+    --coverage ./test/coverage.html \
     --                              \
     ./test/output/*.profile         ;

@@ -4,6 +4,7 @@ test/output/*.diff
 test/output/*.profile
 test/message
 test/total.profile
+test/coverage.html
 doc/tags
 tags
 GTAGS
