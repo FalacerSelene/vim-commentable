@@ -9,6 +9,7 @@ addons:
       - vim=2:7.4.052-1ubuntu3.1
       - lua5.1
       - lua-filesystem
+      - jq
 
 install: true
 
@@ -16,6 +17,7 @@ before_script:
   - vim --version
 
 script:
+  - ./tools/version-consistency-check
   - ./run-regressions --suite all
 
 after_failure:
