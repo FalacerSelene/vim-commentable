@@ -14,8 +14,7 @@ Version: *0.2.0*
   5. [Install as a Package](#install-package)
 3. [Quickstart](#quickstart)
 4. [Configuration](#configuration)
-5. [Contact](#contact)
-6. [Licence](#licence)
+5. [Licence](#licence)
 
 ## 1\. Introduction <!-- {{{1 -->
 <a name="introduction"></a>
@@ -263,14 +262,7 @@ For more information, see the in-vim help documentation:
 help commentable
 ```
 
-## 5\. Contact <!-- {{{1 -->
-<a name="contact"></a>
-
-Please email all bugs report and feature suggestions to:
-
-&lt; git at adamselene dot net &gt;
-
-## 6\. Licence <!-- {{{1 -->
+## 5\. Licence <!-- {{{1 -->
 <a name="licence"></a>
 
 Commentable is licensed under the [UNLICENCE][unlicence]. It may also be bound
