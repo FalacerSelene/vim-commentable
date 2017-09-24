@@ -301,6 +301,13 @@ function! s:GetLineIntro(line) abort
 	let l:introvarname = 'CommentableParagraphIntro'
 	let l:prependspaces = 1
 
+	if a:line !~# '\S'
+		"|===============================================|
+		"| There are no characters in this line          |
+		"|===============================================|
+		return [0, '']
+	endif
+
 	try
 		let l:intromatch = commentable#util#GetVar(l:introvarname)
 	catch /^Commentable:NO VALUE:/
