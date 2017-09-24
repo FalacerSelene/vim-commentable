@@ -1,5 +1,8 @@
 #! /usr/bin/env lua
 
+local suites = require("suite-parser")
+local utils = require("utils")
+
 --[========================================================================]--
 --[ Colours {{{                                                            ]--
 --[                                                                        ]--
@@ -19,96 +22,6 @@ local function remove_colours ()
 	ansi_yellow = ''
 	ansi_blue = ''
 	ansi_end = ''
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ Modules {{{                                                            ]--
---[                                                                        ]--
---[ I use LFS later on to check that tests and directories exist before    ]--
---[ trying to run/open them. However, I can still shell out instead, so    ]--
---[ LFS isn't mandatory.                                                   ]--
---[========================================================================]--
-local function req (modname)
-	local mod = nil
-	pcall(function () mod = require(modname) end)
-	return mod
-end
-
-local lfs
-
-local function initlfs (quiet)
-	lfs = req('lfs')
-	if not lfs and not quiet then
-		print('Warning - running without lfs.')
-		print('Will fall back to shell.')
-		print('Tests may be slightly slower.')
-	end
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ isdir (dirname) {{{                                                    ]--
---[                                                                        ]--
---[ Description:                                                           ]--
---[   Does the specified directory exist, and is it a directory?           ]--
---[                                                                        ]--
---[ Params:                                                                ]--
---[   1) dirname - dir to check                                            ]--
---[                                                                        ]--
---[ Returns:                                                               ]--
---[   1) true/false                                                        ]--
---[========================================================================]--
-
-local function isdir (dirname)
-	local isdir = false
-	local diratts
-
-	if lfs then
-		diratts = lfs.attributes(dirname)
-		isdir = diratts and diratts.mode == 'directory'
-	elseif os.execute('[ -d "' .. dirname .. '" ]') then
-		isdir = true
-	end
-
-	return isdir
-end
-
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
---[ isfile (filename) {{{                                                  ]--
---[                                                                        ]--
---[ Description:                                                           ]--
---[   Does the specified file exist, and is it a normal file?              ]--
---[                                                                        ]--
---[ Params:                                                                ]--
---[   1) filename - file to check                                          ]--
---[                                                                        ]--
---[ Returns:                                                               ]--
---[   1) true/false                                                        ]--
---[========================================================================]--
-
-local function isfile (filename)
-	local isfile = false
-	local fileatts
-
-	if lfs then
-		fileatts = lfs.attributes(filename)
-		isfile = fileatts and fileatts.mode == 'file'
-	elseif os.execute('[ -f "' .. filename .. '" ]') then
-		isfile = true
-	end
-
-	return isfile
 end
 
 --[========================================================================]--
@@ -170,6 +83,8 @@ local function parseargs (args)
 				addarg('use_colours', true, true)
 			elseif arg == '-q' or arg == '--quiet'     then
 				addarg('quiet', true, true)
+			elseif arg == '-p' or arg == '--profiling' then
+				addarg('profiling', true, true)
 			elseif arg == '--'                         then
 				state = STATE_LOCK
 			else
@@ -195,7 +110,7 @@ local function parseargs (args)
 		end
 	end
 
-	if state ~= STATE_NORM then
+	if state ~= STATE_NORM and state ~= STATE_LOCK then
 		error("Missing mandatory argument to arg: " .. lastarg)
 	elseif not parsed.testdir then
 		parsed.testdir = os.getenv("PWD")
@@ -231,17 +146,17 @@ end
 --[      files do not exist.                                               ]--
 --[========================================================================]--
 local function assertfilesexist (args)
-	if not isdir(args.testdir) then
+	if not utils.isdir(args.testdir) then
 		error("Could not find directory: " .. args.testdir)
 	elseif args.vimrc and
-	       not isfile(args.vimrc) then
+	       not utils.isfile(args.vimrc) then
 		error("Could not find file: " .. args.vimrc)
 	elseif args.suitefile and
-	       not isfile(args.suitefile) then
+	       not utils.isfile(args.suitefile) then
 		error("Could not find file: " .. args.suitefile)
 	elseif args.readfile and
 	       args.readfile ~= '-' and
-	       not isfile(args.readfile) then
+	       not utils.isfile(args.readfile) then
 		error("Could not find file: " .. args.readfile)
 	end
 	return(args)
@@ -251,140 +166,44 @@ end
 --[========================================================================]--
 
 --[========================================================================]--
---[ getsuiteresolver (filename) {{{                                        ]--
---[========================================================================]--
-local function getsuiteresolver (filename)
-	local TYPE_TEST = 0
-	local TYPE_SUITE = 1
-
-	-- extendtable (first, second) {{{
-	-- Utility function to extend a table
-	local function extendtable (first, second)
-		local e
-		for _,e in ipairs(second) do
-			first[#first+1] = e
-		end
-	end -- }}}
-
-	-- resolvesuites (unresolved) -- {{{
-	local function resolvesuites (unresolved)
-		resolved = {}
-		local resolving, entries
-		for resolving, entries in pairs(unresolved) do
-
-			-- Recursively reduce a suite down to a list of tests.
-			local function resolvesinglesuite(suitename)
-				if suitename == resolving then
-					error("Circular reference to suite: " .. suitename)
-				elseif resolved[suitename] then
-					return resolved[suitename]
-				elseif not unresolved[suitename] then
-					error("Reference to undefined suite: " .. suitename)
-				end
-
-				local single = {}
-				local _, entry
-				for _, entry in ipairs(unresolved[suitename]) do
-					if entry.type == TYPE_TEST then
-						single[#single+1] = entry.name
-					elseif entry.type == TYPE_SUITE then
-						extendtable(single, resolvesinglesuite(entry.name))
-					end
-				end
-				return single
-			end
-
-			resolved[resolving] = {}
-			local t = resolved[resolving]
-			local _, entry
-			for _,entry in ipairs(entries) do
-				if entry.type == TYPE_TEST then
-					t[#t+1] = entry.name
-				elseif entry.type == TYPE_SUITE then
-					extendtable(t, resolvesinglesuite(entry.name))
-				end
-			end
-		end
-		return resolved
-	end -- }}}
-
-	-- readlines (filename) {{{
-	local function readlines(filename)
-		local read = {}
-		local current, line
-		for line in io.lines(filename) do
-			if not string.match(line, "^[ \t]*#") and
-		      not string.match(line, "^[ \t]*$") then
-				local newsuite = line:match('^%[([a-zA-Z0-9_]*)%].*$')
-				local suiteref = line:match('^%.%[([a-zA-Z0-9_]*)%].*$')
-				local testname = line:match('^[ \t]*([a-zA-Z0-9_]*)[ \t]*$')
-				if not (newsuite or suiteref or testname) then
-					error("Invalid line in file " .. filename .. ":\n" ..
-				         "  " .. line)
-				elseif not (newsuite or current) then
-					error("Definition outside of suite in line:\n" ..
-				         "  " .. line)
-				elseif newsuite then
-					if read[newsuite] then
-						error("Multiple definitions of suite " .. newsuite)
-					else
-						read[newsuite] = {}
-						current = newsuite
-					end
-				elseif suiteref then
-					local s = read[current]
-					s[#s+1] = {
-						["type"] = TYPE_SUITE,
-						["name"] = suiteref,
-					}
-				elseif testname then
-					local s = read[current]
-					s[#s+1] = {
-						["type"] = TYPE_TEST,
-						["name"] = testname,
-					}
-				else
-					error("Unreadable line at line:\n" ..
-				         "  " .. line)
-				end
-			end
-		end
-		return read
-	end -- }}}
-
-	-- produceaccessor (filetable) {{{
-	local function produceaccessor (filetable)
-		return function (suitename)
-			return filetable[suitename] or error("No such suite: " .. suitename)
-		end
-	end -- }}}
-
-	return produceaccessor(resolvesuites(readlines(filename)))
-end
---[========================================================================]--
---[ }}}                                                                    ]--
---[========================================================================]--
-
---[========================================================================]--
 --[ runsingletest (name, args) {{{                                         ]--
 --[========================================================================]--
 local function runsingletest (name, args)
+	local profilename = "output/" .. name .. ".profile"
+	local profilenameext = args.testdir .. "/" .. profilename
 	local vimcmd = "vim -E -n -N"
+
 	if args.vimrc then
 		local curdir = os.getenv("PWD")
 		vimcmd = vimcmd .. " -u '" .. curdir .. '/' .. args.vimrc .. "'"
 	end
 
-	vimcmd = vimcmd .. ' -c "silent source scripts/' .. name .. '.vim"'
+	if args.profiling then
+		local profscript = "profile start " .. profilename .. "\n"
+		profscript = profscript .. "profile! file */plugin/*.vim\n"
+		profscript = profscript .. "profile! file */autoload/*.vim\n"
+		profscript = profscript .. "silent source scripts/" .. name .. '.vim'
 
-	os.execute("( cd " .. args.testdir .. " && " .. vimcmd .. " )")
+		-- for some reason travis doesn't like it if we don't give each one a
+		-- new name.
+		instructionfile = "prof-instruction-" .. name .. ".vim"
+
+		proffile = io.open(args.testdir .. "/" .. instructionfile, 'w')
+		proffile:write(profscript)
+		proffile:close()
+		vimcmd = vimcmd .. ' -c "silent source ' .. instructionfile .. '"'
+	else
+		vimcmd = vimcmd .. ' -c "silent source scripts/' .. name .. '.vim"'
+	end
 
 	local mstfilename = args.testdir .. "/output/" .. name .. ".mst"
 	local outfilename = args.testdir .. "/output/" .. name .. ".out"
 	local diffilename = args.testdir .. "/output/" .. name .. ".diff"
 
+	os.execute("( cd " .. args.testdir .. " && " .. vimcmd .. " )")
+
 	local passed
-	if isfile(mstfilename) and isfile(outfilename) then
+	if utils.isfile(mstfilename) and utils.isfile(outfilename) then
 		passed = os.execute("diff " .. outfilename .. " " .. mstfilename ..
 		                    " >" .. diffilename .. " 2>/dev/null")
 	else
@@ -399,6 +218,11 @@ local function runsingletest (name, args)
 
 	if passed then
 		os.execute("rm -rf '" .. diffilename .. "' &>/dev/null")
+	end
+
+	if args.profiling then
+		os.execute("rm '" .. args.testdir .. "/"
+		                  .. instructionfile .. "' &>/dev/null")
 	end
 
 	return passed
@@ -433,7 +257,7 @@ local function testlistfromargs (args)
 	end
 	for _, suite in ipairs(args.suites) do
 		if not suiteresolver then
-			suiteresolver = getsuiteresolver(args.suitefile)
+			suiteresolver = suites.getsuiteresolver(args.suitefile)
 		end
 		for _, test in ipairs(suiteresolver(suite)) do
 			if not testset[test] then
@@ -453,8 +277,6 @@ end
 --[========================================================================]--
 local function main (args)
 	local args = assertfilesexist(parseargs(args))
-
-	initlfs(args.quiet or args.resolve_only)
 
 	if args.readfile then
 		if args.readfile == '-' then
@@ -496,7 +318,7 @@ local function main (args)
 	local notfound = {}
 	local _, test
 	for _, test in ipairs(testlistfromargs(args)) do
-		if not isfile(args.testdir .. "/scripts/" .. test .. ".vim") then
+		if not utils.isfile(args.testdir .. "/scripts/" .. test .. ".vim") then
 			print(test .. "... " .. ansi_red .. "NOTFOUND" .. ansi_end)
 			notfoundcount = notfoundcount + 1
 			notfound[#notfound+1] = test

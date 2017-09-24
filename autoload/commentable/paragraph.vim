@@ -179,10 +179,9 @@ function! s:PadRight(text, reqlength, padding) abort
 	endif
 
 	let l:text = a:text
-	while l:textlength < a:reqlength
-		let l:text .= a:padding
-		let l:textlength += l:fillerlength
-	endwhile
+	let l:addlen = a:reqlength - l:textlength
+	let l:addcount = l:addlen / l:fillerlength
+	let l:text .= repeat(a:padding, l:addcount)
 
 	return l:text
 endfunction

@@ -1,16 +1,39 @@
 #! /usr/bin/env bash
 
-if (( $# == 0 )) ; then
-	set -- --suite all
+declare -x LUA_PATH='./test/lua-modules/?.lua'
+
+declare -i profiling=0
+declare -i done_suite=0
+for arg ; do
+	if [[ "${arg}" == '--profiling' ]] ; then
+		(( profiling++ ))
+	elif [[ "${arg}" == '--suite' ]] ; then
+		(( done_suite++ ))
+	fi
+done
+
+if (( ! done_suite )) ; then
+	set -- "$@" --suite all
 fi
 
 if [[ -t 1 ]] ; then
 	declare colours='--colours'
 fi
 
-./test/regressions.lua            \
-    ${colours}                    \
-    --testdir   ./test            \
-    --vimrc     ./test/vimrc.vim  \
-    --suitefile ./test/suites.cfg \
-    "$@"                          ;
+set -e
+
+./test/regressions.lua              \
+    ${colours}                      \
+    --testdir   ./test              \
+    --vimrc     ./test/vimrc.vim    \
+    --suitefile ./test/suites.cfg   \
+    "$@"                            ;
+
+if (( profiling )) ; then
+	./test/combine-profiles.lua         \
+	    --output ./test/total.profile   \
+	    --coverage ./test/coverage.html \
+	    --                              \
+	    ./test/output/*.profile         ;
+fi
+
