@@ -229,12 +229,12 @@ endfunction
 "| Returns the style. Throws if the 'commentstring' does not contain '%s'.   |
 "|===========================================================================|
 function! s:StyleFromCommentString() abort
-	let [l:fullmatch, l:start, l:end; l:_] =
-	 \  matchlist(&commentstring, '\v^(.*)\%s(.*)$')
-
-	if l:fullmatch ==# ''
+	if &commentstring ==# ''
 		throw 'Commentable:INVALID SETTING:&commentstring'
 	endif
+
+	let [l:fullmatch, l:start, l:end; l:_] =
+	 \  matchlist(&commentstring, '\v^(.*)\%s(.*)$')
 
 	return [l:start, '', l:end, '']
 endfunction

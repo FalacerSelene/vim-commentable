@@ -10,4 +10,18 @@ for b:comstr in ['/*%s*/', '>>>%s<<<']
 	Assertq $CommentableCreate
 endfor
 
+"|===========================================================================|
+"| Create a comment with no style and with an empty commentstring.           |
+"|===========================================================================|
+NextTest
+let &commentstring = ''
+UseCase 1
+try
+	$CommentableCreate
+	Say 'Did not catch expected exception!'
+catch
+	Say 'Caught expected exception!'
+	Say v:exception
+endtry
+
 EndTest

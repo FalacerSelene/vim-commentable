@@ -45,4 +45,9 @@ This will be a comment
 Caught exception!
 Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
 ==============================================================================
+Case 10 - too much content in first element
+This will be a comment
+Caught expected exception!
+Vim(echoerr):Commentable:INVALID SETTING:CommentableBlockStyle
+==============================================================================
 -- End of Test --

@@ -199,7 +199,7 @@ local function printcoverage (profile, tofile)
 				"<pre class=\"%s\">%4d %s</pre>\n",
 				cls,
 				m,
-				n.text:gsub("<", "&lt;"):gsub(">", "&gt;"):gsub("&", "&amp;")))
+				n.text:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;")))
 		end
 		out:write("</p>\n")
 	end
@@ -256,7 +256,7 @@ local function readprofile (profilefile)
 
 			local baseline = line:sub(REAL_LINE_START)
 			if baseline:match("^%s*$") or baseline:match("^%s*\".*$") or
-		   	baseline:match("^%s*end") then
+			   baseline:match("^%s*end") or baseline:match("NO COVERAGE") then
 				-- line is a comment
 				this.lines[#this.lines+1] = {
 					["callcount"] = nil,

@@ -4,4 +4,8 @@
 ==============================================================================
 >>>This will be a comment                                                    <<<
 ==============================================================================
+This will be a comment
+Caught expected exception!
+Vim(echoerr):Commentable:INVALID SETTING:&commentstring
+==============================================================================
 -- End of Test --

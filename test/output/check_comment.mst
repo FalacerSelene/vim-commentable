@@ -1,0 +1,27 @@
+-- Start of Test --
+==============================================================================
+Check we can identify comments
+/**************************/
+^^^   IS A COMMENT   ^^^
+/* This will be a comment */
+^^^   IS A COMMENT   ^^^
+/**************************/
+^^^   IS A COMMENT   ^^^
+
+^^^ IS NOT A COMMENT ^^^
+This will go in the middle
+^^^ IS NOT A COMMENT ^^^
+
+^^^ IS NOT A COMMENT ^^^
+/*********************************/
+^^^   IS A COMMENT   ^^^
+/* This will join to it          */
+^^^   IS A COMMENT   ^^^
+/*********************************/
+^^^   IS A COMMENT   ^^^
+
+^^^ IS NOT A COMMENT ^^^
+And this will go at the end
+^^^ IS NOT A COMMENT ^^^
+==============================================================================
+-- End of Test --

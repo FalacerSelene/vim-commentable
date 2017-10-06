@@ -275,7 +275,7 @@ function! s:PatternToParagraphs(pattern) abort
 			call extend(l:paras,
 			 \          <SID>ParagraphsFromLines(l:elem[1], l:elem[2]))
 		else
-			throw 'Commentable:UNKNOWN ENUM:' . l:elem[0]
+			throw 'Commentable:UNKNOWN ENUM:' . l:elem[0]  " NO COVERAGE
 		endif
 	endfor
 
@@ -435,7 +435,7 @@ function! s:RemoveIndent(size, line) abort
 			let l:sizeleft -= &tabstop
 			let l:line = l:line[1:]
 		else
-			let l:sizeleft = 0
+			let l:sizeleft = 0  " NO COVERAGE
 		endif
 	endwhile
 

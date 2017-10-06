@@ -54,4 +54,8 @@ call <SID>DoCase('Case 9 - no regex part',
  \               [['/*'], '*', '*/'],
  \               0)
 
+call <SID>DoCase('Case 10 - too much content in first element',
+ \               [['/*', '/*', '/*'], '*', '*/'],
+ \               1)
+
 EndTest
