@@ -301,62 +301,41 @@ function! s:GetCommentBlockWidth(amount_indented) abort
 	"|===============================================|
 	"| Get the width.                                |
 	"|===============================================|
-	if l:is_indented
-		try
-			let l:width = commentable#util#GetVar('CommentableSubWidth')
-			let l:width_var = 'CommentableSubWidth'
-		catch /Commentable:NO VALUE:/
-		endtry
+	if l:is_indented && commentable#util#HasVar('CommentableSubWidth')
+		let l:width = commentable#util#GetVar('CommentableSubWidth')
+		let l:width_var = 'CommentableSubWidth'
+	elseif commentable#util#HasVar('CommentableBlockWidth')
+		let l:width = commentable#util#GetVar('CommentableBlockWidth')
+		let l:width_var = 'CommentableBlockWidth'
 	endif
 
-	if ! exists('l:width')
-		try
-			let l:width = commentable#util#GetVar('CommentableBlockWidth')
-			let l:width_var = 'CommentableBlockWidth'
-		catch /Commentable:NO VALUE:/
-		endtry
+	if has_key(l:, 'width') && (type(l:width) !=# s:t_number || l:width <= 0)
+		throw 'Commentable:INVALID SETTING:' . l:width_var
 	endif
 
 	"|===============================================|
 	"| Get the column. Fallback to textwidth.        |
 	"|===============================================|
-	if l:is_indented
-		try
-			let l:column = commentable#util#GetVar('CommentableSubColumn')
-			let l:column_var = 'CommentableSubColumn'
-		catch /Commentable:NO VALUE:/
-		endtry
+	if l:is_indented && commentable#util#HasVar('CommentableSubColumn')
+		let l:column = commentable#util#GetVar('CommentableSubColumn')
+		let l:column_var = 'CommentableSubColumn'
+	elseif commentable#util#HasVar('CommentableBlockColumn')
+		let l:column = commentable#util#GetVar('CommentableBlockColumn')
+		let l:column_var = 'CommentableBlockColumn'
+	else
+		let l:column = &textwidth > 0 ? &textwidth : 80
+		let l:column_var = 'textwidth'
 	endif
 
-	if ! exists('l:column')
-		try
-			let l:column = commentable#util#GetVar('CommentableBlockColumn')
-			let l:column_var = 'CommentableBlockColumn'
-		catch /Commentable:NO VALUE:/
-			let l:column = &textwidth > 0 ? &textwidth : 80
-			let l:column_var = 'textwidth'
-		endtry
+	if type(l:column) !=# s:t_number || l:column <= 0
+		throw 'Commentable:INVALID SETTING:' . l:column_var
 	endif
-
-	"|===============================================|
-	"| Validate both.                                |
-	"|===============================================|
-	for [l:elem_n, l:var_n] in [['l:width', 'l:width_var'],
-	 \                          ['l:column', 'l:column_var']]
-		if exists(l:elem_n) && exists(l:var_n)
-			let l:elem = eval(l:elem_n)
-			if type(l:elem) !=# s:t_number ||
-			 \ l:elem <= 0
-				throw 'Commentable:INVALID SETTING:' . eval(l:var_n)
-			endif
-		endif
-	endfor
 
 	"|===============================================|
 	"| Now find the minimun block width.             |
 	"|===============================================|
 	let l:min = l:column - a:amount_indented
-	if exists('l:width')
+	if has_key(l:, 'width')
 		let l:min = min([l:min, l:width])
 	endif
 

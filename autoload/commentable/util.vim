@@ -24,16 +24,32 @@
 function! commentable#util#GetVar(var_name) abort
 	for l:t in [b:, g:]
 		if has_key(l:t, a:var_name)
-			let l:d = l:t
-			break
+			return get(l:t, a:var_name)
 		endif
 	endfor
 
-	if !has_key(l:, 'd')
-		throw 'Commentable:NO VALUE:' . a:var_name
-	endif
+	throw 'Commentable:NO VALUE:' . a:var_name
+endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
 
-	return get(l:d, a:var_name)
+"|===========================================================================|
+"| commentable#util#HasVar(var_name) abort {{{                               |
+"|                                                                           |
+"| Determine if GetVar(var_name) would throw.                                |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   var_name) The config item to check.                                     |
+"|===========================================================================|
+function! commentable#util#HasVar(var_name) abort
+	for l:t in [b:, g:]
+		if has_key(l:t, a:var_name)
+			return 1
+		endif
+	endfor
+
+	return 0
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |

@@ -32,12 +32,20 @@ https://www.github.com/FalacerSelene/vim-commentable.git
 
 Commentable requires Vim version 7.4 or later, and only loads if the
 'compatible' option is not set. It does not require Vim to be compiled with
-any particular plugin language support - but obviously requires the |+eval|
-feature.
+any particular plugin language support.
 
 ============================================================================
 2. QUICK START ~
                                                      *commentable-quickstart*
+
+To get started right away, add >
+    :CommentableSetDefaultStyle
+to your .vimrc, and then use `:CommentableCreate` and `:CommentableReformat`
+to create and reformat comments.
+
+You can also add >
+    :CommentableSetDefaultBindings
+and then use `gcc` and `gcq` instead.
 
 ============================================================================
 3. COMMANDS AND MAPPINGS ~
@@ -48,11 +56,33 @@ feature.
 
 :CommentableCreate                                       *:CommentableCreate*
 
+Create a new comment block from the text comprising the lines given in the
+command range. If no range is given, create a block from the current line.
+
 :CommentableReformat                                   *:CommentableReformat*
+
+Reformat the comment block located on the line given by the command address.
+If a range is given, then reformat every block located within the range.
 
 :CommentableSetDefaultBindings               *:CommentableSetDefaultBindings*
 
+Set some default binding for the previous commands. This is equivalent to: >
+      :nmap gcc <Plug>(CommentableCreate)
+      :nmap gcq <Plug>(CommentableReformat)
+
 :CommentableSetDefaultStyle                     *:CommentableSetDefaultStyle*
+
+Set some default block styles. This sets the default style to ['#', '', ''],
+and sets a specific style for: >
+    - python
+    - perl
+    - sh
+    - c
+    - cpp
+    - java
+    - scheme
+    - vim
+    - make
 
 3.2 MAPPINGS                                           *commentable-mappings*
 ------------
@@ -95,13 +125,96 @@ rather then usually preferred `:noremap` set.
 4. CONFIGURATION ~
                                                   *commentable-configuration*
 
+Commentable exposes configuration via variables in the namespace
+`Commentable‥`. All variables are read from the `b:` scope first, and if they
+are not present then from the `g:` scope. This allows the global variable to
+be overwritten on a per-file basis.
+
 4.1 COMMENT STYLE                                         *commentable-style*
 -----------------
+                                                      *CommentableBlockStyle*
+                                                        *CommentableSubStyle*
+
+Comment style is controlled by the two variables >
+    CommentableBlockStyle
+    CommentableSubStyle
+
+The two variables are functionally the same, except that `SubStyle`, if
+present, overrides `BlockStyle` for indented comment blocks. This allows
+top-level blocks to have a visually distinct style from indented blocks.
+
+If set, these variables must be:
+
+- A list.
+- 3 or 4 items long.
+- The first item must be a string or a list of 2 strings.
+- The subsequent items must be strings.
+- The first item must contain no leading whitespace.
+- The third item must contain no trailing whitespace.
+
+The meaning of this list follows 1 of 4 patterns depending on the form:
+
+- [initial, medial, terminal]
+- [[init_default, init_pattern], medial, terminal]
+- [initial, medial, terminal, spacer]
+- [[init_default, init_pattern], medial, terminal, spacer]
+
+>
+   inital
+    ||                      medial
+    || /----------------------------------------------\
+    ||/                                                \
+    /****************************************************/
+    /* Text                                             */
+    /*|**************************************************/
+      |                                                 ||
+    spacer                                            terminal
+
+The `initial` and `terminal` are strings which are used at the left and right
+sides of comment blocks respectively. The `medial` is a string which is
+repeated in order to make up the 'walls' of the block. The `spacer` is a
+string inserted before starting each line of text - if left out of the style
+it will be a single space.
+
+The `terminal` and `medial` may be the null string, in which case the
+comment block will not be closed on the right/will not have walls.
 
 4.2 COMMENT WIDTH                                         *commentable-width*
 -----------------
+                                                      *CommentableBlockWidth*
+                                                     *CommentableBlockColumn*
+                                                        *CommentableSubWidth*
+                                                       *CommentableSubColumn*
+
+The size of comment blocks is controlled by the four variables >
+    CommentableBlockWidth
+    CommentableBlockColumn
+    CommentableSubWidth
+    CommentableSubColumn
+
+As for the style, these two pairs are the same, but `Sub...`, if defined, will
+overwrite `Block...` for indented comments.
+
+These variables must be a positive integer. If they are set, then the `Width`
+variables determine the total span of the comment blocks, from start of the
+`initial` to end of the `terminal`, and the `Column` determines the
+right-most colums of the comment block. In case both are defined, then the
+most restrictive applies.
 
 4.3 COMMENT PARAGRAPHS                               *commentable-paragraphs*
 ----------------------
+                                                  *CommentableParagraphIntro*
+
+For longer comment blocks, you might want to write multiple paragraphs within
+the block. An example is for file intro blocks or class descriptions. By
+default, commentable will use the value of 'formatlistpat' to determine how
+to format the paragraphs within a comment block. A new line which matches the
+'formatlistpat' is considered to start a new paragraph, and will be
+maintained separately when reformatting the block.
+
+Alternatively, and for greater control, you can set the variable
+`CommentableParagraphIntro`. This should be a list of patterns, where each
+pattern is checked in turn to determine if a line begins a new paragraph.
+
 
 " vim: set expandtab sts=2 ts=2 sw=2 tw=77 cc=78 ft=help norl:

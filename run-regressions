@@ -9,6 +9,13 @@ for arg ; do
 		(( profiling++ ))
 	elif [[ "${arg}" == '--suite' ]] ; then
 		(( done_suite++ ))
+	elif [[ "${arg}" == '--help' || "${arg}" == '-h' ]] ; then
+		cat <<-EOH
+		./run-regressions
+		    [--profiling]
+		    [--suite SUITE]
+		EOH
+		exit 0
 	fi
 done
 

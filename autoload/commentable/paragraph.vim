@@ -308,12 +308,9 @@ function! s:GetLineIntro(line) abort
 		return [0, '']
 	endif
 
-	try
+	if commentable#util#HasVar(l:introvarname)
 		let l:intromatch = commentable#util#GetVar(l:introvarname)
-	catch /^Commentable:NO VALUE:/
-	endtry
-
-	if !has_key(l:, 'intromatch')
+	else
 		let l:intromatch = <SID>IntroFromListPat()
 		let l:introvarname = 'formatlistpat'
 		let l:prependspaces = 0
