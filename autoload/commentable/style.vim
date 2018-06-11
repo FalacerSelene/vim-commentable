@@ -184,24 +184,18 @@ endfunction
 "| Returns nothing. Fills in the styles in the object.                       |
 "|===========================================================================|
 function! s:GetRawStyles() abort dict
-	try
+	if commentable#util#HasVar('CommentableBlockStyle')
 		let l:toplevel = commentable#util#GetVar('CommentableBlockStyle')
 		let l:topsource = 'CommentableBlockStyle'
-	catch /Commentable:NO VALUE:/
-	endtry
-
-	if !has_key(l:, 'topsource')
+	else
 		let l:toplevel = <SID>StyleFromCommentString()
 		let l:topsource = '&commentstring'
 	endif
 
-	try
+	if commentable#util#HasVar('CommentableSubStyle')
 		let l:substyle = commentable#util#GetVar('CommentableSubStyle')
 		let l:subsource = 'CommentableSubStyle'
-	catch /Commentable:NO VALUE:/
-	endtry
-
-	if !has_key(l:, 'subsource')
+	else
 		let l:substyle = l:toplevel
 		let l:subsource = l:topsource
 	endif

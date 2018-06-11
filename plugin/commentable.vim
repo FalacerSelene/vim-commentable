@@ -6,7 +6,7 @@
 "|                commenting.                                                |
 "|                                                                           |
 "|       AUTHOR:  @FalacerSelene                                             |
-"|      CONTACT:  < git at adamselene dot net >                              |
+"|      CONTACT:  < git at falacer-selene dot net >                          |
 "|      LICENCE:  See LICENCE.md                                             |
 "|      VERSION:  0.3.0 <alpha>                                              |
 "|                                                                           |

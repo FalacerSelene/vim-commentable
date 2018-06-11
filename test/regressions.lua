@@ -9,7 +9,7 @@ local utils = require("utils")
 --[ ANSI terminal colours for pretty output.                               ]--
 --[========================================================================]--
 
-local escape = string.char(27)
+local escape      = string.char(27)
 local ansi_red    = escape .. '[31m' .. escape .. '[1m'
 local ansi_green  = escape .. '[32m' .. escape .. '[1m'
 local ansi_yellow = escape .. '[33m' .. escape .. '[1m'
@@ -17,11 +17,11 @@ local ansi_blue   = escape .. '[34m' .. escape .. '[1m'
 local ansi_end    = escape .. '[m'
 
 local function remove_colours ()
-	ansi_red = ''
-	ansi_green = ''
+	ansi_red    = ''
+	ansi_green  = ''
 	ansi_yellow = ''
-	ansi_blue = ''
-	ansi_end = ''
+	ansi_blue   = ''
+	ansi_end    = ''
 end
 
 --[========================================================================]--
@@ -171,7 +171,7 @@ end
 local function runsingletest (name, args)
 	local profilename = "output/" .. name .. ".profile"
 	local profilenameext = args.testdir .. "/" .. profilename
-	local vimcmd = "vim -E -n -N"
+	local vimcmd = "vim -E -n -N -s"
 
 	if args.vimrc then
 		local curdir = os.getenv("PWD")
@@ -341,7 +341,7 @@ local function main (args)
 	mprint(ansi_blue .. "SUCCESSES" .. ansi_end .. ":\t" .. successcount)
 
 	if failurecount ~= 0 then
-		mprint(ansi_red .. "FAILURES:" .. ansi_end .. "\t" .. failurecount)
+		mprint(ansi_red .. "FAILURES" .. ansi_end .. ":\t" .. failurecount)
 	end
 
 	if notfoundcount ~= 0 then
