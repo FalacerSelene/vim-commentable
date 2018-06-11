@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## [0.3.1]
+### Fixed
+- Minor performance improvements - don't use so many exceptions
+- Add docs.
+
 ## [0.3.0]
 ### Added
 - CommentableBlock/SubStyle now accepts a 'regex' part of the matcher to
@@ -38,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Initial project structure, tests and functionality.
 
 [unreleased]: https://www.github.com/FalacerSelene/vim-commentable
+[0.3.1]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.3.1
 [0.3.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.3.0
 [0.2.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.2.0
 [0.1.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.1.0
