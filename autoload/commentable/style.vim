@@ -1,6 +1,6 @@
 "|===========================================================================|
 "|                                                                           |
-"|         FILE:  autoload/commentable/nstyle.vim                            |
+"|         FILE:  autoload/commentable/style.vim                             |
 "|                                                                           |
 "|  DESCRIPTION:  Style reading abstraction class.                           |
 "|                                                                           |
@@ -17,7 +17,7 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "|                                  CLASS                                    |
 "|===========================================================================|
 
-function! commentable#nstyle#New(indented) abort
+function! commentable#style#New(indented) abort
 	let l:indented = a:indented > 0 ? 1 : 0
 	let l:self = {
 	 \   'indented': l:indented,
@@ -58,7 +58,7 @@ function! commentable#nstyle#New(indented) abort
 	"|===============================================|
 
 	"|===============================================|
-	"| self.refreshVarList(lst, name) {{{            |
+	"| self.refreshVarList(list, name) {{{           |
 	"|                                               |
 	"| Update the style from the provided var-list.  |
 	"|                                               |

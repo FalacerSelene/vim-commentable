@@ -34,7 +34,7 @@ let g:commentable#block#lmat_wall = 2 " Wall of a comment
 "|===========================================================================|
 function! commentable#block#New(indentamount) abort
 	let l:block = {
-	 \ 'style': commentable#nstyle#New(a:indentamount),
+	 \ 'style': commentable#style#New(a:indentamount),
 	 \ 'paragraphs': [],
 	 \ 'AddParagraph': function('<SID>AddParagraph'),
 	 \ 'AddExisting': function('<SID>AddExisting'),
