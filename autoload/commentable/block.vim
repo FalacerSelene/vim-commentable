@@ -34,7 +34,7 @@ let g:commentable#block#lmat_wall = 2 " Wall of a comment
 "|===========================================================================|
 function! commentable#block#New(indentamount) abort
 	let l:block = {
-	 \ 'style': commentable#style#New(),
+	 \ 'style': commentable#style#New(a:indentamount),
 	 \ 'paragraphs': [],
 	 \ 'AddParagraph': function('<SID>AddParagraph'),
 	 \ 'AddExisting': function('<SID>AddExisting'),
@@ -43,7 +43,6 @@ function! commentable#block#New(indentamount) abort
 	 \ '_GetRange': function('<SID>GetRange'),
 	 \ 'initialmatch': 1,
 	 \ }
-	call l:block.style.SetIndented(a:indentamount)
 	return l:block
 endfunction
 "|===========================================================================|
@@ -87,10 +86,10 @@ function! s:AddExisting(linenum) abort dict
 	let [l:firstline, l:lastline] = l:self._GetRange(a:linenum)
 
 	let [l:initmatch, l:medial, l:final, l:spacer] = [
-		\ l:self.style.GetInitMatch(),
-		\ l:self.style.GetMedial(),
-		\ l:self.style.GetFinal(),
-		\ l:self.style.GetSpacer(),
+		\ l:self.style.initMatch,
+		\ l:self.style.medial,
+		\ l:self.style.final,
+		\ l:self.style.spacer,
 		\ ]
 
 	let l:lines = getline(l:firstline, l:lastline)
@@ -162,10 +161,10 @@ function! s:LineMatches(linenum) abort dict
 	let l:iscomment = g:commentable#block#lmat_none
 
 	let [l:initial, l:initmatch, l:medial, l:final] = [
-		\ l:self.style.GetInitial(),
-		\ l:self.style.GetInitMatch(),
-		\ l:self.style.GetMedial(),
-		\ l:self.style.GetFinal(),
+		\ l:self.style.initial,
+		\ l:self.style.initMatch,
+		\ l:self.style.medial,
+		\ l:self.style.final,
 		\ ]
 
 	if type(l:self.initialmatch) ==# s:t_number
@@ -233,10 +232,10 @@ endfunction
 "|===========================================================================|
 function! s:GetFormat(width) abort dict
 	let [l:initial, l:medial, l:final, l:spacer] = [
-		\ l:self.style.GetInitial(),
-		\ l:self.style.GetMedial(),
-		\ l:self.style.GetFinal(),
-		\ l:self.style.GetSpacer(),
+		\ l:self.style.initial,
+		\ l:self.style.medial,
+		\ l:self.style.final,
+		\ l:self.style.spacer,
 		\ ]
 
 	if type(l:self.initialmatch) != s:t_number

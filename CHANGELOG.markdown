@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
-## [0.3.1]
+## [0.3.1] - 2018-06-11
 ### Fixed
 - Minor performance improvements - don't use so many exceptions
 - Add docs.
 
-## [0.3.0]
+## [0.3.0] - 2017-09-24
 ### Added
 - CommentableBlock/SubStyle now accepts a 'regex' part of the matcher to
   handle different comments within a single file.
@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Better commenting througout.
 - CommentableCreate has join functionality.
 
-## [0.1.0]
+## [0.1.0] - 2016-12-10
 ### Added
 - Initial project structure, tests and functionality.
 

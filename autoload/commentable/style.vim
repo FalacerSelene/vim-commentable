@@ -14,357 +14,163 @@ let s:t_list   = v:version >= 800 ? v:t_list   : type([])
 let s:t_string = v:version >= 800 ? v:t_string : type('')
 
 "|===========================================================================|
-"|                               CONSTRUCTOR                                 |
+"|                                  CLASS                                    |
 "|===========================================================================|
 
-"|===========================================================================|
-"| commentable#style#New() abort {{{                                         |
-"|                                                                           |
-"| Create a new style object.                                                |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style object.                                                 |
-"|===========================================================================|
-function! commentable#style#New() abort
-	let l:style = {
-	 \ 'Refresh'      : function('<SID>Refresh'),
-	 \ 'SetIndented'  : function('<SID>SetIndented'),
-	 \ 'GetInitial'   : function('<SID>GetInitial'),
-	 \ 'GetInitMatch' : function('<SID>GetInitMatch'),
-	 \ 'GetMedial'    : function('<SID>GetMedial'),
-	 \ 'GetFinal'     : function('<SID>GetFinal'),
-	 \ 'GetSpacer'    : function('<SID>GetSpacer'),
-	 \ '_GetRawStyles': function('<SID>GetRawStyles'),
-	 \ '_indented'    : 0,
+function! commentable#style#New(indented) abort
+	let l:indented = a:indented > 0 ? 1 : 0
+	let l:self = {
+	 \   'indented': l:indented,
+	 \   'source': 'null',
+	 \   'initMatch': '',
+	 \   'initial': '',
+	 \   'medial': '',
+	 \   'final': '',
+	 \   'spacer': '',
 	 \ }
 
-	call l:style.Refresh()
-
-	return l:style
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"|                              PUBLIC METHODS                               |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.Refresh() abort dict {{{                                            |
-"|                                                                           |
-"| Refresh the underlying styles.                                            |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns nothing.                                                          |
-"|===========================================================================|
-function! s:Refresh() abort dict
-	call l:self._GetRawStyles()
-
-	call <SID>ValidateStyle(l:self.raw_top, l:self.raw_top_source)
-	let l:self.top = <SID>ReadStyle(<SID>PrepareStyle(l:self.raw_top))
-
-	call <SID>ValidateStyle(l:self.raw_sub, l:self.raw_sub_source)
-	let l:self.sub = <SID>ReadStyle(<SID>PrepareStyle(l:self.raw_sub))
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.SetIndented(indented) abort dict {{{                                |
-"|                                                                           |
-"| Set whether or not the style is for an indented block.                    |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   indented) Is this for an indented block?                                |
-"|                                                                           |
-"| Returns nothing.                                                          |
-"|===========================================================================|
-function! s:SetIndented(indented) abort dict
-	let l:self._indented = ((a:indented > 0) ? 1 : 0)
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.GetInitial() abort dict {{{                                         |
-"|                                                                           |
-"| Get a style initial.                                                      |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style initial (for constructors).                             |
-"|===========================================================================|
-function! s:GetInitial() abort dict
-	return l:self[l:self._indented ? 'sub' : 'top'].initial
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.GetInitMatch() abort dict {{{                                       |
-"|                                                                           |
-"| Get a style initial matcher.                                              |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style initial matcher (for recognising reformatters).         |
-"|===========================================================================|
-function! s:GetInitMatch() abort dict
-	return l:self[l:self._indented ? 'sub' : 'top'].initial_regex
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.GetMedial() abort dict {{{                                          |
-"|                                                                           |
-"| Get a style medial.                                                       |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style medial.                                                 |
-"|===========================================================================|
-function! s:GetMedial() abort dict
-	return l:self[l:self._indented ? 'sub' : 'top'].medial
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.GetFinal() abort dict {{{                                           |
-"|                                                                           |
-"| Get a style final.                                                        |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style final.                                                  |
-"|===========================================================================|
-function! s:GetFinal() abort dict
-	return l:self[l:self._indented ? 'sub' : 'top'].final
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style.GetSpacer() abort dict {{{                                          |
-"|                                                                           |
-"| Get a style spacer.                                                       |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style spacer.                                                 |
-"|===========================================================================|
-function! s:GetSpacer() abort dict
-	return l:self[l:self._indented ? 'sub' : 'top'].spacer
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"|                             PRIVATE METHODS                               |
-"|===========================================================================|
-
-"|===========================================================================|
-"| style._GetRawStyles() abort dict {{{                                      |
-"|                                                                           |
-"| Get the raw styles form the environment.                                  |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns nothing. Fills in the styles in the object.                       |
-"|===========================================================================|
-function! s:GetRawStyles() abort dict
-	if commentable#util#HasVar('CommentableBlockStyle')
-		let l:toplevel = commentable#util#GetVar('CommentableBlockStyle')
-		let l:topsource = 'CommentableBlockStyle'
-	else
-		let l:toplevel = <SID>StyleFromCommentString()
-		let l:topsource = '&commentstring'
-	endif
-
-	if commentable#util#HasVar('CommentableSubStyle')
-		let l:substyle = commentable#util#GetVar('CommentableSubStyle')
-		let l:subsource = 'CommentableSubStyle'
-	else
-		let l:substyle = l:toplevel
-		let l:subsource = l:topsource
-	endif
-
-	let l:self.raw_top = l:toplevel
-	let l:self.raw_top_source = l:topsource
-	let l:self.raw_sub = l:substyle
-	let l:self.raw_sub_source = l:subsource
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"|                             PRIVATE FUNCTIONS                             |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:StyleFromCommentString() abort {{{                                      |
-"|                                                                           |
-"| Generate a style from the 'commentstring' setting.                        |
-"|                                                                           |
-"| PARAMS: None.                                                             |
-"|                                                                           |
-"| Returns the style. Throws if the 'commentstring' does not contain '%s'.   |
-"|===========================================================================|
-function! s:StyleFromCommentString() abort
-	if &commentstring ==# ''
-		throw 'Commentable:INVALID SETTING:&commentstring'
-	endif
-
-	let [l:fullmatch, l:start, l:end; l:_] =
-	 \  matchlist(&commentstring, '\v^(.*)\%s(.*)$')
-
-	return [l:start, '', l:end, '']
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:ValidateStyle(style, source) abort {{{                                  |
-"|                                                                           |
-"| Assert that a style is valid input for <SID>ReadStyle.                    |
-"|                                                                           |
-"| In order to be valid a style must:                                        |
-"| - Be a list.                                                              |
-"| - Be 3 or 4 items long.                                                   |
-"| - Contain only strings.  However, the first element may also be a 2-list  |
-"|   of strings.                                                             |
-"| - Have no leading whitespace in the initial item.                         |
-"| - Have no trailing whitespace in the third item.                          |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   style) The raw style to check.                                          |
-"|   source) The source of the style. Used in error messages.                |
-"|                                                                           |
-"| Returns nothing. Throws if the style is not valid.                        |
-"|===========================================================================|
-function! s:ValidateStyle(style, source) abort
-	if type(a:style) !=# s:t_list                   ||
-	 \ ( len(a:style) !=# 3 && len(a:style) !=# 4 )
-		throw 'Commentable:INVALID SETTING:' . a:source
-	endif
-
-	let l:first = a:style[0]
-	let l:rest = a:style[1:]
-
-	if type(l:first) ==# s:t_string
-		"|===============================================|
-		"| Must have no leading spaces                   |
-		"|===============================================|
-		if l:first ==# '' || match(l:first, '^[[:space:]]') !=# -1
-			throw 'Commentable:INVALID SETTING:' . a:source
-		endif
-	elseif type(l:first) ==# s:t_list
-		"|===============================================|
-		"| Must be a 2-list of strings                   |
-		"|===============================================|
-		if len(l:first) !=# 2
-			throw 'Commentable:INVALID SETTING:' . a:source
+	"|===============================================|
+	"| self.refresh() {{{                            |
+	"|                                               |
+	"| Update the style from the new environment.    |
+	"|                                               |
+	"| PARAMS: None.                                 |
+	"|                                               |
+	"| Returns itself, or throws if unable.          |
+	"|===============================================|
+	function l:self.refresh()
+		if l:self.indented && commentable#util#HasVar('CommentableSubStyle')
+			return l:self.refreshVarList(
+				\ commentable#util#GetVar('CommentableSubStyle'),
+				\ 'CommentableSubStyle')
 		endif
 
-		for l:elem in l:first
-			if !(type(l:elem) ==# s:t_string          &&
-			 \   l:elem !=# ''                        &&
-			 \   match(l:elem, '^[[:space:]]') ==# -1   )
-				throw 'Commentable:INVALID SETTING:' . a:source
+		if commentable#util#HasVar('CommentableBlockStyle')
+			return l:self.refreshVarList(
+				\ commentable#util#GetVar('CommentableBlockStyle'),
+				\ 'CommentableBlockStyle')
+		endif
+
+		return l:self.refreshCommentString()
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
+
+	"|===============================================|
+	"| self.refreshVarList(list, name) {{{           |
+	"|                                               |
+	"| Update the style from the provided var-list.  |
+	"|                                               |
+	"| After normalisation, a var list must:         |
+	"| - Be a 4 list.                                |
+	"| - Where the first element is a 2 list of      |
+	"|   strings.                                    |
+	"| - Where the remaining 3 elements are strings. |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   list) The list, as defined by the user.     |
+	"|   name) The name of the source var.           |
+	"|                                               |
+	"| Returns itself, or throws if unable.          |
+	"|===============================================|
+	function l:self.refreshVarList(list, name)
+		"|===============================================|
+		"| It must be a list of length 3 or 4.           |
+		"|===============================================|
+		if type(a:list) != s:t_list || !(len(a:list) == 3 || len(a:list) == 4)
+			throw 'Commentable:INVALID SETTING:' . a:name
+		endif
+
+		"|===============================================|
+		"| First elem must be a string or a 2list of     |
+		"| strings.                                      |
+		"|===============================================|
+		if type(a:list[0]) == s:t_string
+			let l:initMatch = a:list[0]
+			let l:init = a:list[0]
+		elseif type(a:list[0]) == s:t_list && len(a:list[0]) == 2
+			if !(type(a:list[0][0]) == s:t_string && type(a:list[0][1]) == s:t_string)
+				throw 'Commentable:INVALID SETTING:' . a:name
+			endif
+
+			let l:initMatch = a:list[0][1]
+			let l:init = a:list[0][0]
+		else
+			throw 'Commentable:INVALID SETTING:' . a:name
+		endif
+
+		"|===============================================|
+		"| Init and initmatch must not have leading      |
+		"| whitespace, nor be empty.                     |
+		"|===============================================|
+		if l:init ==# '' || l:initMatch ==# ''
+		 \ || l:init =~# '^\s\+' || l:initMatch =~# '^\s\+'
+			throw 'Commentable:INVALID SETTING:' . a:name
+		endif
+
+		for l:item in a:list[1:]
+			if type(l:item) != s:t_string
+				throw 'Commentable:INVALID SETTING:' . a:name
 			endif
 		endfor
-	else
-		"|===============================================|
-		"| Wrong type for first                          |
-		"|===============================================|
-		throw 'Commentable:INVALID SETTING:' . a:source
-	endif
 
-	for l:elem in l:rest
-		"|===============================================|
-		"| Must be strings                               |
-		"|===============================================|
-		if type(l:elem) !=# s:t_string
-			throw 'Commentable:INVALID SETTING:' . a:source
+		if len(a:list) == 3
+			let l:spacer = ' '
+		else
+			let l:spacer = a:list[3]
 		endif
-	endfor
+
+		"|===============================================|
+		"| Final must not have trailing whitespace       |
+		"|===============================================|
+		let l:final = a:list[2]
+		if l:final =~# '\s\+$'
+			throw 'Commentable:INVALID SETTING:' . a:name
+		endif
+
+		let l:self.source = a:name
+		let l:self.initMatch = '\V' . l:initMatch
+		let l:self.initial = l:init
+		let l:self.medial = a:list[1]
+		let l:self.final = l:final
+		let l:self.spacer = l:spacer
+
+		return l:self
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
 
 	"|===============================================|
-	"| Third element must have no trailing           |
+	"| self.refreshCommentString() {{{               |
+	"|                                               |
+	"| Update the style from the new environment.    |
+	"|                                               |
+	"| PARAMS: None.                                 |
+	"|                                               |
+	"| Returns itself, or throws if unable.          |
 	"|===============================================|
-	if match(a:style[2], '[[:space:]]$') !=# -1
-		throw 'Commentable:INVALID SETTING:' . a:source
-	endif
+	function l:self.refreshCommentString()
+		if &commentstring !~# '%s'
+			throw 'Commentable:INVALID SETTING:&commentstring'
+		endif
+
+		let [l:fullmatch, l:start, l:end; l:_] =
+		 \  matchlist(&commentstring, '\v^(.*)\%s(.*)$')
+
+		let l:self.source = '&commentstring'
+		let l:self.initMatch = '\V' . l:start
+		let l:self.initial = l:start
+		let l:self.medial = ''
+		let l:self.final = l:end
+		let l:self.spacer = ''
+
+		return l:self
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
+
+	return l:self.refresh()
 endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:PrepareStyle(style) abort {{{                                           |
-"|                                                                           |
-"| Convert a style for use by <SID>ReadStyle.                                |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   style) The style to convert. Must have been checked by                  |
-"|          <SID>ValidateStyle.                                              |
-"|                                                                           |
-"| Returns the prepared style. The style will always:                        |
-"| - Be a 4 list.                                                            |
-"| - Where the first element is a 2 list of strings.                         |
-"| - Where the second element of the first element begins '\V'.              |
-"| - Where the remaining 3 elements are strings.                             |
-"|===========================================================================|
-function! s:PrepareStyle(style) abort
-	let l:style = deepcopy(a:style)
-	if len(l:style) ==# 3
-		call add(l:style, ' ')
-	endif
-
-	if type(l:style[0]) ==# s:t_string
-		let l:style[0] = [l:style[0], '\V' . l:style[0]]
-	endif
-
-	return l:style
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| s:ReadStyle(style) abort {{{                                              |
-"|                                                                           |
-"| Read the raw styles into internal format.                                 |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   style) The raw style to read.                                           |
-"|                                                                           |
-"| Returns a dict filled with the params for the style.                      |
-"|===========================================================================|
-function! s:ReadStyle(style) abort
-	let l:ret = {}
-
-	let l:ret.initial       = a:style[0][0]
-	let l:ret.initial_regex = '\V' . a:style[0][1]
-	let l:ret.medial        = a:style[1]
-	let l:ret.final         = a:style[2]
-	let l:ret.spacer        = a:style[3]
-
-	return l:ret
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
