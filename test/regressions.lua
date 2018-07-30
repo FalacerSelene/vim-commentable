@@ -1,6 +1,6 @@
 #! /usr/bin/env lua
 
-local suites = require("suite-parser")
+local suites = require("suites")
 local utils = require("utils")
 
 --[========================================================================]--
@@ -256,10 +256,7 @@ local function testlistfromargs (args)
 		end
 	end
 	for _, suite in ipairs(args.suites) do
-		if not suiteresolver then
-			suiteresolver = suites.getsuiteresolver(args.suitefile)
-		end
-		for _, test in ipairs(suiteresolver(suite)) do
+		for test in suites(suite) do
 			if not testset[test] then
 				testset[test] = true
 				testlist[#testlist+1] = test
