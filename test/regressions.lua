@@ -56,8 +56,7 @@ local function parseargs (args)
 	local STATE_SUITE    = 1
 	local STATE_TESTDIR  = 2
 	local STATE_VIMRC    = 3
-	local STATE_SUITES   = 4
-	local STATE_READFILE = 5
+	local STATE_READFILE = 4
 	local state          = STATE_NORM
 
 	local lastarg = nil
@@ -73,8 +72,6 @@ local function parseargs (args)
 				state = STATE_TESTDIR
 			elseif arg == '-v' or arg == '--vimrc'     then
 				state = STATE_VIMRC
-			elseif arg == '-f' or arg == '--suitefile' then
-				state = STATE_SUITES
 			elseif                arg == '--fromfile'  then
 				state = STATE_READFILE
 			elseif arg == '-r' or arg == '--resolve'   then
@@ -99,9 +96,6 @@ local function parseargs (args)
 		elseif state == STATE_VIMRC     then
 			addarg('vimrc', arg, true)
 			state = STATE_NORM
-		elseif state == STATE_SUITES    then
-			addarg('suitefile', arg, true)
-			state = STATE_NORM
 		elseif state == STATE_READFILE  then
 			addarg('readfile', arg, true)
 			state = STATE_NORM
@@ -114,8 +108,6 @@ local function parseargs (args)
 		error("Missing mandatory argument to arg: " .. lastarg)
 	elseif not parsed.testdir then
 		parsed.testdir = os.getenv("PWD")
-	elseif parsed.suites and not parsed.suitefile then
-		error("Option --suites requires a --suitefile")
 	end
 
 	if not parsed.suites then
@@ -151,9 +143,6 @@ local function assertfilesexist (args)
 	elseif args.vimrc and
 	       not utils.isfile(args.vimrc) then
 		error("Could not find file: " .. args.vimrc)
-	elseif args.suitefile and
-	       not utils.isfile(args.suitefile) then
-		error("Could not find file: " .. args.suitefile)
 	elseif args.readfile and
 	       args.readfile ~= '-' and
 	       not utils.isfile(args.readfile) then

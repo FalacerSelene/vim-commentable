@@ -33,7 +33,6 @@ set -e
     ${colours}                      \
     --testdir   ./test              \
     --vimrc     ./test/vimrc.vim    \
-    --suitefile ./test/suites.cfg   \
     "$@"                            ;
 
 if (( profiling )) ; then

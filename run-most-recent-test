@@ -12,6 +12,5 @@ LUA_PATH='./test/lua-modules/?.lua' \
     --quiet                         \
     --testdir   ./test              \
     --vimrc     ./test/vimrc.vim    \
-    --suitefile ./test/suites.cfg   \
     --fromfile  '-'                 ;
 
