@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
+### Changed
+- Suites now listed in tests/lua-modules/suites.lua rather than
+  tests/suites.cfg.
 
 ## [0.3.1] - 2018-06-11
 ### Fixed
