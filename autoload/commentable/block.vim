@@ -13,16 +13,20 @@ let s:t_number = v:version >= 800 ? v:t_number : type(0)
 let s:t_list   = v:version >= 800 ? v:t_list   : type([])
 let s:t_string = v:version >= 800 ? v:t_string : type('')
 
+"|===========================================================================|
+"|                                  ENUMS                                    |
+"|===========================================================================|
+
 let g:commentable#block#lmat_none = 0 " Not part of a comment
 let g:commentable#block#lmat_int  = 1 " Internal comment line
 let g:commentable#block#lmat_wall = 2 " Wall of a comment
 
 "|===========================================================================|
-"|                               CONSTRUCTOR                                 |
+"|                                  CLASS                                    |
 "|===========================================================================|
 
 "|===========================================================================|
-"| commentable#block#New(indentamount) abort {{{                             |
+"| commentable#block#New(indentamount) {{{                                   |
 "|                                                                           |
 "| Create a new block object. Only needs to know if it is indented or not;   |
 "| the remaining parameters are determined in the constructor.               |
@@ -33,333 +37,281 @@ let g:commentable#block#lmat_wall = 2 " Wall of a comment
 "| Returns the block object.                                                 |
 "|===========================================================================|
 function! commentable#block#New(indentamount) abort
-	let l:block = {
+	let l:self = {
 	 \ 'style': commentable#style#New(a:indentamount),
 	 \ 'paragraphs': [],
-	 \ 'AddParagraph': function('<SID>AddParagraph'),
-	 \ 'AddExisting': function('<SID>AddExisting'),
-	 \ 'LineMatches': function('<SID>LineMatches'),
-	 \ 'GetFormat': function('<SID>GetFormat'),
-	 \ '_GetRange': function('<SID>GetRange'),
 	 \ 'initialmatch': 1,
 	 \ }
-	return l:block
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
 
-"|===========================================================================|
-"|                              PUBLIC METHODS                               |
-"|===========================================================================|
+	"|===============================================|
+	"|                 PUBLIC METHODS                |
+	"|===============================================|
 
-"|===========================================================================|
-"| block.AddParagraph(para) abort dict {{{                                   |
-"|                                                                           |
-"| Add a new paragraph of text to this block.                                |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   para) The paragraph to add. Adds the exact object, not a copy.          |
-"|                                                                           |
-"| Returns nothing.                                                          |
-"|===========================================================================|
-function! s:AddParagraph(para) abort dict
-	call add(l:self.paragraphs, a:para)
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
+	"|===============================================|
+	"| self.AddParagraph(para) {{{                   |
+	"|                                               |
+	"| Add a new paragraph of text to this block.    |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   para) The paragraph to add. Adds the exact  |
+	"|         object, not a copy.                   |
+	"|                                               |
+	"| Returns nothing.                              |
+	"|===============================================|
+	function! l:self.AddParagraph(para)
+		call add(l:self.paragraphs, a:para)
+	endfunction!
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
 
-"|===========================================================================|
-"| block.AddExisting(linenum) abort dict {{{                                 |
-"|                                                                           |
-"| Add paragraphs from an existing block.                                    |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   linenum) A line in the exisiting paragraph. Will read forwards and      |
-"|            backwards from this line to try to find the full paragraph.    |
-"|                                                                           |
-"| Returns [firstline, lastline], showing which lines were used. Throws if   |
-"| the given line is not in the paragraph.                                   |
-"|===========================================================================|
-function! s:AddExisting(linenum) abort dict
-	let [l:firstline, l:lastline] = l:self._GetRange(a:linenum)
+	"|===============================================|
+	"| self.AddExisting(linenum) {{{                 |
+	"|                                               |
+	"| Add paragraphs from an existing block.        |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   linenum) A line in the exisiting paragraph. |
+	"|            Will read forwards and backwards   |
+	"|            from this line to try to find the  |
+	"|            full paragraph.                    |
+	"|                                               |
+	"| Returns [firstline, lastline], showing which  |
+	"| lines were used. Throws if the given line is  |
+	"| not in the paragraph.                         |
+	"|===============================================|
+	function! l:self.AddExisting(linenum)
+		let [l:firstline, l:lastline] = l:self._GetRange(a:linenum)
 
-	let [l:initmatch, l:medial, l:final, l:spacer] = [
-		\ l:self.style.initMatch,
-		\ l:self.style.medial,
-		\ l:self.style.final,
-		\ l:self.style.spacer,
-		\ ]
+		let [l:initmatch, l:medial, l:final, l:spacer] = [
+			\ l:self.style.initMatch,
+			\ l:self.style.medial,
+			\ l:self.style.final,
+			\ l:self.style.spacer,
+			\ ]
 
-	let l:lines = getline(l:firstline, l:lastline)
-	call map(l:lines, 'commentable#util#StripSpaces(v:val)')
-	call map(l:lines, 'substitute(v:val, ''\V\^' . l:initmatch . ''', "", "")')
-	call map(l:lines, 'substitute(v:val, ''\V' . l:final . '\$'', "", "")')
+		let l:lines = getline(l:firstline, l:lastline)
+		call map(l:lines, 'commentable#util#StripSpaces(v:val)')
+		call map(l:lines, 'substitute(v:val, ''\V\^' . l:initmatch . ''', "", "")')
+		call map(l:lines, 'substitute(v:val, ''\V' . l:final . '\$'', "", "")')
 
-	if match(l:lines[0], '\V\^' . l:medial . '\*\$') == 0
-		call remove(l:lines, 0)
-	endif
+		if match(l:lines[0], '\V\^' . l:medial . '\*\$') == 0
+			call remove(l:lines, 0)
+		endif
 
-	if len(l:lines) > 0                                    &&
-	 \ match(l:lines[-1], '\V\^' . l:medial . '\*\$') == 0
-		call remove(l:lines, -1)
-	endif
+		if len(l:lines) > 0                                    &&
+		 \ match(l:lines[-1], '\V\^' . l:medial . '\*\$') == 0
+			call remove(l:lines, -1)
+		endif
 
-	call map(l:lines,
-	 \       'substitute(v:val, ''\V\^' . l:medial . ''', "", "")')
-
-	if l:spacer !=# ''
 		call map(l:lines,
-		 \       'substitute(v:val, ''\V\^' . l:spacer . ''', "", "")')
-		call map(l:lines,
-		 \       'substitute(v:val, ''\V' . l:spacer . '\$'', "", "")')
-	endif
+		 \       'substitute(v:val, ''\V\^' . l:medial . ''', "", "")')
 
-	if len(l:lines) == 0
-		call l:self.AddParagraph(commentable#paragraph#New(''))
-	else
-		let l:curpar = commentable#paragraph#New(l:lines[0])
-		let l:lastlineblank = 0
-		for l:line in l:lines[1:]
-			if l:line =~# '\m^\s*$'
-				call l:self.AddParagraph(l:curpar)
-				let l:curpar = commentable#paragraph#New(l:line)
-				let l:lastlineblank = 1
-			elseif l:curpar.IsInParagraph(l:line) && (!l:lastlineblank)
-				call l:curpar.AddLine(l:line)
-			else
-				call l:self.AddParagraph(l:curpar)
-				let l:curpar = commentable#paragraph#New(l:line)
-				let l:lastlineblank = 0
+		if l:spacer !=# ''
+			call map(l:lines,
+			 \       'substitute(v:val, ''\V\^' . l:spacer . ''', "", "")')
+			call map(l:lines,
+			 \       'substitute(v:val, ''\V' . l:spacer . '\$'', "", "")')
+		endif
+
+		if len(l:lines) == 0
+			call l:self.AddParagraph(commentable#paragraph#New(''))
+		else
+			let l:curpar = commentable#paragraph#New(l:lines[0])
+			let l:lastlineblank = 0
+			for l:line in l:lines[1:]
+				if l:line =~# '\m^\s*$'
+					call l:self.AddParagraph(l:curpar)
+					let l:curpar = commentable#paragraph#New(l:line)
+					let l:lastlineblank = 1
+				elseif l:curpar.IsInParagraph(l:line) && (!l:lastlineblank)
+					call l:curpar.AddLine(l:line)
+				else
+					call l:self.AddParagraph(l:curpar)
+					let l:curpar = commentable#paragraph#New(l:line)
+					let l:lastlineblank = 0
+				endif
+			endfor
+			call l:self.AddParagraph(l:curpar)
+		endif
+
+		return [l:firstline, l:lastline]
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
+
+	"|===============================================|
+	"| self.LineMatches(linenum) {{{                 |
+	"|                                               |
+	"| Determine if a given existing line is valid   |
+	"| for this block.                               |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   linenum) The line to verify.                |
+	"|                                               |
+	"| Returns a commentable#block#lmat value.       |
+	"|===============================================|
+	function! l:self.LineMatches(linenum)
+		let l:text = getline(a:linenum)
+		let l:text = substitute(l:text, '\m^\s*', '', '')
+		let l:text = substitute(l:text, '\m\s*$', '', '')
+
+		let l:iscomment = g:commentable#block#lmat_none
+
+		let [l:initial, l:initmatch, l:medial, l:final] = [
+			\ l:self.style.initial,
+			\ l:self.style.initMatch,
+			\ l:self.style.medial,
+			\ l:self.style.final,
+			\ ]
+
+		if type(l:self.initialmatch) ==# s:t_number
+			let l:str = matchstr(l:text, '\v^' . l:initmatch)
+			if l:str !=# ''
+				let l:self.initialmatch = l:str
+				let l:iscomment = g:commentable#block#lmat_int
+			elseif ((l:final !=# '')                           &&
+			 \      (strwidth(l:text) >= strwidth(l:final))    &&
+			 \      (match(l:text, '\V' . l:final)
+			 \       == strwidth(l:text) - strwidth(l:final)))   ||
+			 \     ((l:medial !=# '')                          &&
+			 \      (a:linenum > 1)                            &&
+			 \      (strwidth(l:text) >= strwidth(l:medial))   &&
+			 \      (match(l:text, '\V' . l:medial) == 0)      &&
+			 \      (l:self.LineMatches(a:linenum - 1)))
+				let l:iscomment = g:commentable#block#lmat_int
 			endif
-		endfor
-		call l:self.AddParagraph(l:curpar)
-	endif
-
-	return [l:firstline, l:lastline]
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
-
-"|===========================================================================|
-"| block.LineMatches(linenum) abort dict {{{                                 |
-"|                                                                           |
-"| Determine if a given existing line is valid for this block.               |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   linenum) The line to verify.                                            |
-"|                                                                           |
-"| Returns a commentable#block#lmat value.                                   |
-"|===========================================================================|
-function! s:LineMatches(linenum) abort dict
-	let l:text = getline(a:linenum)
-	let l:text = substitute(l:text, '\m^\s*', '', '')
-	let l:text = substitute(l:text, '\m\s*$', '', '')
-
-	let l:iscomment = g:commentable#block#lmat_none
-
-	let [l:initial, l:initmatch, l:medial, l:final] = [
-		\ l:self.style.initial,
-		\ l:self.style.initMatch,
-		\ l:self.style.medial,
-		\ l:self.style.final,
-		\ ]
-
-	if type(l:self.initialmatch) ==# s:t_number
-		let l:str = matchstr(l:text, '\v^' . l:initmatch)
-		if l:str !=# ''
-			let l:self.initialmatch = l:str
-			let l:iscomment = g:commentable#block#lmat_int
-		elseif ((l:final !=# '')                           &&
-		 \      (strwidth(l:text) >= strwidth(l:final))    &&
+		elseif (match(l:text, '\V' . l:self.initialmatch) == 0)   ||
+		 \     ((l:final !=# '')                                &&
+		 \      (strwidth(l:text) >= strwidth(l:final))         &&
 		 \      (match(l:text, '\V' . l:final)
-		 \       == strwidth(l:text) - strwidth(l:final)))   ||
-		 \     ((l:medial !=# '')                          &&
-		 \      (a:linenum > 1)                            &&
-		 \      (strwidth(l:text) >= strwidth(l:medial))   &&
-		 \      (match(l:text, '\V' . l:medial) == 0)      &&
+		 \       == strwidth(l:text) - strwidth(l:final)))        ||
+		 \     ((l:medial !=# '')                               &&
+		 \      (a:linenum > 1)                                 &&
+		 \      (strwidth(l:text) >= strwidth(l:medial))        &&
+		 \      (match(l:text, '\V' . l:medial) == 0)           &&
 		 \      (l:self.LineMatches(a:linenum - 1)))
 			let l:iscomment = g:commentable#block#lmat_int
 		endif
-	elseif (match(l:text, '\V' . l:self.initialmatch) == 0)   ||
-	 \     ((l:final !=# '')                                &&
-	 \      (strwidth(l:text) >= strwidth(l:final))         &&
-	 \      (match(l:text, '\V' . l:final)
-	 \       == strwidth(l:text) - strwidth(l:final)))        ||
-	 \     ((l:medial !=# '')                               &&
-	 \      (a:linenum > 1)                                 &&
-	 \      (strwidth(l:text) >= strwidth(l:medial))        &&
-	 \      (match(l:text, '\V' . l:medial) == 0)           &&
-	 \      (l:self.LineMatches(a:linenum - 1)))
-		let l:iscomment = g:commentable#block#lmat_int
-	endif
 
-	"|===============================================|
-	"| We know this is a line, check if it's a wall. |
-	"|===============================================|
-	if l:iscomment == g:commentable#block#lmat_int   &&
-	 \ match(l:text, '\V\^' . l:initial
-	 \                      . l:medial  . '\*'
-	 \                      . l:final   . '\$') == 0
-		if type(l:self.initialmatch) ==# s:t_number
-			if match(l:text, '\V\^' . l:initmatch
-			 \                      . l:medial  . '\*'
-			 \                      . l:final   . '\$') == 0
+		"|===============================================|
+		"| We know this is a line, check if it's a wall. |
+		"|===============================================|
+		if l:iscomment == g:commentable#block#lmat_int   &&
+		 \ match(l:text, '\V\^' . l:initial
+		 \                      . l:medial  . '\*'
+		 \                      . l:final   . '\$') == 0
+			if type(l:self.initialmatch) ==# s:t_number
+				if match(l:text, '\V\^' . l:initmatch
+				 \                      . l:medial  . '\*'
+				 \                      . l:final   . '\$') == 0
+					let l:iscomment = g:commentable#block#lmat_wall
+				endif
+			elseif match(l:text, '\V\^' . l:self.initialmatch
+			 \                          . l:medial  . '\*'
+			 \                          . l:final   . '\$') == 0
 				let l:iscomment = g:commentable#block#lmat_wall
 			endif
-		elseif match(l:text, '\V\^' . l:self.initialmatch
-		 \                          . l:medial  . '\*'
-		 \                          . l:final   . '\$') == 0
-			let l:iscomment = g:commentable#block#lmat_wall
 		endif
-	endif
 
-	return l:iscomment
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
+		return l:iscomment
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
 
-"|===========================================================================|
-"| block.GetFormat(width) abort dict {{{                                     |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   width) The required length of the lines to be output.                   |
-"|                                                                           |
-"| Returns a list of lines of the requested length comprising the block.     |
-"|===========================================================================|
-function! s:GetFormat(width) abort dict
-	let [l:initial, l:medial, l:final, l:spacer] = [
-		\ l:self.style.initial,
-		\ l:self.style.medial,
-		\ l:self.style.final,
-		\ l:self.style.spacer,
-		\ ]
+	"|===============================================|
+	"| self.GetFormat(width) {{{                     |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   width) The required length of the lines to  |
+	"|          be output.                           |
+	"|                                               |
+	"| Returns a list of lines of the requested      |
+	"| length comprising the block.                  |
+	"|===============================================|
+	function! l:self.GetFormat(width)
+		let [l:initial, l:medial, l:final, l:spacer] = [
+			\ l:self.style.initial,
+			\ l:self.style.medial,
+			\ l:self.style.final,
+			\ l:self.style.spacer,
+			\ ]
 
-	if type(l:self.initialmatch) != s:t_number
-		"|===============================================|
-		"| If we've set the initial match then use that  |
-		"| to recreate the comment.                      |
-		"|===============================================|
-		let l:initial = l:self.initialmatch
-	endif
+		if type(l:self.initialmatch) != s:t_number
+			"|===============================================|
+			"| If we've set the initial match then use that  |
+			"| to recreate the comment.                      |
+			"|===============================================|
+			let l:initial = l:self.initialmatch
+		endif
 
-	let l:textlen = a:width
-	 \            - strwidth(l:initial)
-	 \            - strwidth(l:final)
-	 \            - (2 * strwidth(l:spacer))
+		let l:textlen = a:width
+		 \            - strwidth(l:initial)
+		 \            - strwidth(l:final)
+		 \            - (2 * strwidth(l:spacer))
 
-	let l:lines = []
-	for l:para in l:self.paragraphs
-		call extend(l:lines, l:para.GetFormat(l:textlen))
-	endfor
+		let l:lines = []
+		for l:para in l:self.paragraphs
+			call extend(l:lines, l:para.GetFormat(l:textlen))
+		endfor
 
-	if l:spacer !=# ''
-		call map(l:lines, 'l:spacer . v:val . l:spacer')
-	endif
+		if l:spacer !=# ''
+			call map(l:lines, 'l:spacer . v:val . l:spacer')
+		endif
 
-	call map(l:lines, 'l:initial . v:val . l:final')
+		call map(l:lines, 'l:initial . v:val . l:final')
 
-	if l:medial !=# ''
-		let l:wall = l:initial
-		 \         . strpart(repeat(l:medial, a:width),
-		 \                   0,
-		 \                   a:width - strwidth(l:initial)
-		 \                           - strwidth(l:final))
-		 \         . l:final
-		call insert(l:lines, l:wall)
-		call add(l:lines, l:wall)
-	endif
+		if l:medial !=# ''
+			let l:wall = l:initial
+			 \         . strpart(repeat(l:medial, a:width),
+			 \                   0,
+			 \                   a:width - strwidth(l:initial)
+			 \                           - strwidth(l:final))
+			 \         . l:final
+			call insert(l:lines, l:wall)
+			call add(l:lines, l:wall)
+		endif
 
-	return l:lines
-endfunction
-"|===========================================================================|
-"| }}}                                                                       |
-"|===========================================================================|
+		return l:lines
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
 
-"|===========================================================================|
-"|                             PRIVATE METHODS                               |
-"|===========================================================================|
+	"|===============================================|
+	"|                PRIVATE METHODS                |
+	"|===============================================|
 
-"|===========================================================================|
-"| block._GetRange(linenum) abort dict {{{                                   |
-"|                                                                           |
-"| Get block range around a given line.                                      |
-"|                                                                           |
-"| PARAMS:                                                                   |
-"|   linenum) The line around which to get the range.                        |
-"|                                                                           |
-"| Returns the 2list [l:first, l:last] of the range. If the specified line   |
-"| is not part of a block, throws.                                           |
-"|===========================================================================|
-function! s:GetRange(linenum) abort dict
-	let l:startlinematch = l:self.LineMatches(a:linenum)
-	if l:startlinematch == g:commentable#block#lmat_none
-		throw 'Commentable:NOT A COMMENT:Line ' . a:linenum
-	endif
+	"|===============================================|
+	"| self._GetRange(linenum) {{{                   |
+	"|                                               |
+	"| Get block range around a given line.          |
+	"|                                               |
+	"| PARAMS:                                       |
+	"|   linenum) The line around which to get the   |
+	"|            range.                             |
+	"|                                               |
+	"| Returns the 2list [l:first, l:last] of the    |
+	"| range. If the specified line is not part of a |
+	"| block, throws.                                |
+	"|===============================================|
+	function! l:self._GetRange(linenum)
+		let l:startlinematch = l:self.LineMatches(a:linenum)
+		if l:startlinematch == g:commentable#block#lmat_none
+			throw 'Commentable:NOT A COMMENT:Line ' . a:linenum
+		endif
 
-	let l:firstline = a:linenum
-	let l:lastline = a:linenum
-	let l:buflastline = line('$')
+		let l:firstline = a:linenum
+		let l:lastline = a:linenum
+		let l:buflastline = line('$')
 
-	if l:startlinematch == g:commentable#block#lmat_int
-		"|===============================================|
-		"| Internal line, look back and forth to find    |
-		"| the walls.                                    |
-		"|===============================================|
-		while l:firstline > 1
-			let l:abovematch = l:self.LineMatches(l:firstline - 1)
-
-			if l:abovematch == g:commentable#block#lmat_none
-				break
-			elseif l:abovematch == g:commentable#block#lmat_wall
-				let l:firstline -= 1
-				break
-			else
-				let l:firstline -= 1
-			endif
-		endwhile
-
-		while l:lastline < l:buflastline
-			let l:belowmatch = l:self.LineMatches(l:lastline + 1)
-
-			if l:belowmatch == g:commentable#block#lmat_none
-				break
-			elseif l:belowmatch == g:commentable#block#lmat_wall
-				let l:lastline += 1
-				break
-			else
-				let l:lastline += 1
-			endif
-		endwhile
-	elseif l:startlinematch == g:commentable#block#lmat_wall
-		"|===============================================|
-		"| Wall, look before and after to find which way |
-		"| to go. 0 = up, 1 = down.                      |
-		"|===============================================|
-		let l:goingdown =
-		 \ (l:lastline == l:buflastline       ||
-		 \  l:self.LineMatches(l:lastline + 1)
-		 \  == g:commentable#block#lmat_none    )
-		 \ ? 0
-		 \ : 1
-
-		if l:goingdown
-			while l:lastline < l:buflastline
-				let l:belowmatch = l:self.LineMatches(l:lastline + 1)
-
-				if l:belowmatch == g:commentable#block#lmat_none
-					break
-				elseif l:belowmatch == g:commentable#block#lmat_wall
-					let l:lastline += 1
-					break
-				else
-					let l:lastline += 1
-				endif
-			endwhile
-		else
+		if l:startlinematch == g:commentable#block#lmat_int
+			"|===============================================|
+			"| Internal line, look back and forth to find    |
+			"| the walls.                                    |
+			"|===============================================|
 			while l:firstline > 1
 				let l:abovematch = l:self.LineMatches(l:firstline - 1)
 
@@ -372,17 +324,74 @@ function! s:GetRange(linenum) abort dict
 					let l:firstline -= 1
 				endif
 			endwhile
-		endif
-	endif
 
-	return [l:firstline, l:lastline]
+			while l:lastline < l:buflastline
+				let l:belowmatch = l:self.LineMatches(l:lastline + 1)
+
+				if l:belowmatch == g:commentable#block#lmat_none
+					break
+				elseif l:belowmatch == g:commentable#block#lmat_wall
+					let l:lastline += 1
+					break
+				else
+					let l:lastline += 1
+				endif
+			endwhile
+		elseif l:startlinematch == g:commentable#block#lmat_wall
+			"|===============================================|
+			"| Wall, look before and after to find which way |
+			"| to go. 0 = up, 1 = down.                      |
+			"|===============================================|
+			let l:goingdown =
+			 \ (l:lastline == l:buflastline       ||
+			 \  l:self.LineMatches(l:lastline + 1)
+			 \  == g:commentable#block#lmat_none    )
+			 \ ? 0
+			 \ : 1
+
+			if l:goingdown
+				while l:lastline < l:buflastline
+					let l:belowmatch = l:self.LineMatches(l:lastline + 1)
+
+					if l:belowmatch == g:commentable#block#lmat_none
+						break
+					elseif l:belowmatch == g:commentable#block#lmat_wall
+						let l:lastline += 1
+						break
+					else
+						let l:lastline += 1
+					endif
+				endwhile
+			else
+				while l:firstline > 1
+					let l:abovematch = l:self.LineMatches(l:firstline - 1)
+
+					if l:abovematch == g:commentable#block#lmat_none
+						break
+					elseif l:abovematch == g:commentable#block#lmat_wall
+						let l:firstline -= 1
+						break
+					else
+						let l:firstline -= 1
+					endif
+				endwhile
+			endif
+		endif
+
+		return [l:firstline, l:lastline]
+	endfunction
+	"|===============================================|
+	"| }}}                                           |
+	"|===============================================|
+
+	return l:self
 endfunction
 "|===========================================================================|
 "| }}}                                                                       |
 "|===========================================================================|
 
 "|===========================================================================|
-"|                              PUBLIC FUNCTIONS                             |
+"|                            PUBLIC FUNCTIONS                               |
 "|===========================================================================|
 
 "|===========================================================================|

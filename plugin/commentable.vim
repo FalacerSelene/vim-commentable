@@ -58,7 +58,7 @@ command -nargs=0 -bar CommentableSetDefaultStyle call <SID>SetDefStyle()
 command -nargs=0 -bar CommentableSetDefaultBindings call <SID>SetDefBindings()
 
 "|===========================================================================|
-"|                                FUNCTIONS                                  |
+"|                            SCRIPT FUNCTIONS                               |
 "|===========================================================================|
 
 "|===========================================================================|

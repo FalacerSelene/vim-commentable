@@ -17,6 +17,16 @@ let s:t_string = v:version >= 800 ? v:t_string : type('')
 "|                                  CLASS                                    |
 "|===========================================================================|
 
+"|===========================================================================|
+"| commentable#style#New(indentamount) {{{                                   |
+"|                                                                           |
+"| Create a new style object. Only needs to know if it is indented or not.   |
+"|                                                                           |
+"| PARAMS:                                                                   |
+"|   indented) Is this an indented style?                                    |
+"|                                                                           |
+"| Returns the new object.                                                   |
+"|===========================================================================|
 function! commentable#style#New(indented) abort
 	let l:indented = a:indented > 0 ? 1 : 0
 	let l:self = {
@@ -174,3 +184,6 @@ function! commentable#style#New(indented) abort
 
 	return l:self.refresh()
 endfunction
+"|===========================================================================|
+"| }}}                                                                       |
+"|===========================================================================|
