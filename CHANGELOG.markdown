@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [unreleased]
 ------------
 
-### Changed
-- Suites now listed in tests/lua-modules/suites.lua rather than
-  tests/suites.cfg.
-
 ### Fixed
 - Now reformats blocks taking into account the indent of the start of the
   block, rather than where the cursor happens to be. Correctly uses the
   top-left corner as the anchor point.
+
+### Internal
+- Suites now listed in tests/lua-modules/suites.lua rather than
+  tests/suites.cfg. Doesn't affect runtime.
 
 [0.3.1] - 2018-06-11
 --------------------
@@ -31,7 +31,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - CommentableBlock/SubStyle now accepts a 'regex' part of the matcher to
   handle different comments within a single file.
-- ./run-most-recent-test script for faster testing in development.
 
 ### Changed
 - CommentableParagraphIntro now auto-inserts leading whitespace.
@@ -41,19 +40,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Now handles unicode text in comments
 - Now correctly handles blank lines which are too long
 
+### Internal
+- ./run-most-recent-test script for faster testing in development.
+
 [0.2.0] - 2017-03-25
 --------------------
 
 ### Added
 - CommentableSetDefaultBindings adds some standard maps.
-- Pretty colours for test output.
 
 ### Removed
 - No submodule dependencies.
 
 ### Changed
-- Better commenting througout.
 - CommentableCreate has join functionality.
+
+### Internal
+- Better commenting througout.
+- Pretty colours for test output.
 
 [0.1.0] - 2016-12-10
 --------------------
