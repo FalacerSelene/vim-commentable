@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Suites now listed in tests/lua-modules/suites.lua rather than
   tests/suites.cfg.
 
+### Fixed
+- Now reformats blocks taking into account the indent of the start of the
+  block, rather than where the cursor happens to be. Correctly uses the
+  top-left corner as the anchor point.
+
 [0.3.1] - 2018-06-11
 --------------------
 
