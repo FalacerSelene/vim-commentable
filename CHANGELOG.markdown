@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [unreleased]
 ------------
 
+[0.3.2] - 2018-09-25
+--------------------
+
 ### Fixed
 - Now reformats blocks taking into account the indent of the start of the
   block, rather than where the cursor happens to be. Correctly uses the
   top-left corner as the anchor point.
 
-### Internal
+### Other
 - Suites now listed in tests/lua-modules/suites.lua rather than
   tests/suites.cfg. Doesn't affect runtime.
 
@@ -40,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Now handles unicode text in comments
 - Now correctly handles blank lines which are too long
 
-### Internal
+### Other
 - ./run-most-recent-test script for faster testing in development.
 
 [0.2.0] - 2017-03-25
@@ -49,13 +52,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - CommentableSetDefaultBindings adds some standard maps.
 
-### Removed
-- No submodule dependencies.
-
 ### Changed
 - CommentableCreate has join functionality.
 
-### Internal
+### Removed
+- No submodule dependencies.
+
+### Other
 - Better commenting througout.
 - Pretty colours for test output.
 
@@ -66,6 +69,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Initial project structure, tests and functionality.
 
 [unreleased]: https://www.github.com/FalacerSelene/vim-commentable
+[0.3.2]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.3.2
 [0.3.1]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.3.1
 [0.3.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.3.0
 [0.2.0]: https://www.github.com/FalacerSelene/vim-commentable/tree/0.2.0
