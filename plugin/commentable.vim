@@ -8,7 +8,7 @@
 "|       AUTHOR:  @FalacerSelene                                             |
 "|      CONTACT:  < git at falacer-selene dot net >                          |
 "|      LICENCE:  See LICENCE.md                                             |
-"|      VERSION:  0.3.1 <alpha>                                              |
+"|      VERSION:  0.3.2 <alpha>                                              |
 "|                                                                           |
 "|===========================================================================|
 
@@ -24,7 +24,7 @@ elseif v:version < 704
 endif
 
 let g:loaded_commentable = 1
-let g:commentable_version = '0.3.1'
+let g:commentable_version = '0.3.2'
 lockvar g:commentable_version
 
 "|===========================================================================|

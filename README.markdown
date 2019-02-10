@@ -3,7 +3,7 @@ Commentable
 
 [![Travis Build Status](https://travis-ci.org/FalacerSelene/vim-commentable.svg?branch=master)](https://travis-ci.org/FalacerSelene/vim-commentable)
 
-Version: *0.3.1*
+Version: *0.3.2*
 
 1. [Introduction](#introduction)
 2. [Installation](#installation)

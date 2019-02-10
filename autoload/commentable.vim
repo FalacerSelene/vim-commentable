@@ -64,14 +64,18 @@ function! commentable#Reformat() abort range
 			continue
 		endif
 
-		let l:at_line = (l:elem[1] < a:firstline ? a:firstline : l:elem[1])
+		"|===============================================|
+		"| The top-left corner of each block is          |
+		"| considered the anchor point.                  |
+		"|===============================================|
+		let l:anchor_line = l:elem[1]
 
-		let l:indent = indent(l:at_line)
+		let l:indent = indent(l:anchor_line)
 		let l:indent_chars =
-		 \  substitute(getline(l:at_line), '\m^\(\s*\).*', '\1', '')
+		 \  substitute(getline(l:anchor_line), '\m^\(\s*\).*', '\1', '')
 		let l:block_width = <SID>GetCommentBlockWidth(l:indent)
 		let l:block = commentable#block#New(l:indent)
-		let [l:start_line, l:end_line] = l:block.AddExisting(l:at_line)
+		let [l:start_line, l:end_line] = l:block.AddExisting(l:anchor_line)
 		let l:lines = l:block.GetFormat(l:block_width)
 		call map(l:lines, 'l:indent_chars . v:val')
 
