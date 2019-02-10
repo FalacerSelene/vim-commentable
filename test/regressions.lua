@@ -57,6 +57,7 @@ local function parseargs (args)
 	local STATE_TESTDIR  = 2
 	local STATE_VIMRC    = 3
 	local STATE_READFILE = 4
+	local STATE_VIMBIN   = 5
 	local state          = STATE_NORM
 
 	local lastarg = nil
@@ -74,6 +75,8 @@ local function parseargs (args)
 				state = STATE_VIMRC
 			elseif                arg == '--fromfile'  then
 				state = STATE_READFILE
+			elseif arg == '-b' or arg == '--vimbinary' then
+				state = STATE_VIMBIN
 			elseif arg == '-r' or arg == '--resolve'   then
 				addarg('resolve_only', true, true)
 			elseif arg == '-c' or arg == '--colours'   then
@@ -98,6 +101,9 @@ local function parseargs (args)
 			state = STATE_NORM
 		elseif state == STATE_READFILE  then
 			addarg('readfile', arg, true)
+			state = STATE_NORM
+		elseif state == STATE_VIMBIN    then
+			addarg('vimbin', arg, true)
 			state = STATE_NORM
 		else
 			error("Programming error in parseargs()")
@@ -160,7 +166,14 @@ end
 local function runsingletest (name, args)
 	local profilename = "output/" .. name .. ".profile"
 	local profilenameext = args.testdir .. "/" .. profilename
-	local vimcmd = "vim -E -n -N -s"
+	local vimbin
+	if args.vimbin then
+		vimbin = args.vimbin
+	else
+		vimbin = 'vim'
+	end
+
+	local vimcmd = vimbin .. " -E -n -N -s"
 
 	if args.vimrc then
 		local curdir = os.getenv("PWD")
